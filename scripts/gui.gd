@@ -7,6 +7,8 @@ extends CanvasLayer
 func _ready() -> void:
 	var music_volume_slider = get_node("PauseMenu/MenuButtonsContainer/MusicVolumeSlider")
 	music_volume_slider.set_value(round(Audio.channel_volumes[Audio.Channels.Music] * 100))
+	var mute_button = get_node("PauseMenu/MenuButtonsContainer/MuteButton")
+	mute_button.text = "Unmute" if Audio.is_muted else "Mute"
 
 
 func toggle_pause() -> void:

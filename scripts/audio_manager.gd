@@ -35,6 +35,7 @@ func _ready():
 	channel_volumes[Channels.Music] = Settings.get_value("audio", "music_volume", 0.3)
 	channel_volumes[Channels.SFX] = Settings.get_value("audio", "sfx_volume", 0.5)
 	channel_volumes[Channels.Ambience] = Settings.get_value("audio", "ambience_volume", 0.5)
+	is_muted = Settings.get_value("audio", "muted", false)
 
 	# Pool setup for Music and Ambience (single player each)
 	channel_players[Channels.Music].append($MusicPlayer)
@@ -45,7 +46,15 @@ func _ready():
 		var sfx_player = AudioStreamPlayer.new()
 		add_child(sfx_player)  # Add dynamically to the scene
 		channel_players[Channels.SFX].append(sfx_player)
-	update_volumes() # Ensure volumes are set on startup
+
+	# Apply loaded mute state and volumes
+	if is_muted:
+		$MusicPlayer.volume_db = -80
+		for channel in [Channels.SFX, Channels.Ambience]:
+			for player in channel_players[channel]:
+				player.stop()
+	else:
+		update_volumes()
 
 	# Register debug commands
 	DebugConsole.register_command("mute", "Toggle audio mute")
@@ -94,6 +103,7 @@ func update_volumes() -> void:
 ## Mute or unmute all channels
 func toggle_mute() -> void:
 	is_muted = !is_muted
+	Settings.set_value("audio", "muted", is_muted)
 	if is_muted:
 		# For music, only turn off the volume to avoid stopping the music loop
 		$MusicPlayer.volume_db = -80
