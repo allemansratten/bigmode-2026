@@ -6,8 +6,12 @@ extends CharacterBody3D
 @export var gravity: float = 9.8
 ## Max distance to pick up an item
 @export var pickup_range: float = 2.0
+## How quickly the character rotates to face movement direction (1 = instant, lower = smoother)
+@export var facing_turn_speed: float = 8.0
 
 var _held_item: Node3D = null  # Root of the held item (e.g. Brick RigidBody3D)
+## Facing direction on XZ plane (x, z). Normalized when used for rotation.
+var _facing_direction: Vector2 = Vector2(0.0, -1.0)  # Start facing -Z (forward)
 
 func _ready() -> void:
 	add_to_group("player")
@@ -41,6 +45,12 @@ func _physics_process(delta: float) -> void:
 	if direction:
 		velocity.x = direction.x * move_speed
 		velocity.z = direction.z * move_speed
+		# Gradually rotate to face movement direction (2D XZ only)
+		var target_facing := Vector2(direction.x, direction.z)
+		_facing_direction = _facing_direction.lerp(target_facing, facing_turn_speed * delta)
+		if _facing_direction.length_squared() > 0.01:
+			_facing_direction = _facing_direction.normalized()
+			rotation.y = atan2(_facing_direction.x, -_facing_direction.y)
 	else:
 		velocity.x = move_toward(velocity.x, 0, move_speed)
 		velocity.z = move_toward(velocity.z, 0, move_speed)
@@ -95,8 +105,7 @@ func _try_throw() -> void:
 	var throwable: ThrowableBehaviour = _get_throwable_behaviour(_held_item)
 	if not throwable:
 		return
-	var direction := _get_throw_direction()
-	throwable.throw(direction, get_tree().current_scene)
+	throwable.throw(get_facing_direction(), get_tree().current_scene)
 	_held_item = null
 
 
@@ -107,8 +116,9 @@ func _get_throwable_behaviour(item_root: Node) -> ThrowableBehaviour:
 	return null
 
 
-func _get_throw_direction() -> Vector3:
-	var cam := get_viewport().get_camera_3d()
-	if cam:
-		return -cam.global_transform.basis.z
-	return -global_transform.basis.z
+## Returns the character's current facing direction on the XZ plane (normalized).
+## Use this for throw direction, aim, etc.
+func get_facing_direction() -> Vector3:
+	if _facing_direction.length_squared() < 0.01:
+		return -global_transform.basis.z
+	return Vector3(_facing_direction.x, 0.0, _facing_direction.y).normalized()
