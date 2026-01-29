@@ -1,7 +1,7 @@
-[gd_scene load_steps=6 format=3 uid="uid://room_test_001"]
+[gd_scene format=3 uid="uid://cbtqsmlrb4rl"]
 
-[ext_resource type="PackedScene" uid="uid://cplayer001" path="res://scenes/Player.tscn" id="1_player"]
-[ext_resource type="PackedScene" path="res://scenes/rooms/ExampleRoom.tscn" id="2_room"]
+[ext_resource type="Script" uid="uid://ct28mohnjjo36" path="res://scripts/room_test.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://cplayer001" path="res://scenes/Player.tscn" id="2_player"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 sky_top_color = Color(0.25, 0.45, 0.75, 1)
@@ -20,15 +20,14 @@ background_mode = 2
 sky = SubResource("Sky_main")
 ambient_light_energy = 0.7
 
-[node name="RoomTest" type="Node3D"]
+[node name="RoomTest" type="Node3D" unique_id=533320838]
+script = ExtResource("1_script")
 
-[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1985174024]
 environment = SubResource("Environment_main")
 
-[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=742355588]
 transform = Transform3D(0.8660253, -0.35355338, 0.3535538, 0, 0.70710725, 0.7071064, -0.50000024, -0.612372, 0.6123727, 0, 5, 0)
 
-[node name="ExampleRoom" parent="." instance=ExtResource("2_room")]
-
-[node name="Player" parent="." instance=ExtResource("1_player")]
+[node name="Player" parent="." unique_id=1550454572 instance=ExtResource("2_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)
