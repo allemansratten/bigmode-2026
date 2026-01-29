@@ -4,6 +4,13 @@ extends CharacterBody3D
 @export var move_speed: float = 5.0
 ## Downward acceleration when in the air
 @export var gravity: float = 9.8
+## Max distance to pick up an item
+@export var pickup_range: float = 2.0
+
+var _held_item: Node3D = null  # Root of the held item (e.g. Brick RigidBody3D)
+
+func _ready() -> void:
+	add_to_group("player")
 
 func _physics_process(delta: float) -> void:
 	# Apply gravity
@@ -39,3 +46,69 @@ func _physics_process(delta: float) -> void:
 		velocity.z = move_toward(velocity.z, 0, move_speed)
 
 	move_and_slide()
+
+
+func _unhandled_input(event: InputEvent) -> void:
+	if event.is_action_pressed("interact"):
+		_try_pick_up()
+	if event.is_action_pressed("throw"):
+		_try_throw()
+
+
+func _try_pick_up() -> void:
+	if _held_item != null:
+		return
+	var pickups := get_tree().get_nodes_in_group("pickupable")
+	var closest: Node3D = null
+	var closest_dist_sq := pickup_range * pickup_range
+	for node in pickups:
+		if not node is Node3D:
+			continue
+		var n: Node3D = node as Node3D
+		if not is_instance_valid(n) or not n.is_inside_tree():
+			continue
+		var d_sq := global_position.distance_squared_to(n.global_position)
+		if d_sq >= closest_dist_sq:
+			continue
+		var behaviour := _get_pickupable_behaviour(n)
+		if behaviour == null or behaviour.is_held():
+			continue
+		closest = n
+		closest_dist_sq = d_sq
+	if closest != null:
+		var behaviour: PickupableBehaviour = _get_pickupable_behaviour(closest)
+		if behaviour and behaviour.try_pick_up(self):
+			_held_item = closest
+
+
+func _get_pickupable_behaviour(item_root: Node) -> PickupableBehaviour:
+	for c in item_root.get_children():
+		if c is PickupableBehaviour:
+			return c as PickupableBehaviour
+	return null
+
+
+func _try_throw() -> void:
+	if _held_item == null or not is_instance_valid(_held_item):
+		_held_item = null
+		return
+	var throwable: ThrowableBehaviour = _get_throwable_behaviour(_held_item)
+	if not throwable:
+		return
+	var direction := _get_throw_direction()
+	throwable.throw(direction, get_tree().current_scene)
+	_held_item = null
+
+
+func _get_throwable_behaviour(item_root: Node) -> ThrowableBehaviour:
+	for c in item_root.get_children():
+		if c is ThrowableBehaviour:
+			return c as ThrowableBehaviour
+	return null
+
+
+func _get_throw_direction() -> Vector3:
+	var cam := get_viewport().get_camera_3d()
+	if cam:
+		return -cam.global_transform.basis.z
+	return -global_transform.basis.z

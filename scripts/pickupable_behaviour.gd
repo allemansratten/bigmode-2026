@@ -1,0 +1,66 @@
+class_name PickupableBehaviour
+extends Area3D
+
+## Composition behaviour: makes the parent node pickupable by the player.
+## Attach this script to an Area3D; the parent is the "item" (e.g. RigidBody3D).
+## Add the parent to group "pickupable" so the player can find it.
+
+signal picked_up(by: Node)
+
+## Optional: node path from holder to the container where the item is reparented (e.g. "HoldPoint")
+@export var holder_attach_path: NodePath = ^"HoldPoint"
+
+var _holder: Node3D
+
+func _ready() -> void:
+	body_entered.connect(_on_body_entered)
+	body_exited.connect(_on_body_exited)
+	# So the player can find items by group and get the root item
+	var item := get_parent()
+	if not item.is_in_group("pickupable"):
+		item.add_to_group("pickupable")
+
+
+func _on_body_entered(_body: Node3D) -> void:
+	# Optional: only react to player (CharacterBody3D named "Player" or in group "player")
+	pass
+
+
+func _on_body_exited(_body: Node3D) -> void:
+	pass
+
+
+## Call this from the player when interact is pressed and this item is the chosen target.
+## Returns true if the pickup succeeded.
+func try_pick_up(by: Node3D) -> bool:
+	var item: Node3D = get_parent()
+	if not item is RigidBody3D:
+		push_warning("PickupableBehaviour: parent %s is not a RigidBody3D" % item.name)
+		return false
+	var rb: RigidBody3D = item as RigidBody3D
+	if _holder != null:
+		return false
+	var attach: Node3D = by.get_node_or_null(holder_attach_path) if holder_attach_path else by
+	if attach == null:
+		attach = by
+	# Reparent item under holder and freeze so it doesn't fall
+	item.reparent(attach)
+	item.position = Vector3.ZERO
+	item.rotation = Vector3.ZERO
+	rb.freeze = true
+	_holder = by
+	picked_up.emit(by)
+	return true
+
+
+## Called when the item is thrown or dropped; clears holder reference.
+func clear_holder() -> void:
+	_holder = null
+
+
+func get_holder() -> Node3D:
+	return _holder
+
+
+func is_held() -> bool:
+	return _holder != null
