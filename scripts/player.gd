@@ -8,15 +8,45 @@ extends CharacterBody3D
 @export var pickup_range: float = 2.0
 ## How quickly the character rotates to face movement direction (1 = instant, lower = smoother)
 @export var facing_turn_speed: float = 8.0
+## Dash speed (horizontal only)
+@export var dash_speed: float = 14.0
+## How long the dash lasts (seconds)
+@export var dash_duration: float = 0.12
+## Cooldown before next dash (seconds)
+@export var dash_cooldown: float = 1
 
 var _held_item: Node3D = null  # Root of the held item (e.g. Brick RigidBody3D)
 ## Facing direction on XZ plane (x, z). Normalized when used for rotation.
 var _facing_direction: Vector2 = Vector2(0.0, -1.0)  # Start facing -Z (forward)
+var _dash_timer: float = 0.0
+var _dash_cooldown_remaining: float = 0.0
+var _dash_direction: Vector3 = Vector3.ZERO
 
 func _ready() -> void:
 	add_to_group("player")
 
 func _physics_process(delta: float) -> void:
+	# Dash: start on input, or apply velocity while active
+	if Input.is_action_just_pressed("dash") and _dash_timer <= 0.0 and _dash_cooldown_remaining <= 0.0:
+		var horizontal := Vector3(velocity.x, 0.0, velocity.z)
+		if horizontal.length_squared() > 0.01:
+			_dash_direction = horizontal.normalized()
+		else:
+			_dash_direction = get_facing_direction()
+		_dash_timer = dash_duration
+		_dash_cooldown_remaining = dash_cooldown
+
+	if _dash_timer > 0.0:
+		_dash_timer -= delta
+		velocity.x = _dash_direction.x * dash_speed
+		velocity.z = _dash_direction.z * dash_speed
+		velocity.y = 0.0
+		move_and_slide()
+		return
+
+	if _dash_cooldown_remaining > 0.0:
+		_dash_cooldown_remaining -= delta
+
 	# Apply gravity
 	if not is_on_floor():
 		velocity.y -= gravity * delta
