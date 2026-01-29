@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://cplayer001"]
 
 [ext_resource type="Script" uid="uid://d34iv2yt542bf" path="res://scripts/player.gd" id="1_player"]
+[ext_resource type="Script" uid="uid://ccvi13rbwbn8w" path="res://scripts/game_camera_3d.gd" id="2_cam"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_floor"]
 radius = 0.4
@@ -23,3 +24,7 @@ mesh = SubResource("CapsuleMesh_player")
 
 [node name="HoldPoint" type="Node3D" parent="." unique_id=1479909131]
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.6, 0.8, 0)
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1134331709]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 10, 8)
+script = ExtResource("2_cam")
