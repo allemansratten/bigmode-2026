@@ -1,0 +1,34 @@
+[gd_scene load_steps=6 format=3 uid="uid://room_test_001"]
+
+[ext_resource type="PackedScene" uid="uid://cplayer001" path="res://scenes/Player.tscn" id="1_player"]
+[ext_resource type="PackedScene" path="res://scenes/rooms/ExampleRoom.tscn" id="2_room"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
+sky_top_color = Color(0.25, 0.45, 0.75, 1)
+sky_horizon_color = Color(0.55, 0.7, 0.9, 1)
+sky_curve = 0.12
+sky_energy_multiplier = 1.2
+ground_bottom_color = Color(0.28627452, 0.5058824, 0.70980394, 1)
+ground_horizon_color = Color(0.54901963, 0.7019608, 0.9019608, 1)
+ground_curve = 0.060628664
+
+[sub_resource type="Sky" id="Sky_main"]
+sky_material = SubResource("ProceduralSkyMaterial_sky")
+
+[sub_resource type="Environment" id="Environment_main"]
+background_mode = 2
+sky = SubResource("Sky_main")
+ambient_light_energy = 0.7
+
+[node name="RoomTest" type="Node3D"]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="."]
+environment = SubResource("Environment_main")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="."]
+transform = Transform3D(0.8660253, -0.35355338, 0.3535538, 0, 0.70710725, 0.7071064, -0.50000024, -0.612372, 0.6123727, 0, 5, 0)
+
+[node name="ExampleRoom" parent="." instance=ExtResource("2_room")]
+
+[node name="Player" parent="." instance=ExtResource("1_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)

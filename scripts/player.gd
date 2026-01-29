@@ -1,7 +1,7 @@
 extends CharacterBody3D
 
 ## Move speed in m/s
-@export var move_speed: float = 5.0
+@export var move_speed: float = 6.0
 ## Downward acceleration when in the air
 @export var gravity: float = 9.8
 ## Max distance to pick up an item
@@ -9,9 +9,9 @@ extends CharacterBody3D
 ## How quickly the character rotates to face movement direction (1 = instant, lower = smoother)
 @export var facing_turn_speed: float = 8.0
 ## Dash speed (horizontal only)
-@export var dash_speed: float = 14.0
+@export var dash_speed: float = 15.0
 ## How long the dash lasts (seconds)
-@export var dash_duration: float = 0.12
+@export var dash_duration: float = 0.16
 ## Cooldown before next dash (seconds)
 @export var dash_cooldown: float = 1
 
