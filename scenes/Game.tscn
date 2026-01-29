@@ -1,0 +1,14 @@
+[gd_scene format=3 uid="uid://b1nf5vnllrym4"]
+
+[ext_resource type="Script" uid="uid://b2qim3ljwi076" path="res://scripts/game.gd" id="1_e3hwy"]
+[ext_resource type="PackedScene" uid="uid://fjrqjm0d4cgo" path="res://scenes/ui/GUI.tscn" id="2_3x8es"]
+[ext_resource type="Script" uid="uid://cu5rcg1eqd8rh" path="res://scripts/game_camera.gd" id="3_u8p1t"]
+
+[node name="Game" type="Node2D" unique_id=999502841]
+script = ExtResource("1_e3hwy")
+
+[node name="GUI" parent="." unique_id=293961667 instance=ExtResource("2_3x8es")]
+
+[node name="Camera2D" type="Camera2D" parent="." unique_id=1182547641]
+position = Vector2(577, 323)
+script = ExtResource("3_u8p1t")

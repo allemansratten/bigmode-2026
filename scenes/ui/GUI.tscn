@@ -1,0 +1,92 @@
+[gd_scene format=3 uid="uid://fjrqjm0d4cgo"]
+
+[ext_resource type="Script" uid="uid://b74njcstlbwr0" path="res://scripts/gui.gd" id="1_ryfot"]
+[ext_resource type="PackedScene" uid="uid://7mw7ks5a4eoy" path="res://scenes/ui/SliderInput.tscn" id="2_axd2y"]
+
+[node name="GUI" type="CanvasLayer" unique_id=1815677998]
+script = ExtResource("1_ryfot")
+metadata/_edit_use_anchors_ = true
+
+[node name="PauseMenu" type="Control" parent="." unique_id=143093397]
+process_mode = 2
+visible = false
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Label" type="Label" parent="PauseMenu" unique_id=1364495048]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -576.0
+offset_top = 16.0
+offset_right = 576.0
+offset_bottom = 104.0
+grow_horizontal = 2
+theme_override_font_sizes/font_size = 64
+text = "Game Paused"
+horizontal_alignment = 1
+
+[node name="MenuButtonsContainer" type="VBoxContainer" parent="PauseMenu" unique_id=789842027]
+layout_direction = 2
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -119.0
+offset_top = 15.0
+offset_right = 122.0
+offset_bottom = 279.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 8
+alignment = 1
+
+[node name="ResumeButton" type="Button" parent="PauseMenu/MenuButtonsContainer" unique_id=1725339987]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+text = "Resume"
+
+[node name="MuteButton" type="Button" parent="PauseMenu/MenuButtonsContainer" unique_id=799850086]
+custom_minimum_size = Vector2(0, 46)
+layout_mode = 2
+text = "Mute"
+
+[node name="MusicVolumeSlider" parent="PauseMenu/MenuButtonsContainer" unique_id=520349234 instance=ExtResource("2_axd2y")]
+layout_mode = 2
+label_text = "Music volume"
+input_value = 50
+
+[node name="BasicOverlay" type="Control" parent="." unique_id=1542107131]
+process_mode = 3
+layout_mode = 3
+anchors_preset = 0
+offset_right = 1158.0
+offset_bottom = 83.0
+
+[node name="PauseButton" type="Button" parent="BasicOverlay" unique_id=1055633416]
+layout_mode = 0
+offset_left = 1086.0
+offset_top = 16.0
+offset_right = 1132.0
+offset_bottom = 62.0
+text = "II"
+
+[node name="TimestampLabel" type="Label" parent="BasicOverlay" unique_id=415897535]
+layout_mode = 0
+offset_left = 8.0
+offset_top = 8.0
+offset_right = 48.0
+offset_bottom = 31.0
+text = "0"
+
+[connection signal="pressed" from="PauseMenu/MenuButtonsContainer/ResumeButton" to="." method="toggle_pause"]
+[connection signal="pressed" from="PauseMenu/MenuButtonsContainer/MuteButton" to="." method="_on_mute_button_pressed"]
+[connection signal="input_changed" from="PauseMenu/MenuButtonsContainer/MusicVolumeSlider" to="." method="_on_music_volume_slider_input_changed"]
+[connection signal="pressed" from="BasicOverlay/PauseButton" to="." method="toggle_pause"]

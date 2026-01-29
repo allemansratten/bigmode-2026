@@ -1,0 +1,15 @@
+[gd_scene format=3 uid="uid://7mw7ks5a4eoy"]
+
+[ext_resource type="Script" uid="uid://co1typuix8a" path="res://scenes/ui/slider_input.gd" id="1_m8cba"]
+
+[node name="SliderInput" type="VBoxContainer" unique_id=1535396924]
+offset_right = 210.0
+offset_bottom = 48.0
+script = ExtResource("1_m8cba")
+
+[node name="Label" type="Label" parent="." unique_id=1886954979]
+layout_mode = 2
+text = "Default Label"
+
+[node name="HSlider" type="HSlider" parent="." unique_id=370885325]
+layout_mode = 2

@@ -1,0 +1,13 @@
+[gd_scene format=3 uid="uid://btbd8eu1qt6va"]
+
+[ext_resource type="Script" uid="uid://v32ullxo36d2" path="res://scripts/audio_manager.gd" id="1_ygykp"]
+
+[node name="AudioManager" type="Node" unique_id=69891556]
+script = ExtResource("1_ygykp")
+
+[node name="MusicPlayer" type="AudioStreamPlayer" parent="." unique_id=1365209555]
+process_mode = 3
+
+[node name="AmbiencePlayer" type="AudioStreamPlayer" parent="." unique_id=1866319648]
+
+[connection signal="finished" from="MusicPlayer" to="." method="_on_music_player_finished"]
