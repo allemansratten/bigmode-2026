@@ -48,14 +48,25 @@ func try_pick_up(by: Node3D) -> bool:
 	item.position = Vector3.ZERO
 	item.rotation = Vector3.ZERO
 	rb.freeze = true
+	_set_item_collision(item, false)
 	_holder = by
 	picked_up.emit(by)
 	return true
 
 
-## Called when the item is thrown or dropped; clears holder reference.
+## Called when the item is thrown or dropped; clears holder reference and re-enables collision.
 func clear_holder() -> void:
+	var item: Node3D = get_parent()
+	_set_item_collision(item, true)
 	_holder = null
+
+
+## Enable or disable all CollisionShape3D nodes under root (item and its descendants).
+func _set_item_collision(item: Node, enabled: bool) -> void:
+	if item is CollisionShape3D:
+		(item as CollisionShape3D).disabled = not enabled
+	for child in item.get_children():
+		_set_item_collision(child, enabled)
 
 
 func get_holder() -> Node3D:

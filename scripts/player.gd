@@ -15,9 +15,9 @@ extends CharacterBody3D
 ## Cooldown before next dash (seconds)
 @export var dash_cooldown: float = 1
 
-var _held_item: Node3D = null  # Root of the held item (e.g. Brick RigidBody3D)
+var _held_item: Node3D = null # Root of the held item (e.g. Brick RigidBody3D)
 ## Facing direction on XZ plane (x, z). Normalized when used for rotation.
-var _facing_direction: Vector2 = Vector2(0.0, -1.0)  # Start facing -Z (forward)
+var _facing_direction: Vector2 = Vector2(0.0, -1.0) # Start facing -Z (forward)
 var _dash_timer: float = 0.0
 var _dash_cooldown_remaining: float = 0.0
 var _dash_direction: Vector3 = Vector3.ZERO
@@ -76,11 +76,11 @@ func _physics_process(delta: float) -> void:
 		velocity.x = direction.x * move_speed
 		velocity.z = direction.z * move_speed
 		# Gradually rotate to face movement direction (2D XZ only)
-		var target_facing := Vector2(direction.x, direction.z)
+		var target_facing := Vector2(direction.x, direction.z).normalized()
 		_facing_direction = _facing_direction.lerp(target_facing, facing_turn_speed * delta)
 		if _facing_direction.length_squared() > 0.01:
 			_facing_direction = _facing_direction.normalized()
-			rotation.y = atan2(_facing_direction.x, -_facing_direction.y)
+			rotation.y = -atan2(_facing_direction.x, -_facing_direction.y)
 	else:
 		velocity.x = move_toward(velocity.x, 0, move_speed)
 		velocity.z = move_toward(velocity.z, 0, move_speed)
