@@ -1,4 +1,4 @@
-[gd_scene load_steps=7 format=3 uid="uid://brick001"]
+[gd_scene load_steps=8 format=3 uid="uid://brick001"]
 
 [ext_resource type="Script" path="res://scripts/pickupable_behaviour.gd" id="1_pickup"]
 [ext_resource type="Script" path="res://scripts/throwable_behaviour.gd" id="2_throw"]
@@ -6,7 +6,11 @@
 [sub_resource type="BoxShape3D" id="BoxShape3D_brick"]
 size = Vector3(0.35, 0.2, 0.12)
 
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_brick"]
+albedo_color = Color(0.8, 0.35, 0.1, 1)
+
 [sub_resource type="BoxMesh" id="BoxMesh_brick"]
+material = SubResource("StandardMaterial3D_brick")
 size = Vector3(0.35, 0.2, 0.12)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_pickup_area"]
