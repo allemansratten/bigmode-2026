@@ -3,6 +3,7 @@
 [ext_resource type="Script" path="res://scripts/items/pickupable_behaviour.gd" id="1_pickup"]
 [ext_resource type="Script" path="res://scripts/items/throwable_behaviour.gd" id="2_throw"]
 [ext_resource type="Script" path="res://scripts/items/spawnable_behaviour.gd" id="3_spawnable"]
+[ext_resource type="Script" path="res://scripts/items/melee_weapon_behaviour.gd" id="4_weapon"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_brick"]
 size = Vector3(0.35, 0.2, 0.12)
@@ -44,3 +45,12 @@ script = ExtResource("2_throw")
 script = ExtResource("3_spawnable")
 categories = Array[int]([0, 10, 20, 24])
 spawn_weight = 1.0
+
+[node name="MeleeWeaponBehaviour" type="Node" parent="."]
+script = ExtResource("4_weapon")
+max_durability = 50
+damage = 15.0
+attack_cooldown = 0.8
+swing_range = 2.0
+swing_angle = 90.0
+knockback_force = 8.0

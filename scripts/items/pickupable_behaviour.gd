@@ -6,6 +6,7 @@ extends Area3D
 ## Add the parent to group "pickupable" so the player can find it.
 
 signal picked_up(by: Node)
+signal dropped()
 
 ## Optional: node path from holder to the container where the item is reparented (e.g. "HoldPoint")
 @export var holder_attach_path: NodePath = ^"HoldPoint"
@@ -59,6 +60,7 @@ func clear_holder() -> void:
 	var item: Node3D = get_parent()
 	_set_item_collision(item, true)
 	_holder = null
+	dropped.emit()
 
 
 ## Enable or disable all CollisionShape3D nodes under root (item and its descendants).
