@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://yhnq5bvgu0a" path="res://scripts/item_spawning_manager.gd" id="2_spawning"]
 [ext_resource type="PackedScene" path="res://scenes/ItemSpawnPoint.tscn" id="4_spawn_point"]
 [ext_resource type="PackedScene" path="res://scenes/ItemThrowTarget.tscn" id="5_throw_target"]
-[ext_resource type="PackedScene" uid="uid://people_spawner_001" path="res://scenes/PeopleSpawner.tscn" id="6_spawner"]
+[ext_resource type="PackedScene" path="res://scenes/PeopleSpawner.tscn" id="6_spawner"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
 size = Vector3(20, 0.2, 20)
@@ -113,5 +113,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.5, -3)
 [node name="ThrowTarget5" parent="ItemSpawningManager" unique_id=602858523 instance=ExtResource("5_throw_target")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 6)
 
-[node name="CrowdWest" parent="." instance=ExtResource("6_spawner")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, 0)
+[node name="CrowdWest" parent="." unique_id=1388655268 instance=ExtResource("6_spawner")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.887893, 0, 0)
+spawn_area_size = Vector2(5.0183067, 18.764166)

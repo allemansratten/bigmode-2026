@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://people_spawner_001"]
+
+[ext_resource type="Script" path="res://scripts/people_spawner.gd" id="1_spawner"]
+
+[node name="PeopleSpawner" type="Node3D"]
+script = ExtResource("1_spawner")
+spawn_area_size = Vector2(8, 6)
+spacing = 1.0
+spawn_height = 0.0

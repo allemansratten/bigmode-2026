@@ -1,0 +1,11 @@
+[gd_scene load_steps=2 format=3 uid="uid://crowd_scene_001"]
+
+[ext_resource type="Script" path="res://scripts/people_spawner.gd" id="1_spawner"]
+
+[node name="CrowdScene" type="Node3D"]
+
+[node name="PeopleSpawner" type="Node3D" parent="."]
+script = ExtResource("1_spawner")
+spawn_area_size = Vector2(8, 6)
+spacing = 1.0
+spawn_height = 0.0
