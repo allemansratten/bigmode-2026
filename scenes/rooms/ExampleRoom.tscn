@@ -2,9 +2,9 @@
 
 [ext_resource type="PackedScene" path="res://scenes/RoomConnector.tscn" id="1_connector"]
 [ext_resource type="Script" uid="uid://yhnq5bvgu0a" path="res://scripts/item_spawning_manager.gd" id="2_spawning"]
-[ext_resource type="PackedScene" uid="uid://brick001" path="res://scenes/items/Brick.tscn" id="3_brick"]
 [ext_resource type="PackedScene" path="res://scenes/ItemSpawnPoint.tscn" id="4_spawn_point"]
 [ext_resource type="PackedScene" path="res://scenes/ItemThrowTarget.tscn" id="5_throw_target"]
+[ext_resource type="PackedScene" uid="uid://people_spawner_001" path="res://scenes/PeopleSpawner.tscn" id="6_spawner"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
 size = Vector3(20, 0.2, 20)
@@ -89,7 +89,6 @@ spawn_facing_degrees = 180.0
 [node name="ItemSpawningManager" type="Node" parent="." unique_id=1081236601]
 script = ExtResource("2_spawning")
 allowed_categories = Array[int]([10])
-item_pool = Array[PackedScene]([ExtResource("3_brick")])
 throw_force = 7.0
 arc_height = 3.0
 
@@ -113,3 +112,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.5, -3)
 
 [node name="ThrowTarget5" parent="ItemSpawningManager" unique_id=602858523 instance=ExtResource("5_throw_target")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 6)
+
+[node name="CrowdWest" parent="." instance=ExtResource("6_spawner")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, 0)

@@ -9,9 +9,6 @@ const Categories = preload("res://scripts/item_categories.gd")
 ## Tags that items must match to spawn in this room (uses matches_any)
 @export var allowed_categories: Array[Categories.Category] = []
 
-## Pool of spawnable item scenes (must have SpawnableBehaviour)
-@export var item_pool: Array[PackedScene] = []
-
 ## Throw force magnitude
 @export var throw_force: float = 10.0
 
@@ -65,14 +62,13 @@ func _cache_spawn_nodes() -> void:
 func _cache_valid_items() -> void:
 	valid_items.clear()
 
-	for item_scene in item_pool:
-		if _item_matches_categories(item_scene):
-			valid_items.append(item_scene)
+	# Query ItemRegistry for items matching our categories
+	valid_items = ItemRegistry.get_items_matching_any(allowed_categories)
 
 	if valid_items.is_empty():
-		push_error("ItemSpawningManager: no items in pool match allowed categories")
+		push_error("ItemSpawningManager: no items match allowed categories")
 
-	print("ItemSpawningManager: %d/%d items match allowed categories" % [valid_items.size(), item_pool.size()])
+	print("ItemSpawningManager: %d items match allowed categories %s" % [valid_items.size(), allowed_categories])
 
 
 ## Spawn a random item matching room's allowed categories
@@ -94,24 +90,6 @@ func spawn_item() -> Node3D:
 	_throw_item(item, spawn_point.global_position, throw_target.global_position)
 
 	return item
-
-
-## Check if an item scene matches allowed categories
-func _item_matches_categories(item_scene: PackedScene) -> bool:
-	# If no category restrictions, allow all
-	if allowed_categories.is_empty():
-		return true
-
-	# Instantiate temporarily to check categories
-	var temp_item = item_scene.instantiate()
-	var spawnable = temp_item.get_node_or_null("SpawnableBehaviour") as SpawnableBehaviour
-
-	var matches = false
-	if spawnable:
-		matches = spawnable.matches_any(allowed_categories)
-
-	temp_item.queue_free()
-	return matches
 
 
 ## Pick a weighted random throw target

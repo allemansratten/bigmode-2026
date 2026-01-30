@@ -8,6 +8,23 @@
 
 config_version=5
 
+[application]
+
+config/name="game-template"
+run/main_scene="res://scenes/Game.tscn"
+config/features=PackedStringArray("4.6", "GL Compatibility")
+config/icon="res://icon.svg"
+
+[autoload]
+
+DebugConsole="*res://scenes/globals/DebugConsole.tscn"
+Settings="*res://scenes/globals/SettingsManager.tscn"
+EventBus="*res://scenes/globals/EventBus.tscn"
+Audio="*res://scenes/globals/AudioManager.tscn"
+MusicController="*res://scenes/globals/MusicController.tscn"
+SceneManager="*res://scripts/scene_manager.gd"
+ItemRegistry="*res://scripts/item_registry.gd"
+
 [display]
 
 window/size/viewport_width=1920
@@ -15,12 +32,9 @@ window/size/viewport_height=1080
 window/stretch/mode="viewport"
 window/stretch/aspect="expand"
 
-[application]
+[editor_plugins]
 
-config/name="game-template"
-run/main_scene="res://scenes/Game.tscn"
-config/features=PackedStringArray("4.6", "GL Compatibility")
-config/icon="res://icon.svg"
+enabled=PackedStringArray("res://addons/people_spawner_gizmo/plugin.cfg")
 
 [input]
 
@@ -60,21 +74,12 @@ dash={
 ]
 }
 
-[autoload]
-
-DebugConsole="*res://scenes/globals/DebugConsole.tscn"
-Settings="*res://scenes/globals/SettingsManager.tscn"
-EventBus="*res://scenes/globals/EventBus.tscn"
-Audio="*res://scenes/globals/AudioManager.tscn"
-MusicController="*res://scenes/globals/MusicController.tscn"
-SceneManager="*res://scripts/scene_manager.gd"
-
 [layer_names]
 
-3d_physics/layer_0="environment"
 3d_physics/layer_2="player"
 3d_physics/layer_3="item"
 3d_physics/layer_4="enemy"
+3d_physics/layer_0="environment"
 
 [rendering]
 
