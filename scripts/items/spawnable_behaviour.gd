@@ -4,7 +4,7 @@ class_name SpawnableBehaviour
 ## Marks an item as spawnable and defines its category tags
 ## Add this as a child node to any spawnable item (weapon, powerup, etc.)
 
-const Categories = preload("res://scripts/item_categories.gd")
+const Categories = preload("res://scripts/core/item_categories.gd")
 
 ## Category tags for this item (rarity, type, specific)
 @export var categories: Array[Categories.Category] = []

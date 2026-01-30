@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cpvy03ndo6rys"]
 
-[ext_resource type="Script" path="res://scripts/settings_manager.gd" id="1_abcde"]
+[ext_resource type="Script" path="res://scripts/autoloads/settings_manager.gd" id="1_abcde"]
 
 [node name="SettingsManager" type="Node"]
 script = ExtResource("1_abcde")

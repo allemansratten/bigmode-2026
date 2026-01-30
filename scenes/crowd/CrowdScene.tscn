@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://crowd_scene_001"]
 
-[ext_resource type="Script" path="res://scripts/people_spawner.gd" id="1_spawner"]
+[ext_resource type="Script" path="res://scripts/crowd/people_spawner.gd" id="1_spawner"]
 
 [node name="CrowdScene" type="Node3D"]
 

@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://b5ye7aiomms1g"]
 
 [ext_resource type="PackedScene" path="res://scenes/RoomConnector.tscn" id="1_connector"]
-[ext_resource type="Script" uid="uid://yhnq5bvgu0a" path="res://scripts/item_spawning_manager.gd" id="2_spawning"]
+[ext_resource type="Script" uid="uid://yhnq5bvgu0a" path="res://scripts/rooms/item_spawning_manager.gd" id="2_spawning"]
 [ext_resource type="PackedScene" path="res://scenes/ItemSpawnPoint.tscn" id="4_spawn_point"]
 [ext_resource type="PackedScene" path="res://scenes/ItemThrowTarget.tscn" id="5_throw_target"]
 [ext_resource type="PackedScene" uid="uid://crowd_manager_001" path="res://scenes/CrowdManager.tscn" id="6_manager"]

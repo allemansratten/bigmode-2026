@@ -1,6 +1,6 @@
 [gd_scene load_steps=5 format=3 uid="uid://room_connector_001"]
 
-[ext_resource type="Script" path="res://scripts/room_connector.gd" id="1_connector"]
+[ext_resource type="Script" path="res://scripts/rooms/room_connector.gd" id="1_connector"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_trigger"]
 size = Vector3(2, 2.5, 1)

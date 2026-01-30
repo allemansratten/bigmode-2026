@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://b1nf5vnllrym4"]
 
-[ext_resource type="Script" uid="uid://b2qim3ljwi076" path="res://scripts/game.gd" id="1_e3hwy"]
+[ext_resource type="Script" uid="uid://b2qim3ljwi076" path="res://scripts/core/game.gd" id="1_e3hwy"]
 [ext_resource type="PackedScene" uid="uid://fjrqjm0d4cgo" path="res://scenes/ui/GUI.tscn" id="2_3x8es"]
 [ext_resource type="PackedScene" uid="uid://cplayer001" path="res://scenes/Player.tscn" id="3_player"]
 [ext_resource type="PackedScene" uid="uid://brick001" path="res://scenes/items/Brick.tscn" id="5_brick"]

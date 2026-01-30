@@ -1,6 +1,6 @@
 [gd_scene load_steps=2 format=3 uid="uid://item_spawn_point_001"]
 
-[ext_resource type="Script" path="res://scripts/item_spawn_point.gd" id="1_script"]
+[ext_resource type="Script" path="res://scripts/rooms/item_spawn_point.gd" id="1_script"]
 
 [node name="ItemSpawnPoint" type="Marker3D"]
 script = ExtResource("1_script")

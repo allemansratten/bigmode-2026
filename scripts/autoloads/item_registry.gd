@@ -3,7 +3,7 @@ extends Node
 ## Global item registry for spawnable items
 ## Discovers and caches items by category tags
 
-const Categories = preload("res://scripts/item_categories.gd")
+const Categories = preload("res://scripts/core/item_categories.gd")
 
 ## All registered spawnable item scenes
 var all_items: Array[PackedScene] = []

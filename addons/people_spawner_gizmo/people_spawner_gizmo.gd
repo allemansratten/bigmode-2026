@@ -1,7 +1,7 @@
 @tool
 extends EditorNode3DGizmoPlugin
 
-const PeopleSpawner = preload("res://scripts/people_spawner.gd")
+const PeopleSpawner = preload("res://scripts/crowd/people_spawner.gd")
 
 
 func _init() -> void:

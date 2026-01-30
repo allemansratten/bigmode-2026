@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://cbtqsmlrb4rl"]
 
-[ext_resource type="Script" uid="uid://ct28mohnjjo36" path="res://scripts/room_test.gd" id="1_script"]
+[ext_resource type="Script" uid="uid://ct28mohnjjo36" path="res://scripts/rooms/room_test.gd" id="1_script"]
 [ext_resource type="PackedScene" uid="uid://cplayer001" path="res://scenes/Player.tscn" id="2_player"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]

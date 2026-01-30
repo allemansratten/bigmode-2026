@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://fjrqjm0d4cgo"]
 
-[ext_resource type="Script" uid="uid://b74njcstlbwr0" path="res://scripts/gui.gd" id="1_ryfot"]
+[ext_resource type="Script" uid="uid://b74njcstlbwr0" path="res://scripts/ui/gui.gd" id="1_ryfot"]
 [ext_resource type="PackedScene" uid="uid://7mw7ks5a4eoy" path="res://scenes/ui/SliderInput.tscn" id="2_axd2y"]
 
 [node name="GUI" type="CanvasLayer" unique_id=1815677998]

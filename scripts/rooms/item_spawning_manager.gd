@@ -4,7 +4,7 @@ class_name ItemSpawningManager
 ## Manages item spawning for a room
 ## Attach to room root; spawn items from spawn points to throw targets
 
-const Categories = preload("res://scripts/item_categories.gd")
+const Categories = preload("res://scripts/core/item_categories.gd")
 
 ## Tags that items must match to spawn in this room (uses matches_any)
 @export var allowed_categories: Array[Categories.Category] = []

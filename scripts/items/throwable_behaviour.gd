@@ -5,7 +5,7 @@ extends Node
 ## Attach this script to a Node; the parent must be a RigidBody3D and have PickupableBehaviour.
 ## Call throw() when the holder releases (e.g. from player input).
 
-const PickupableBehaviourScript := preload("res://scripts/pickupable_behaviour.gd")
+const PickupableBehaviourScript := preload("res://scripts/items/pickupable_behaviour.gd")
 
 ## Impulse force applied when thrown (tune per item)
 @export var throw_force: float = 12.0

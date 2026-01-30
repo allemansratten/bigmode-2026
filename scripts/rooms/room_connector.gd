@@ -4,7 +4,7 @@ class_name RoomConnector
 ## Bidirectional connector for entering/exiting rooms
 ## Detects player interaction and triggers room transition
 
-const Layers = preload("res://scripts/collision_layers.gd")
+const Layers = preload("res://scripts/core/collision_layers.gd")
 
 ## Target room ID to transition to (from SceneManager.Room enum)
 @export var target_room_id: SceneManager.Room = SceneManager.Room.EXAMPLE_ROOM
