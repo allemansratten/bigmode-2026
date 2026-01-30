@@ -1,0 +1,50 @@
+[gd_scene format=3 uid="uid://ranged_enemy001"]
+
+[ext_resource type="Script" path="res://scripts/enemies/enemy.gd" id="1_enemy"]
+[ext_resource type="Script" path="res://scripts/enemies/ranged_movement_behaviour.gd" id="2_ranged_move"]
+[ext_resource type="Script" path="res://scripts/enemies/ranged_attack_behaviour.gd" id="3_ranged_attack"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_enemy"]
+radius = 0.35
+height = 1.6
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_enemy"]
+albedo_color = Color(0.2, 0.5, 0.8, 1)
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_enemy"]
+material = SubResource("StandardMaterial3D_enemy")
+radius = 0.35
+height = 1.6
+
+[node name="RangedEnemy" type="CharacterBody3D" groups=["enemy"]]
+collision_layer = 8
+collision_mask = 3
+script = ExtResource("1_enemy")
+max_health = 75.0
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+shape = SubResource("CapsuleShape3D_enemy")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
+mesh = SubResource("CapsuleMesh_enemy")
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
+path_desired_distance = 0.5
+target_desired_distance = 0.5
+avoidance_enabled = true
+
+[node name="RangedMovementBehaviour" type="Node" parent="."]
+script = ExtResource("2_ranged_move")
+max_distance = 12.0
+approach_distance = 10.0
+min_distance = 4.0
+retreat_distance = 6.0
+move_speed = 3.0
+
+[node name="RangedAttackBehaviour" type="Node" parent="."]
+script = ExtResource("3_ranged_attack")
+damage = 8.0
+attack_range = 10.0
+attack_cooldown = 2.0
