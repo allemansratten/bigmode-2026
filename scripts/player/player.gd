@@ -14,7 +14,13 @@ extends CharacterBody3D
 @export var dash_duration: float = 0.16
 ## Cooldown before next dash (seconds)
 @export var dash_cooldown: float = 1
+## Player health
+@export var max_health: float = 100.0
 
+signal health_changed(current: float, maximum: float)
+signal died()
+
+var current_health: float = max_health
 var _held_item: Node3D = null # Root of the held item (e.g. Brick RigidBody3D)
 var _held_melee_weapon: MeleeWeaponBehaviour = null
 var _held_ranged_weapon: RangedWeaponBehaviour = null
@@ -26,6 +32,7 @@ var _dash_direction: Vector3 = Vector3.ZERO
 
 func _ready() -> void:
 	add_to_group("player")
+	current_health = max_health
 
 func _physics_process(delta: float) -> void:
 	# Dash: start on input, or apply velocity while active
@@ -185,6 +192,27 @@ func _on_item_dropped() -> void:
 	_held_item = null
 	_held_melee_weapon = null
 	_held_ranged_weapon = null
+
+
+## Takes damage from an enemy or other source
+func take_damage(amount: float, source: Node3D = null) -> void:
+	if current_health <= 0:
+		return  # Already dead
+
+	current_health -= amount
+	health_changed.emit(current_health, max_health)
+
+	print("Player took %s damage. Health: %s/%s" % [amount, current_health, max_health])
+
+	if current_health <= 0:
+		current_health = 0
+		die()
+
+
+func die() -> void:
+	print("Player died!")
+	died.emit()
+	# TODO: Death animation, respawn, game over screen, etc.
 
 
 ## Returns the character's current facing direction on the XZ plane (normalized).

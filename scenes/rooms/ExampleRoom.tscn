@@ -6,6 +6,11 @@
 [ext_resource type="PackedScene" path="res://scenes/ItemThrowTarget.tscn" id="5_throw_target"]
 [ext_resource type="PackedScene" path="res://scenes/crowd/CrowdManager.tscn" id="6_manager"]
 [ext_resource type="PackedScene" path="res://scenes/crowd/PeopleSpawner.tscn" id="7_spawner"]
+[ext_resource type="PackedScene" uid="uid://enemy001" path="res://scenes/enemies/Enemy.tscn" id="8_enemy"]
+
+[sub_resource type="NavigationMesh" id="NavigationMesh_room"]
+vertices = PackedVector3Array()
+polygons = []
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
 size = Vector3(20, 0.2, 20)
@@ -35,6 +40,9 @@ material = SubResource("StandardMaterial3D_wall")
 size = Vector3(0.2, 3, 20.4)
 
 [node name="ExampleRoom" type="Node3D" unique_id=779589000]
+
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
+navigation_mesh = SubResource("NavigationMesh_room")
 
 [node name="Floor" type="StaticBody3D" parent="." unique_id=1080193025]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
@@ -126,3 +134,6 @@ spawn_area_size = Vector2(5.0183067, 18.764166)
 [node name="PeopleSpawnerNorth" parent="CrowdManager" unique_id=754786613 instance=ExtResource("7_spawner")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.13179779, 0.15661716, -15.888239)
 spawn_area_size = Vector2(19.693493, 7.7934)
+
+[node name="TestEnemy" parent="." instance=ExtResource("8_enemy")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.8, 5)
