@@ -1,8 +1,8 @@
 [gd_scene format=3 uid="uid://enemy001"]
 
-[ext_resource type="Script" path="res://scripts/enemies/enemy.gd" id="1_enemy"]
-[ext_resource type="Script" path="res://scripts/enemies/chase_movement_behaviour.gd" id="2_chase"]
-[ext_resource type="Script" path="res://scripts/enemies/melee_attack_behaviour.gd" id="3_melee"]
+[ext_resource type="Script" uid="uid://bvy6016jhccxe" path="res://scripts/enemies/enemy.gd" id="1_enemy"]
+[ext_resource type="Script" uid="uid://gdlmer2evdf1" path="res://scripts/enemies/chase_movement_behaviour.gd" id="2_chase"]
+[ext_resource type="Script" uid="uid://b681gmdscutqr" path="res://scripts/enemies/melee_attack_behaviour.gd" id="3_melee"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_enemy"]
 radius = 0.4
@@ -16,33 +16,30 @@ material = SubResource("StandardMaterial3D_enemy")
 radius = 0.4
 height = 1.6
 
-[node name="Enemy" type="CharacterBody3D" groups=["enemy"]]
+[node name="Enemy" type="CharacterBody3D" unique_id=385028795 groups=["enemy"]]
 collision_layer = 8
 collision_mask = 3
 script = ExtResource("1_enemy")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1811606212]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 shape = SubResource("CapsuleShape3D_enemy")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1738620865]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 mesh = SubResource("CapsuleMesh_enemy")
 
-[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="." unique_id=1953809606]
 path_desired_distance = 0.5
 target_desired_distance = 0.5
 avoidance_enabled = true
-radius = 0.5
 
-[node name="ChaseMovementBehaviour" type="Node" parent="."]
+[node name="ChaseMovementBehaviour" type="Node" parent="." unique_id=2012538740]
 script = ExtResource("2_chase")
 move_speed = 3.5
 max_chase_distance = 30.0
 rotation_speed = 8.0
 
-[node name="MeleeAttackBehaviour" type="Node" parent="."]
+[node name="MeleeAttackBehaviour" type="Node" parent="." unique_id=476167444]
 script = ExtResource("3_melee")
-damage = 10.0
-attack_range = 1.5
 attack_cooldown = 1.5

@@ -15,6 +15,25 @@ var spawn_points: Array[Marker3D] = []
 func _ready():
 	_collect_spawn_points()
 
+	# Wait for room's navigation to be ready before spawning enemies
+	var room = _find_room()
+	if room and room.has_signal("navigation_ready"):
+		if not room.navigation_ready.is_connected(_on_navigation_ready):
+			room.navigation_ready.connect(_on_navigation_ready)
+
+
+func _find_room() -> Node:
+	var current = get_parent()
+	while current:
+		if current.has_method("bake_navigation"):
+			return current
+		current = current.get_parent()
+	return null
+
+
+func _on_navigation_ready() -> void:
+	print("EnemySpawner: Navigation ready, can spawn enemies now")
+
 
 func _collect_spawn_points():
 	spawn_points.clear()

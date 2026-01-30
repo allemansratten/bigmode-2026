@@ -4,7 +4,7 @@ class_name ChaseMovementBehaviour
 ## Chases the target using NavigationAgent3D
 ## Stops when within attack range, idles when too far away
 
-@export var move_speed: float = 5.0
+@export var move_speed: float = 3
 @export var max_chase_distance: float = 50.0  # Stop chasing if target is beyond this distance
 @export var rotation_speed: float = 10.0  # How fast enemy rotates to face target
 
