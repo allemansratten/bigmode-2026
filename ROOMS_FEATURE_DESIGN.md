@@ -33,6 +33,37 @@
 
 ---
 
+## Item category system (tags)
+
+- Each spawnable item (weapon, powerup, etc.) has **multiple tags** from an **`ItemCategory` enum**.
+- **Tag types**:
+  - **Rarity**: `COMMON`, `UNCOMMON`, `RARE` (add more as needed).
+  - **Type**: `WEAPON`, `MOVEMENT`, `SPELL` (broad categories).
+  - **Specific**: `MELEE`, `RANGED`, `PROJECTILE` (detailed classification).
+- Items can have **multiple tags** (e.g. a weapon could be `[WEAPON, RARE, RANGED]`).
+- The **room spawn behaviour** uses these tags to decide which items can spawn in a given room.
+- Example use cases:
+  - Room wants to spawn a weapon → filters for items with `WEAPON` tag.
+  - Room wants rare loot → filters for `RARE` tag.
+  - Room wants only melee options → filters for `MELEE` tag.
+
+---
+
+## Item spawn mechanic (throwing)
+
+- Items do **not** spawn instantly at spawn points.
+- Instead, items are **thrown into the room** from the side of the level.
+- **Spawn flow**:
+  1. Room creation behaviour picks an item to spawn based on tags.
+  2. Item is instantiated **off-screen** or at the edge of the room.
+  3. Item is **thrown** (physics impulse) towards a **target node** (the spawn point marker).
+  4. Item lands near the target and becomes interactable.
+- **Target nodes**: Spawn point markers act as targets for the throw trajectory.
+- **Visual polish**: Adds dynamic feel; player sees items "arrive" in the room.
+- Implementation: Apply force/impulse to RigidBody3D items towards target position.
+
+---
+
 ## Connectors (entrance / exit)
 
 - **One shared node type** handles both entrance and exit behaviour; connectors are **bidirectional**.
@@ -64,15 +95,19 @@
 
 ## Resolved
 
-- **Connectors**: one shared node type for entrance and exit; **bidirectional**.
+- **Connectors**: one shared node type for entrance and exit; **bidirectional**. Implemented as `RoomConnector` with collision-based player detection.
 - **Spawners**: define **spawn family** (enum: Enemy, Furniture, Weapon). Actual item population per family is done in **room creation behaviour** (later).
+- **Item categories**: multi-tag system for filtering spawnable items (rarity, type, specific).
+- **Spawn mechanic**: items thrown into room from edges towards target spawn points.
 
 ## Open decisions
 
-- [ ] Exact node names (e.g. `RoomConnector`, `RoomSpawner`).
+- [ ] `RoomSpawner` node implementation (marker nodes with target positions).
 - [ ] How room shapes are selected for a run (random, weighted, per-biome, etc.).
 - [ ] How room selection gameplay works (choose next door, walk to door, etc.).
-- [ ] Where the player spawns when entering (first connector, dedicated marker, etc.).
+- [ ] Exact `ItemCategory` enum values (needs full list for all tags).
+- [ ] How room spawn behaviour decides which tags to filter for (per-room config, random, progression-based).
+- [ ] Throw trajectory calculation (arc, speed, accuracy).
 
 ---
 
@@ -82,3 +117,4 @@
 
 - *Initial version: handmade shapes, entrances/exits, spawn types (enemy, furniture, weapon).*
 - *Connectors: one shared bidirectional node. Spawners: spawn_family enum; population in room creation behaviour (later).*
+- **2026-01-30**: Added item category system (multi-tag filtering: rarity, type, specific). Items spawn via throw mechanic from room edges towards target nodes.

@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://scripts/pickupable_behaviour.gd" id="1_pickup"]
 [ext_resource type="Script" path="res://scripts/throwable_behaviour.gd" id="2_throw"]
+[ext_resource type="Script" path="res://scripts/spawnable_behaviour.gd" id="3_spawnable"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_brick"]
 size = Vector3(0.35, 0.2, 0.12)
@@ -38,3 +39,8 @@ shape = SubResource("BoxShape3D_pickup_area")
 
 [node name="ThrowableBehaviour" type="Node" parent="."]
 script = ExtResource("2_throw")
+
+[node name="SpawnableBehaviour" type="Node" parent="."]
+script = ExtResource("3_spawnable")
+categories = Array[int]([0, 10, 20, 24])
+spawn_weight = 1.0
