@@ -36,7 +36,7 @@ avoidance_enabled = true
 
 [node name="ChaseMovementBehaviour" type="Node" parent="." unique_id=2012538740]
 script = ExtResource("2_chase")
-move_speed = 3.5
+move_speed = 2.5
 max_chase_distance = 30.0
 rotation_speed = 8.0
 

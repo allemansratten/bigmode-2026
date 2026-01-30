@@ -10,7 +10,7 @@ func _ready() -> void:
 
 	# Register debug commands
 	DebugConsole.register_command("timescale", "Set time scale: /timescale <multiplier>")
-	DebugConsole.register_command("spawn", "Spawn an enemy at random point: /spawn")
+	DebugConsole.register_command("spawn", "Spawn an enemy: /spawn [melee|ranged]")
 	DebugConsole.register_command("rebakenav", "Manually rebake navigation mesh: /rebakenav")
 	DebugConsole.command_entered.connect(_on_debug_command)
 
@@ -32,7 +32,7 @@ func _on_game_resumed() -> void:
 ## Debug commands
 ####
 
-func _spawn_test_enemy() -> void:
+func _spawn_test_enemy(enemy_type: String = "melee") -> void:
 	var current_room = SceneManager.current_room
 	if not current_room:
 		DebugConsole.debug_warn("No current room")
@@ -46,11 +46,17 @@ func _spawn_test_enemy() -> void:
 		DebugConsole.debug_warn("No EnemySpawner in current room")
 		return
 
-	var enemy_scene = preload("res://scenes/enemies/Enemy.tscn")
+	var enemy_scene: PackedScene
+	match enemy_type:
+		"ranged":
+			enemy_scene = preload("res://scenes/enemies/RangedEnemy.tscn")
+		"melee", _:
+			enemy_scene = preload("res://scenes/enemies/Enemy.tscn")
+
 	var enemy = spawner.spawn_at_random_point(enemy_scene)
 
 	if enemy:
-		DebugConsole.debug_log("Spawned enemy at " + str(enemy.global_position))
+		DebugConsole.debug_log("Spawned %s enemy at %s" % [enemy_type, str(enemy.global_position)])
 	else:
 		DebugConsole.debug_warn("Failed to spawn enemy")
 
@@ -79,7 +85,10 @@ func _on_debug_command(cmd: String, args: PackedStringArray) -> void:
 				DebugConsole.debug_warn("Usage: /timescale <multiplier>")
 
 		"spawn":
-			_spawn_test_enemy()
+			var enemy_type = "melee"
+			if args.size() > 0:
+				enemy_type = args[0].to_lower()
+			_spawn_test_enemy(enemy_type)
 
 		"rebakenav":
 			_rebake_navigation()

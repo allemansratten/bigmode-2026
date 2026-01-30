@@ -9,6 +9,7 @@
 [ext_resource type="PackedScene" path="res://scenes/crowd/PeopleSpawner.tscn" id="7_spawner"]
 [ext_resource type="PackedScene" uid="uid://enemy001" path="res://scenes/enemies/Enemy.tscn" id="8_enemy"]
 [ext_resource type="PackedScene" uid="uid://enemy_spawner001" path="res://scenes/spawners/EnemySpawner.tscn" id="9_spawner"]
+[ext_resource type="PackedScene" uid="uid://ranged_enemy001" path="res://scenes/enemies/RangedEnemy.tscn" id="10_ranged"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_room"]
 vertices = PackedVector3Array()
@@ -151,6 +152,9 @@ spawn_area_size = Vector2(19.693493, 7.7934)
 
 [node name="TestEnemy" parent="." instance=ExtResource("8_enemy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.8, 5)
+
+[node name="TestRangedEnemy" parent="." instance=ExtResource("10_ranged")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.8, 5)
 
 [node name="EnemySpawner" parent="." instance=ExtResource("9_spawner")]
 spawn_area_size = Vector2(18, 18)
