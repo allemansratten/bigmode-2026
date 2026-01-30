@@ -1,0 +1,272 @@
+# CLAUDE.md
+
+This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
+
+## Project Overview
+
+**Bigmode 2026 Game Jam Project**: 3D action roguelike built with Godot 4.6. Short runs (15-30 min) with combat, room-based progression, improvised weapon pickups, and item-based build customization. Players dash through rooms, fight enemies, loot items, and make upgrade choices.
+
+Key game design goals:
+- 3D isometric/far third-person camera
+- Movement: dash + teleport/swap/time control mechanics
+- Environmental interactions: oil, water/ice, fire, electricity
+- Pick-from-3 upgrades (no card system)
+- Room-based progression with randomized layouts
+
+## Running the Game
+
+```bash
+# Open in Godot Editor (main method for testing)
+open -a Godot  # macOS
+# Then open the project folder in Godot
+
+# Alternative: Run via command line (if godot is in PATH)
+godot --path . scenes/Game.tscn
+```
+
+The main scene is `scenes/Game.tscn`. For testing specific rooms, use `scenes/RoomTest.tscn`.
+
+## Key Architecture Patterns
+
+### Autoload Singletons (Global Managers)
+
+Five key autoloads defined in `project.godot`:
+
+1. **EventBus** (`scripts/autoloads/event_bus.gd`) - Global event system for decoupled communication
+2. **Settings** (`scripts/autoloads/settings_manager.gd`) - Persistent settings via INI file (`user://settings.cfg`)
+3. **Audio** (`scripts/autoloads/audio_manager.gd`) - Audio playback and channel volume control
+4. **MusicController** (`scripts/autoloads/music_controller.gd`) - Music state management
+5. **SceneManager** (`scripts/autoloads/scene_manager.gd`) - Scene loading/transitions
+6. **ItemRegistry** (`scripts/autoloads/item_registry.gd`) - Auto-discovers and caches spawnable items by category tags
+
+Access these from any script:
+```gdscript
+Settings.get_value("audio", "music_volume", 0.5)
+EventBus.level_started.emit("Room1")
+var weapons = ItemRegistry.get_items_matching_any([Categories.Category.WEAPON])
+```
+
+### Component-Based Item System
+
+Items use **behavior nodes** as child components:
+
+- **SpawnableBehaviour** - Marks items as spawnable with category tags (rarity, type, specific)
+- **PickupableBehaviour** - Enables player pickup/drop interaction
+- **ThrowableBehaviour** - Physics-based throwing with velocity inheritance
+- **WeaponBehaviour** (base) - Abstract weapon interface
+  - **MeleeWeaponBehaviour** - Melee attack implementation with collision-based damage
+  - **RangedWeaponBehaviour** - Ranged attack with projectile spawning
+
+**Pattern**: Items are RigidBody3D with behavior nodes as children. Behaviors communicate via parent node references.
+
+### Item Category System
+
+Multi-tag filtering system for item spawning (`scripts/core/item_categories.gd`):
+
+```gdscript
+enum Category {
+    # Rarity: COMMON, UNCOMMON, RARE, EPIC
+    # Type: WEAPON, MOVEMENT, SPELL, CONSUMABLE
+    # Specific: MELEE, RANGED, PROJECTILE, AREA, THROWN
+}
+```
+
+Items can have multiple tags (e.g., `[WEAPON, RARE, RANGED]`). ItemRegistry filters items by category for room spawning.
+
+### Enemy System (Strategy Pattern)
+
+Modular enemy AI using behavior composition:
+
+- **Enemy** (CharacterBody3D) - Base enemy with health, navigation, item drops
+- **EnemyMovementBehaviour** - Abstract movement strategy
+  - **ChaseMovementBehaviour** - NavMesh-based player pursuit
+  - **RangedMovementBehaviour** - Keep distance while maintaining line of sight
+- **EnemyAttackBehaviour** - Abstract attack strategy
+  - **MeleeAttackBehaviour** - Close-range damage with cooldown
+  - **RangedAttackBehaviour** - Projectile spawning with aiming
+
+Enemies use **NavigationAgent3D** with NavMesh for pathfinding. Navigation meshes are baked at runtime by Room class.
+
+### Room System
+
+Room-based progression with runtime NavMesh baking:
+
+- **Room** (base class `scripts/rooms/room.gd`) - Auto-bakes NavigationRegion3D on ready
+- **RoomConnector** (`scripts/rooms/room_connector.gd`) - Bidirectional entrance/exit markers
+- **ItemSpawnPoint** / **ItemThrowTarget** - Markers for item spawning with throw mechanic
+- **EnemySpawner** (`scripts/spawners/enemy_spawner.gd`) - Spawns enemies at Marker3D children
+
+**Important**: Rooms use runtime NavMesh baking. Call `room.bake_navigation()` after spawning dynamic obstacles.
+
+### Player Controller
+
+**Player** (`scripts/player/player.gd`) - CharacterBody3D with:
+- WASD movement with gravity
+- Facing direction based on mouse position (XZ plane)
+- Dash mechanic with Timer-based cooldown
+- Item pickup/hold/throw system
+- Health and damage system
+- Weapon usage (melee and ranged)
+
+Player must be in `"player"` group for enemy targeting.
+
+## Coding Patterns & Best Practices
+
+### Always Use Timer Nodes for Cooldowns
+
+**Never use manual delta counting**. Use Timer nodes instead (see `CODING_PATTERNS.md`):
+
+```gdscript
+# ✅ Preferred
+var _cooldown_timer: Timer
+
+func _ready() -> void:
+    _cooldown_timer = Timer.new()
+    _cooldown_timer.one_shot = true
+    add_child(_cooldown_timer)
+
+func try_action():
+    if _cooldown_timer.is_stopped():
+        do_action()
+        _cooldown_timer.start(5.0)
+```
+
+Benefits: Event-driven, no wasted CPU, easier to debug, visible in editor.
+
+### Collision Layers (defined in project.godot)
+
+- Layer 0: `environment` (walls, floors)
+- Layer 2: `player`
+- Layer 3: `item` (throwable objects)
+- Layer 4: `enemy`
+
+Use `scripts/core/collision_layers.gd` constants instead of magic numbers.
+
+### Settings System
+
+Use SettingsManager for persistent settings (see `SETTINGS_USAGE.md`):
+
+```gdscript
+# Auto-saves after 0.5s debounce
+Settings.set_value("audio", "music_volume", 0.8)
+var volume = Settings.get_value("audio", "music_volume", 0.5)
+```
+
+Stored in `user://settings.cfg` as INI format.
+
+### Debug Console
+
+Press `/` to open debug console. Add commands via `DebugConsole` autoload (see `DEBUG_COMMANDS.md`):
+
+```gdscript
+func _ready():
+    DebugConsole.register_command("god", "Toggle invincibility")
+    DebugConsole.command_entered.connect(_on_debug_command)
+
+func _on_debug_command(cmd: String, args: PackedStringArray):
+    if cmd == "god":
+        invincible = !invincible
+        DebugConsole.debug_log("God mode: " + str(invincible))
+```
+
+## File Structure
+
+```
+scripts/
+  autoloads/        # Global singletons (EventBus, Settings, Audio, ItemRegistry, etc.)
+  player/           # Player controller
+  enemies/          # Enemy AI and behavior strategies
+  items/            # Item behavior components (Pickupable, Throwable, Weapon)
+  rooms/            # Room management, spawning, connectors
+  spawners/         # Enemy and item spawning logic
+  core/             # Shared utilities (collision layers, item categories)
+  ui/               # UI components
+  camera/           # Camera controllers
+
+scenes/
+  Game.tscn         # Main game scene (entry point)
+  RoomTest.tscn     # Test scene for individual rooms
+  Player.tscn       # Player character
+  rooms/            # Room scenes (ExampleRoom, ExampleRoom2)
+  enemies/          # Enemy scenes (Enemy, RangedEnemy)
+  items/            # Item scenes (Brick, Crate) with behavior components
+  spawners/         # Spawner scenes (EnemySpawner)
+  globals/          # Autoload scenes (DebugConsole, SettingsManager, etc.)
+```
+
+## Important Workflow Notes
+
+### NavMesh Baking
+
+Enemies require baked NavMeshes to move. The Room class auto-bakes on `_ready()`, but manual baking is needed in the editor for testing:
+
+1. Open room scene (e.g., `scenes/rooms/ExampleRoom.tscn`)
+2. Select `NavigationRegion3D` node
+3. Click **"Bake NavMesh"** in Inspector
+4. Save scene
+
+**Runtime**: Rooms auto-bake after spawning. Call `room.rebake_navigation()` if spawning dynamic obstacles after initial load.
+
+### Adding New Enemies
+
+1. Duplicate `scenes/enemies/Enemy.tscn` or `scenes/enemies/RangedEnemy.tscn`
+2. Attach behavior nodes: `ChaseMovementBehaviour` or `RangedMovementBehaviour`, `MeleeAttackBehaviour` or `RangedAttackBehaviour`
+3. Configure exported variables (health, speed, damage, range)
+4. Add to room via EnemySpawner or place manually in scene
+
+See `ENEMY_SYSTEM_DESIGN.md` for full setup instructions.
+
+### Adding New Items
+
+1. Create RigidBody3D scene with mesh and collision
+2. Add **SpawnableBehaviour** child node with category tags
+3. Add optional behaviors: **PickupableBehaviour**, **ThrowableBehaviour**, **WeaponBehaviour**
+4. Save to `scenes/items/` directory
+5. ItemRegistry auto-discovers on startup
+
+### Adding New Rooms
+
+1. Create scene inheriting from `Room` class or use `scenes/rooms/ExampleRoom.tscn` as template
+2. Add NavigationRegion3D with NavigationMesh resource
+3. Add RoomConnector nodes for entrances/exits
+4. Add ItemSpawnPoint and ItemThrowTarget markers for item spawning
+5. Add EnemySpawner with Marker3D children for enemy spawn locations
+6. Bake NavMesh in editor before testing
+
+See `ROOMS_FEATURE_DESIGN.md` for detailed room system design.
+
+## Design Documentation
+
+- **GAME_DESIGN_CONTEXT.md** - High-level vision, design pillars, core mechanics
+- **ENEMY_SYSTEM_DESIGN.md** - Enemy AI architecture, behavior system, setup guide
+- **ROOMS_FEATURE_DESIGN.md** - Room-based progression, spawn families, item categories
+- **CODING_PATTERNS.md** - Established code patterns (Timer usage, etc.)
+- **SETTINGS_USAGE.md** - SettingsManager API and examples
+- **DEBUG_COMMANDS.md** - Debug console usage and command registration
+
+## Common Issues
+
+### Enemies Not Moving
+
+- Check if NavigationRegion3D is baked (blue/green overlay in editor)
+- Verify Room has `auto_bake_navigation = true`
+- Ensure enemy has NavigationAgent3D child node
+- Check enemy has valid movement behavior (ChaseMovementBehaviour or RangedMovementBehaviour)
+
+### Items Not Spawning
+
+- Verify item has SpawnableBehaviour with category tags
+- Check ItemRegistry console output on startup for registration errors
+- Ensure item scene is in `scenes/items/` directory
+
+### Player Not Picking Up Items
+
+- Check item has PickupableBehaviour component
+- Verify `pickup_range` on Player (default 2.0m)
+- Ensure item is on collision layer 3 (`item`)
+
+### Projectiles Not Working
+
+- Verify RangedWeaponBehaviour has `projectile_scene` assigned
+- Check projectile scene has collision shape and RigidBody3D
+- Ensure projectile uses correct collision layers/masks
