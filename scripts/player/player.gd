@@ -195,7 +195,7 @@ func _on_item_dropped() -> void:
 
 
 ## Takes damage from an enemy or other source
-func take_damage(amount: float, source: Node3D = null) -> void:
+func take_damage(amount: float, _source: Node3D = null) -> void:
 	if current_health <= 0:
 		return  # Already dead
 
