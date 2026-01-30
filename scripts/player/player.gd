@@ -16,6 +16,8 @@ extends CharacterBody3D
 @export var dash_cooldown: float = 1
 
 var _held_item: Node3D = null # Root of the held item (e.g. Brick RigidBody3D)
+var _held_melee_weapon: MeleeWeaponBehaviour = null
+var _held_ranged_weapon: RangedWeaponBehaviour = null
 ## Facing direction on XZ plane (x, z). Normalized when used for rotation.
 var _facing_direction: Vector2 = Vector2(0.0, -1.0) # Start facing -Z (forward)
 var _dash_timer: float = 0.0
@@ -93,6 +95,10 @@ func _unhandled_input(event: InputEvent) -> void:
 		_try_pick_up()
 	if event.is_action_pressed("throw"):
 		_try_throw()
+	if event.is_action_pressed("attack_melee"):
+		_try_melee_attack()
+	if event.is_action_pressed("attack_ranged"):
+		_try_ranged_attack()
 
 
 func _try_pick_up() -> void:
@@ -119,6 +125,8 @@ func _try_pick_up() -> void:
 		var behaviour: PickupableBehaviour = _get_pickupable_behaviour(closest)
 		if behaviour and behaviour.try_pick_up(self):
 			_held_item = closest
+			_cache_weapon_behaviours(closest)
+			behaviour.dropped.connect(_on_item_dropped)
 
 
 func _get_pickupable_behaviour(item_root: Node) -> PickupableBehaviour:
@@ -131,12 +139,19 @@ func _get_pickupable_behaviour(item_root: Node) -> PickupableBehaviour:
 func _try_throw() -> void:
 	if _held_item == null or not is_instance_valid(_held_item):
 		_held_item = null
+		_held_melee_weapon = null
+		_held_ranged_weapon = null
 		return
 	var throwable: ThrowableBehaviour = _get_throwable_behaviour(_held_item)
 	if not throwable:
 		return
+	var pickupable: PickupableBehaviour = _get_pickupable_behaviour(_held_item)
+	if pickupable and pickupable.dropped.is_connected(_on_item_dropped):
+		pickupable.dropped.disconnect(_on_item_dropped)
 	throwable.throw(get_facing_direction(), get_tree().current_scene)
 	_held_item = null
+	_held_melee_weapon = null
+	_held_ranged_weapon = null
 
 
 func _get_throwable_behaviour(item_root: Node) -> ThrowableBehaviour:
@@ -144,6 +159,32 @@ func _get_throwable_behaviour(item_root: Node) -> ThrowableBehaviour:
 		if c is ThrowableBehaviour:
 			return c as ThrowableBehaviour
 	return null
+
+
+func _try_melee_attack() -> void:
+	if _held_melee_weapon:
+		_held_melee_weapon.attack()
+
+
+func _try_ranged_attack() -> void:
+	if _held_ranged_weapon:
+		_held_ranged_weapon.attack()
+
+
+func _cache_weapon_behaviours(item_root: Node) -> void:
+	_held_melee_weapon = null
+	_held_ranged_weapon = null
+	for c in item_root.get_children():
+		if c is MeleeWeaponBehaviour:
+			_held_melee_weapon = c as MeleeWeaponBehaviour
+		elif c is RangedWeaponBehaviour:
+			_held_ranged_weapon = c as RangedWeaponBehaviour
+
+
+func _on_item_dropped() -> void:
+	_held_item = null
+	_held_melee_weapon = null
+	_held_ranged_weapon = null
 
 
 ## Returns the character's current facing direction on the XZ plane (normalized).

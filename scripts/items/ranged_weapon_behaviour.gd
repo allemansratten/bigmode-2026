@@ -23,6 +23,8 @@ func _attack() -> void:
 	if not item:
 		return
 
+	print("RangedWeaponBehaviour: attack called on ", item.name)
+
 	# Check ammo
 	if ammo_count == 0:
 		print("RangedWeaponBehaviour: out of ammo!")
@@ -31,8 +33,6 @@ func _attack() -> void:
 	if not projectile_scene:
 		push_warning("RangedWeaponBehaviour: no projectile_scene set for ", item.name)
 		return
-
-	print("RangedWeaponBehaviour: firing projectile from ", item.name)
 
 	# Get attack direction
 	var spawn_position = item.global_position + item.global_transform.basis * projectile_spawn_offset
