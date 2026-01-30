@@ -5,6 +5,20 @@ class_name CrowdManager
 ## Contains multiple spawn zones (PeopleSpawner) as children
 ## Handles shared crowd behaviors and coordination
 
+## Emitted when excitement level changes
+signal excitement_changed(new_level: float)
+
+## Rate at which excitement decays per second
+@export var decay_rate: float = 5.0
+
+## Current excitement level (0-100)
+var excitement_level: float = 0.0:
+	set(value):
+		var old_level := excitement_level
+		excitement_level = clampf(value, 0.0, 100.0)
+		if not is_equal_approx(old_level, excitement_level):
+			excitement_changed.emit(excitement_level)
+
 ## Reference to all spawn zones
 var spawn_zones: Array[PeopleSpawner] = []
 
@@ -19,6 +33,16 @@ func _ready() -> void:
 	# Connect to spawn zone signals if needed
 	for zone in spawn_zones:
 		zone.crowd_spawned.connect(_on_zone_spawned)
+
+
+func _process(delta: float) -> void:
+	# Decay excitement towards 0
+	if excitement_level > 0.0:
+		excitement_level -= decay_rate * delta
+
+	# Handle input for excitement increase
+	if Input.is_action_just_pressed("increase_excitement"):
+		increase_excitement(20.0)
 
 
 func _gather_spawn_zones() -> void:
@@ -55,3 +79,13 @@ func get_crowd_count() -> int:
 func get_zone_count() -> int:
 	"""Returns number of spawn zones"""
 	return spawn_zones.size()
+
+
+func increase_excitement(amount: float) -> void:
+	"""Increases excitement level by the given amount"""
+	excitement_level += amount
+
+
+func set_excitement(value: float) -> void:
+	"""Sets excitement level to a specific value"""
+	excitement_level = value
