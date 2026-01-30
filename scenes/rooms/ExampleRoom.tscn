@@ -1,6 +1,10 @@
 [gd_scene format=3 uid="uid://b5ye7aiomms1g"]
 
 [ext_resource type="PackedScene" path="res://scenes/RoomConnector.tscn" id="1_connector"]
+[ext_resource type="Script" uid="uid://yhnq5bvgu0a" path="res://scripts/item_spawning_manager.gd" id="2_spawning"]
+[ext_resource type="PackedScene" uid="uid://brick001" path="res://scenes/items/Brick.tscn" id="3_brick"]
+[ext_resource type="PackedScene" path="res://scenes/ItemSpawnPoint.tscn" id="4_spawn_point"]
+[ext_resource type="PackedScene" path="res://scenes/ItemThrowTarget.tscn" id="5_throw_target"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
 size = Vector3(20, 0.2, 20)
@@ -81,3 +85,31 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 9.138304)
 target_room_id = 1
 connector_id = "north"
 spawn_facing_degrees = 180.0
+
+[node name="ItemSpawningManager" type="Node" parent="." unique_id=1081236601]
+script = ExtResource("2_spawning")
+allowed_categories = Array[int]([10])
+item_pool = Array[PackedScene]([ExtResource("3_brick")])
+throw_force = 7.0
+arc_height = 3.0
+
+[node name="SpawnPointWest" parent="ItemSpawningManager" unique_id=1294596049 instance=ExtResource("4_spawn_point")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.543268, 1, 0)
+
+[node name="SpawnPointEast" parent="ItemSpawningManager" unique_id=1756023057 instance=ExtResource("4_spawn_point")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.108462, 1, 0)
+
+[node name="ThrowTarget1" parent="ItemSpawningManager" unique_id=1025928910 instance=ExtResource("5_throw_target")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.5, 0)
+
+[node name="ThrowTarget2" parent="ItemSpawningManager" unique_id=114624344 instance=ExtResource("5_throw_target")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.5, 0)
+
+[node name="ThrowTarget3" parent="ItemSpawningManager" unique_id=777812535 instance=ExtResource("5_throw_target")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.5, 4)
+
+[node name="ThrowTarget4" parent="ItemSpawningManager" unique_id=303665432 instance=ExtResource("5_throw_target")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.5, -3)
+
+[node name="ThrowTarget5" parent="ItemSpawningManager" unique_id=602858523 instance=ExtResource("5_throw_target")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 6)

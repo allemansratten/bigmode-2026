@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://item_throw_target_001"]
+
+[ext_resource type="Script" path="res://scripts/item_throw_target.gd" id="1_script"]
+
+[node name="ItemThrowTarget" type="Marker3D"]
+script = ExtResource("1_script")
+weight = 1.0
+gizmo_color = Color(1, 1, 0, 1)

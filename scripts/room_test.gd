@@ -26,10 +26,33 @@ func _load_initial_room() -> void:
 	print("RoomTest: transition_to_room() call completed")
 
 
+func _input(event: InputEvent) -> void:
+	# Test item spawning with I key
+	if event is InputEventKey and event.pressed and event.keycode == KEY_I:
+		_test_spawn_item()
+
+
+func _test_spawn_item() -> void:
+	if not SceneManager.current_room:
+		print("RoomTest: no current room")
+		return
+
+	var spawner = SceneManager.current_room.get_node_or_null("ItemSpawningManager") as ItemSpawningManager
+	if not spawner:
+		print("RoomTest: no ItemSpawningManager found in room")
+		return
+
+	print("RoomTest: spawning item...")
+	var item = spawner.spawn_item()
+	if item:
+		print("RoomTest: successfully spawned ", item.name)
+	else:
+		print("RoomTest: failed to spawn item")
+
+
 func _on_room_loaded(room: Node3D) -> void:
 	print("=== RoomTest: _on_room_loaded() called ===")
 	print("RoomTest: room = ", room)
-	print("RoomTest: room.name = ", room.name if room else "NULL")
 
 	if not room:
 		push_error("RoomTest: room is null!")
