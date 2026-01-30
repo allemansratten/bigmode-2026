@@ -27,7 +27,7 @@ func _ready() -> void:
 	collision_mask = Layers.get_mask(Layers.Layer.PLAYER)
 
 
-func _on_body_entered() -> void:
+func _on_body_entered(_body: Node3D) -> void:
 	# Collision mask ensures only player can trigger this, no need to check
 	print("RoomConnector '%s': player entered, transitioning to room %d" % [connector_id, target_room_id])
 	SceneManager.transition_to_room(target_room_id)
