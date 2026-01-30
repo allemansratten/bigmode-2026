@@ -41,21 +41,26 @@ func setup(container: Node3D) -> void:
 	room_container = container
 	print("SceneManager: initialized with container ", container.name)
 
-
-## Load and transition to a new room by enum ID
-func transition_to_room(room_id: Room, entry_connector_id: String = "") -> void:
+func check_can_transition(room_id):
 	if not room_container:
 		push_error("SceneManager: room_container not set. Call setup() first.")
-		return
+		return false
 
 	# Check if on cooldown
 	if is_on_cooldown:
 		print("SceneManager: transition blocked - on cooldown")
-		return
+		return false
 
 	# Get room scene path from enum
 	if not ROOM_SCENES.has(room_id):
 		push_error("SceneManager: unknown room ID ", room_id)
+		return false
+	return true
+
+
+## Load and transition to a new room by enum ID
+func transition_to_room(room_id: Room) -> void:
+	if not check_can_transition(room_id):
 		return
 
 	var room_path = ROOM_SCENES[room_id]
@@ -86,7 +91,7 @@ func transition_to_room(room_id: Room, entry_connector_id: String = "") -> void:
 
 	room_transition_started.emit(old_room, new_room)
 
-	# Hide/disable old room instead of removing it (deferred to avoid physics callback issues)
+	# Hide/disable old room instead of removing it (must be deferred)
 	if old_room and old_room != new_room:
 		old_room.call_deferred("set", "visible", false)
 		old_room.call_deferred("set", "process_mode", Node.PROCESS_MODE_DISABLED)
@@ -99,14 +104,6 @@ func transition_to_room(room_id: Room, entry_connector_id: String = "") -> void:
 	# Start cooldown
 	_start_cooldown()
 
-
-## Get a connector from the current room by ID or index
-func get_room_connector(connector_id: String = "") -> Node3D:
-	if not current_room:
-		return null
-
-	# TODO: implement connector lookup when RoomConnector nodes exist
-	return null
 
 
 ## Reload the current room (for testing/debugging)

@@ -69,6 +69,13 @@ Audio="*res://scenes/globals/AudioManager.tscn"
 MusicController="*res://scenes/globals/MusicController.tscn"
 SceneManager="*res://scripts/scene_manager.gd"
 
+[layer_names]
+
+3d_physics/layer_0="environment"
+3d_physics/layer_2="player"
+3d_physics/layer_3="item"
+3d_physics/layer_4="enemy"
+
 [rendering]
 
 renderer/rendering_method="gl_compatibility"

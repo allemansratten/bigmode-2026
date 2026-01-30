@@ -4,13 +4,15 @@ class_name RoomConnector
 ## Bidirectional connector for entering/exiting rooms
 ## Detects player interaction and triggers room transition
 
+const Layers = preload("res://scripts/collision_layers.gd")
+
 ## Target room ID to transition to (from SceneManager.Room enum)
 @export var target_room_id: SceneManager.Room = SceneManager.Room.EXAMPLE_ROOM
 
 ## Unique identifier for this connector (e.g. "north", "south", "door_1")
 @export var connector_id: String = ""
 
-## Direction the player should face when spawning at this connector (in degrees)
+## Direction the player should face when spawning at this connectoror (in degrees)
 @export var spawn_facing_degrees: float = 0.0
 
 ## Visual indicator for the connector (optional)
@@ -22,15 +24,13 @@ func _ready() -> void:
 
 	# Set up collision layer/mask for player detection
 	collision_layer = 0  # Don't exist in any layer
-	collision_mask = 1   # Detect layer 1 (player)
+	collision_mask = Layers.get_mask(Layers.Layer.PLAYER)
 
 
-func _on_body_entered(body: Node3D) -> void:
-	if not body.is_in_group("player"):
-		return
-
+func _on_body_entered() -> void:
+	# Collision mask ensures only player can trigger this, no need to check
 	print("RoomConnector '%s': player entered, transitioning to room %d" % [connector_id, target_room_id])
-	SceneManager.transition_to_room(target_room_id, connector_id)
+	SceneManager.transition_to_room(target_room_id)
 
 
 ## Get the spawn position for a player entering through this connector
