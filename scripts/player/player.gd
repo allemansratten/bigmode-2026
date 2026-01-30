@@ -26,35 +26,46 @@ var _held_melee_weapon: MeleeWeaponBehaviour = null
 var _held_ranged_weapon: RangedWeaponBehaviour = null
 ## Facing direction on XZ plane (x, z). Normalized when used for rotation.
 var _facing_direction: Vector2 = Vector2(0.0, -1.0) # Start facing -Z (forward)
-var _dash_timer: float = 0.0
-var _dash_cooldown_remaining: float = 0.0
 var _dash_direction: Vector3 = Vector3.ZERO
+var _is_dashing: bool = false
+
+var _dash_duration_timer: Timer
+var _dash_cooldown_timer: Timer
 
 func _ready() -> void:
 	add_to_group("player")
 	current_health = max_health
 
+	# Set up dash duration timer
+	_dash_duration_timer = Timer.new()
+	_dash_duration_timer.one_shot = true
+	_dash_duration_timer.timeout.connect(_on_dash_duration_timeout)
+	add_child(_dash_duration_timer)
+
+	# Set up dash cooldown timer
+	_dash_cooldown_timer = Timer.new()
+	_dash_cooldown_timer.one_shot = true
+	add_child(_dash_cooldown_timer)
+
 func _physics_process(delta: float) -> void:
-	# Dash: start on input, or apply velocity while active
-	if Input.is_action_just_pressed("dash") and _dash_timer <= 0.0 and _dash_cooldown_remaining <= 0.0:
+	# Dash: start on input if not on cooldown
+	if Input.is_action_just_pressed("dash") and not _is_dashing and _dash_cooldown_timer.is_stopped():
 		var horizontal := Vector3(velocity.x, 0.0, velocity.z)
 		if horizontal.length_squared() > 0.01:
 			_dash_direction = horizontal.normalized()
 		else:
 			_dash_direction = get_facing_direction()
-		_dash_timer = dash_duration
-		_dash_cooldown_remaining = dash_cooldown
+		_is_dashing = true
+		_dash_duration_timer.start(dash_duration)
+		_dash_cooldown_timer.start(dash_cooldown)
 
-	if _dash_timer > 0.0:
-		_dash_timer -= delta
+	# Apply dash velocity while dashing
+	if _is_dashing:
 		velocity.x = _dash_direction.x * dash_speed
 		velocity.z = _dash_direction.z * dash_speed
 		velocity.y = 0.0
 		move_and_slide()
 		return
-
-	if _dash_cooldown_remaining > 0.0:
-		_dash_cooldown_remaining -= delta
 
 	# Apply gravity
 	if not is_on_floor():
@@ -221,3 +232,7 @@ func get_facing_direction() -> Vector3:
 	if _facing_direction.length_squared() < 0.01:
 		return -global_transform.basis.z
 	return Vector3(_facing_direction.x, 0.0, _facing_direction.y).normalized()
+
+
+func _on_dash_duration_timeout() -> void:
+	_is_dashing = false

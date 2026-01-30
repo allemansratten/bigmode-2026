@@ -8,17 +8,15 @@ class_name RangedAttackBehaviour
 @export var attack_range: float = 10.0
 @export var attack_cooldown: float = 2.0  # Seconds between attacks
 @export var projectile_speed: float = 15.0
+@export var projectile_scene: PackedScene = preload("res://scenes/items/Projectile.tscn")
 
-# TODO: Add projectile scene when we have one
-# @export var projectile_scene: PackedScene
-
-var time_since_last_attack: float = 0.0
+var _cooldown_timer: Timer
 
 
-func _process(delta: float):
-	# Update cooldown timer
-	if time_since_last_attack < attack_cooldown:
-		time_since_last_attack += delta
+func _ready() -> void:
+	_cooldown_timer = Timer.new()
+	_cooldown_timer.one_shot = true
+	add_child(_cooldown_timer)
 
 
 func can_attack(enemy: Node3D, target: Node3D) -> bool:
@@ -26,7 +24,7 @@ func can_attack(enemy: Node3D, target: Node3D) -> bool:
 		return false
 
 	# Check cooldown
-	if time_since_last_attack < attack_cooldown:
+	if not _cooldown_timer.is_stopped():
 		return false
 
 	# Check range
@@ -39,14 +37,30 @@ func can_attack(enemy: Node3D, target: Node3D) -> bool:
 
 
 func execute_attack(enemy: Node3D, target: Node3D) -> void:
-	# Reset cooldown
-	time_since_last_attack = 0.0
+	# Start cooldown timer
+	_cooldown_timer.start(attack_cooldown)
 
-	# TODO: Spawn projectile when we have projectile system
-	# For now, just apply damage directly (placeholder)
-	if target.has_method("take_damage"):
-		target.take_damage(damage, enemy)
-		print("Ranged enemy attacked for %s damage (placeholder - no projectile yet)" % damage)
+	# Spawn projectile
+	if not projectile_scene:
+		push_warning("No projectile scene set for ranged attack")
+		return
+
+	var projectile := projectile_scene.instantiate() as Projectile
+	if not projectile:
+		push_error("Projectile scene did not instantiate as Projectile")
+		return
+
+	# Add to scene at enemy position (slightly above center)
+	var spawn_position := enemy.global_position + Vector3.UP * 0.8
+	enemy.get_parent().add_child(projectile)
+	projectile.global_position = spawn_position
+
+	# Calculate direction to target
+	var direction := (target.global_position + Vector3.UP * 0.8 - spawn_position).normalized()
+
+	# Initialize projectile
+	projectile.initialize(direction, enemy, damage)
+	projectile.speed = projectile_speed
 
 	# TODO: Play attack animation
 	# TODO: Trigger attack sound effect

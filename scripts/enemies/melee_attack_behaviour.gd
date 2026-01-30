@@ -8,13 +8,13 @@ class_name MeleeAttackBehaviour
 @export var attack_range: float = 1.5
 @export var attack_cooldown: float = 1.0  # Seconds between attacks
 
-var time_since_last_attack: float = 0.0
+var _cooldown_timer: Timer
 
 
-func _process(delta: float):
-	# Update cooldown timer
-	if time_since_last_attack < attack_cooldown:
-		time_since_last_attack += delta
+func _ready() -> void:
+	_cooldown_timer = Timer.new()
+	_cooldown_timer.one_shot = true
+	add_child(_cooldown_timer)
 
 
 func can_attack(enemy: Node3D, target: Node3D) -> bool:
@@ -22,7 +22,7 @@ func can_attack(enemy: Node3D, target: Node3D) -> bool:
 		return false
 
 	# Check cooldown
-	if time_since_last_attack < attack_cooldown:
+	if not _cooldown_timer.is_stopped():
 		return false
 
 	# Check range
@@ -31,8 +31,8 @@ func can_attack(enemy: Node3D, target: Node3D) -> bool:
 
 
 func execute_attack(enemy: Node3D, target: Node3D) -> void:
-	# Reset cooldown
-	time_since_last_attack = 0.0
+	# Start cooldown timer
+	_cooldown_timer.start(attack_cooldown)
 
 	# Apply damage if target has take_damage method
 	if target.has_method("take_damage"):
