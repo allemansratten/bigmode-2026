@@ -12,8 +12,8 @@ const Layers = preload("res://scripts/core/collision_layers.gd")
 @export var swing_angle: float = 90.0
 ## Knockback force applied to hit entities
 @export var knockback_force: float = 5.0
-## Collision mask for what can be hit (default: environment + enemies)
-@export var hit_collision_mask: int = 5 # Layers 1 (ENVIRONMENT) + 3 (ENEMY)
+## Collision mask for what can be hit (default: enemies and items)
+@export var hit_collision_mask: int = 12 # Layer 3 (ENEMY) + Layer 4 (ITEM)
 
 
 ## Override attack to perform melee hitbox check
@@ -117,10 +117,12 @@ func _create_debug_sphere(position: Vector3, radius: float) -> void:
 
 	sphere_mesh.material = material
 	mesh_instance.mesh = sphere_mesh
-	mesh_instance.global_position = position
 
-	# Add to scene
+	# Add to scene first
 	item.get_tree().root.add_child(mesh_instance)
+
+	# Then set global position (must be in tree first)
+	mesh_instance.global_position = position
 
 	# Remove after 0.2 seconds
 	await item.get_tree().create_timer(0.2).timeout
