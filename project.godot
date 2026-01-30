@@ -19,11 +19,12 @@ config/icon="res://icon.svg"
 
 DebugConsole="*res://scenes/globals/DebugConsole.tscn"
 Settings="*res://scenes/globals/SettingsManager.tscn"
+ItemRegistry="*res://scripts/autoloads/item_registry.gd"
+EnemyRegistry="*res://scripts/autoloads/enemy_registry.gd"
 EventBus="*res://scenes/globals/EventBus.tscn"
 Audio="*res://scenes/globals/AudioManager.tscn"
 MusicController="*res://scenes/globals/MusicController.tscn"
 SceneManager="*res://scripts/autoloads/scene_manager.gd"
-ItemRegistry="*res://scripts/autoloads/item_registry.gd"
 
 [display]
 

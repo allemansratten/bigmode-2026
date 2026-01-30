@@ -21,6 +21,14 @@ func _ready():
 		if not room.navigation_ready.is_connected(_on_navigation_ready):
 			room.navigation_ready.connect(_on_navigation_ready)
 
+	# Register debug commands
+	_register_commands()
+
+
+func _exit_tree():
+	# Unregister debug commands when spawner is removed
+	_unregister_commands()
+
 
 func _find_room() -> Node:
 	var current = get_parent()
@@ -33,6 +41,45 @@ func _find_room() -> Node:
 
 func _on_navigation_ready() -> void:
 	print("EnemySpawner: Navigation ready, can spawn enemies now")
+
+
+## Register debug console commands
+func _register_commands() -> void:
+	DebugConsole.register_command("spawn", "Spawn an enemy: /spawn <enemy_name>")
+	DebugConsole.command_entered.connect(_on_command_entered)
+
+
+## Unregister debug console commands
+func _unregister_commands() -> void:
+	if DebugConsole.command_entered.is_connected(_on_command_entered):
+		DebugConsole.command_entered.disconnect(_on_command_entered)
+
+
+## Handle debug commands
+func _on_command_entered(cmd: String, args: PackedStringArray) -> void:
+	if cmd == "spawn":
+		if args.size() > 0:
+			_spawn_enemy(args[0].to_lower())
+		else:
+			var available := EnemyRegistry.get_all_enemy_names()
+			DebugConsole.debug_warn("Usage: /spawn <enemy_name>")
+			DebugConsole.debug_log("Available enemies: " + ", ".join(available))
+
+
+## Spawn enemy by name via debug command
+func _spawn_enemy(enemy_name: String) -> void:
+	if not EnemyRegistry.has_enemy(enemy_name):
+		DebugConsole.debug_warn("Unknown enemy type: '%s'" % enemy_name)
+		var available := EnemyRegistry.get_all_enemy_names()
+		DebugConsole.debug_log("Available enemies: " + ", ".join(available))
+		return
+
+	var enemy = spawn_enemy_by_name(enemy_name)
+
+	if enemy:
+		DebugConsole.debug_log("Spawned '%s' enemy at %s" % [enemy_name, str(enemy.global_position)])
+	else:
+		DebugConsole.debug_warn("Failed to spawn enemy")
 
 
 func _collect_spawn_points():
@@ -76,6 +123,23 @@ func spawn_dropped(enemy_scene: PackedScene) -> Enemy:
 
 	var spawn_pos := global_position + random_offset
 	return _spawn_enemy_at(enemy_scene, spawn_pos)
+
+
+## Spawn enemy by name using EnemyRegistry
+func spawn_enemy_by_name(enemy_name: String, method: String = "random") -> Enemy:
+	var enemy_scene := EnemyRegistry.get_enemy(enemy_name)
+	if not enemy_scene:
+		push_error("Failed to get enemy '%s' from registry" % enemy_name)
+		return null
+
+	match method:
+		"random":
+			return spawn_at_random_point(enemy_scene)
+		"dropped":
+			return spawn_dropped(enemy_scene)
+		_:
+			push_warning("Unknown spawn method: %s, using random" % method)
+			return spawn_at_random_point(enemy_scene)
 
 
 func _spawn_enemy_at(enemy_scene: PackedScene, spawn_position: Vector3) -> Enemy:

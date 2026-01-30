@@ -7,6 +7,7 @@ class_name Enemy
 signal died(enemy: Enemy)
 signal health_changed(current: float, maximum: float)
 
+@export var enemy_name: String = ""  # Unique identifier for this enemy type
 @export var max_health: float = 100.0
 @export var current_health: float = max_health
 
@@ -119,3 +120,8 @@ func get_distance_to_target() -> float:
 	if target:
 		return global_position.distance_to(target.global_position)
 	return INF
+
+
+## Get the enemy type name for registry
+func get_enemy_name() -> String:
+	return enemy_name
