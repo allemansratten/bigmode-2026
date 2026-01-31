@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3 uid="uid://surface_ice"]
+
+[ext_resource type="Script" path="res://scripts/surfaces/ice_surface.gd" id="1"]
+[ext_resource type="ArrayMesh" path="res://resources/models/Puddles/puddles.fbx" id="2_mesh"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_ice"]
+albedo_color = Color(0.7, 0.85, 1.0, 0.8)
+transparency = 1
+metallic = 0.5
+roughness = 0.3
+emission_enabled = true
+emission = Color(0.8, 0.9, 1.0, 1)
+emission_energy_multiplier = 0.2
+
+[node name="IceSurface" type="Node3D"]
+script = ExtResource("1")
+radius = 2.5
+lifetime = 30.0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="."]
+mesh = ExtResource("2_mesh")
+surface_material_override/0 = SubResource("StandardMaterial3D_ice")

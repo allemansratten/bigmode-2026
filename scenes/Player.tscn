@@ -2,7 +2,8 @@
 
 [ext_resource type="Script" uid="uid://d34iv2yt542bf" path="res://scripts/player/player.gd" id="1_player"]
 [ext_resource type="Script" uid="uid://ccvi13rbwbn8w" path="res://scripts/camera/game_camera_3d.gd" id="2_cam"]
-[ext_resource type="Script" path="res://scripts/player/dash_component.gd" id="3_dash"]
+[ext_resource type="Script" uid="uid://bty3o72oloqn0" path="res://scripts/player/dash_component.gd" id="3_dash"]
+[ext_resource type="PackedScene" path="res://scenes/components/SurfaceDetector.tscn" id="4_mdl7e"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_floor"]
 radius = 0.4
@@ -13,12 +14,8 @@ radius = 0.4
 height = 1.8
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_interaction"]
-radius = 0.5
-height = 2.0
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_interaction"]
-radius = 0.5
-height = 2.0
+radius = 0.45
+height = 1.9
 
 [node name="Player" type="CharacterBody3D" unique_id=276495145 groups=["player"]]
 collision_layer = 2
@@ -43,21 +40,16 @@ near = 0.01
 far = 1000.0
 script = ExtResource("2_cam")
 
-[node name="InteractionBody" type="RigidBody3D" parent="."]
-collision_layer = 8
-collision_mask = 9
+[node name="InteractionBody" type="RigidBody3D" parent="." unique_id=560739276]
+collision_layer = 0
+collision_mask = 0
 freeze = true
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionBody"]
+[node name="CollisionShape3D" type="CollisionShape3D" parent="InteractionBody" unique_id=1003717490]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("CapsuleShape3D_interaction")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="InteractionBody"]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
-mesh = SubResource("CapsuleMesh_interaction")
-
-[node name="DashComponent" type="Node" parent="."]
+[node name="DashComponent" type="Node" parent="." unique_id=475467776]
 script = ExtResource("3_dash")
-dash_speed = 15.0
-dash_duration = 0.16
-cooldown = 1.0
+
+[node name="SurfaceDetector" parent="." unique_id=1803252643 instance=ExtResource("4_mdl7e")]
