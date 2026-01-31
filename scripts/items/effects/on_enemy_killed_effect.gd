@@ -13,9 +13,9 @@ var weapon: WeaponBehaviour
 
 
 func _ready() -> void:
-	item = get_parent() as Node3D
+	item = _find_item_root()
 	if not item:
-		push_error("OnEnemyKilledEffect must be child of Node3D item")
+		push_warning("OnEnemyKilledEffect: could not find item root (searched up from %s)" % get_parent().name if get_parent() else "unknown")
 		return
 
 	# Find weapon behaviour
@@ -26,6 +26,18 @@ func _ready() -> void:
 
 	if not weapon:
 		push_warning("OnEnemyKilledEffect: no WeaponBehaviour found on item %s" % item.name)
+
+
+## Traverse up the tree to find the item root (RigidBody3D or root Node3D)
+func _find_item_root() -> Node3D:
+	var current = get_parent()
+	while current:
+		if current is RigidBody3D:
+			return current
+		if current.get_parent() == null:
+			return current as Node3D
+		current = current.get_parent()
+	return null
 
 
 ## VIRTUAL: Override to implement custom kill effect
