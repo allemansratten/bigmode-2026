@@ -148,6 +148,10 @@ func _create_debug_sphere(position: Vector3, radius: float) -> void:
 	# Then set global position (must be in tree first)
 	mesh_instance.global_position = position
 
-	# Remove after 0.2 seconds
-	await item.get_tree().create_timer(0.2).timeout
-	mesh_instance.queue_free()
+	# Create timer as child of the sphere to ensure cleanup
+	var timer = Timer.new()
+	timer.wait_time = 0.2
+	timer.one_shot = true
+	timer.autostart = true
+	timer.timeout.connect(func(): mesh_instance.queue_free())
+	mesh_instance.add_child(timer)
