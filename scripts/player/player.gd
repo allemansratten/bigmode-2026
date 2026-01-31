@@ -1,5 +1,8 @@
 extends CharacterBody3D
 
+const DashComponent = preload("res://scripts/player/dash_component.gd")
+const MovementComponent = preload("res://scripts/player/movement_component.gd")
+
 ## Move speed in m/s
 @export var move_speed: float = 6.0
 ## Downward acceleration when in the air
@@ -8,12 +11,6 @@ extends CharacterBody3D
 @export var pickup_range: float = 2.0
 ## How quickly the character rotates to face movement direction (1 = instant, lower = smoother)
 @export var facing_turn_speed: float = 8.0
-## Dash speed (horizontal only)
-@export var dash_speed: float = 15.0
-## How long the dash lasts (seconds)
-@export var dash_duration: float = 0.16
-## Cooldown before next dash (seconds)
-@export var dash_cooldown: float = 1
 ## Player health
 @export var max_health: float = 100.0
 
@@ -26,46 +23,46 @@ var _held_melee_weapon: MeleeWeaponBehaviour = null
 var _held_ranged_weapon: RangedWeaponBehaviour = null
 ## Facing direction on XZ plane (x, z). Normalized when used for rotation.
 var _facing_direction: Vector2 = Vector2(0.0, -1.0) # Start facing -Z (forward)
-var _dash_direction: Vector3 = Vector3.ZERO
-var _is_dashing: bool = false
 
-var _dash_duration_timer: Timer
-var _dash_cooldown_timer: Timer
+# Movement components
+var _dash_component: DashComponent = null
+var _movement_components: Array[MovementComponent] = []
 
 func _ready() -> void:
 	add_to_group("player")
 	current_health = max_health
+	_cache_movement_components()
 
-	# Set up dash duration timer
-	_dash_duration_timer = Timer.new()
-	_dash_duration_timer.one_shot = true
-	_dash_duration_timer.timeout.connect(_on_dash_duration_timeout)
-	add_child(_dash_duration_timer)
 
-	# Set up dash cooldown timer
-	_dash_cooldown_timer = Timer.new()
-	_dash_cooldown_timer.one_shot = true
-	add_child(_dash_cooldown_timer)
+func _cache_movement_components() -> void:
+	for child in get_children():
+		if child is DashComponent:
+			_dash_component = child
+
+		if child is MovementComponent:
+			_movement_components.append(child)
 
 func _physics_process(delta: float) -> void:
-	# Dash: start on input if not on cooldown
-	if Input.is_action_just_pressed("dash") and not _is_dashing and _dash_cooldown_timer.is_stopped():
-		var horizontal := Vector3(velocity.x, 0.0, velocity.z)
-		if horizontal.length_squared() > 0.01:
-			_dash_direction = horizontal.normalized()
-		else:
-			_dash_direction = get_facing_direction()
-		_is_dashing = true
-		_dash_duration_timer.start(dash_duration)
-		_dash_cooldown_timer.start(dash_cooldown)
+	# Check if any movement component is currently active
+	var active_component: MovementComponent = null
+	for component in _movement_components:
+		if component.is_active():
+			active_component = component
+			break
 
-	# Apply dash velocity while dashing
-	if _is_dashing:
-		velocity.x = _dash_direction.x * dash_speed
-		velocity.z = _dash_direction.z * dash_speed
-		velocity.y = 0.0
+	# If a movement ability is active, let it control velocity
+	if active_component:
+		var ability_velocity := active_component.apply_velocity(delta)
+		velocity.x = ability_velocity.x
+		velocity.z = ability_velocity.z
+		velocity.y = ability_velocity.y
 		move_and_slide()
 		return
+
+	# Handle movement ability inputs
+	if Input.is_action_just_pressed("dash") and _dash_component and _dash_component.can_activate():
+		_dash_component.activate(velocity)
+		return  # Skip normal movement this frame
 
 	# Apply gravity
 	if not is_on_floor():
@@ -232,7 +229,3 @@ func get_facing_direction() -> Vector3:
 	if _facing_direction.length_squared() < 0.01:
 		return -global_transform.basis.z
 	return Vector3(_facing_direction.x, 0.0, _facing_direction.y).normalized()
-
-
-func _on_dash_duration_timeout() -> void:
-	_is_dashing = false
