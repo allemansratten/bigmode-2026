@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://effect_on_throw_landed"]
+
+[ext_resource type="Script" path="res://scripts/items/effects/on_throw_landed_effect.gd" id="1"]
+
+[node name="OnThrowLandedEffect" type="Node"]
+script = ExtResource("1")

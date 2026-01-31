@@ -50,9 +50,14 @@ func update_movement(delta: float, enemy: CharacterBody3D, target_position: Vect
 
 	# Get velocity from nav agent
 	if nav_agent.is_navigation_finished():
-		# Reached target - transition to idle if not repositioning
-		if current_state != State.REPOSITIONING:
-			current_state = State.IDLE
+		# Reached target - always transition to idle
+		current_state = State.IDLE
+		return Vector3.ZERO
+
+	# Fallback: if we're very close to target, consider it reached
+	# (handles cases where is_navigation_finished doesn't trigger)
+	if enemy.global_position.distance_to(current_target_position) < nav_agent.target_desired_distance:
+		current_state = State.IDLE
 		return Vector3.ZERO
 
 	var next_path_position := nav_agent.get_next_path_position()
@@ -94,7 +99,7 @@ func _update_state(distance_to_target: float) -> void:
 
 		State.REPOSITIONING:
 			# Stay in repositioning until navigation finishes
-			# (will transition to IDLE when nav finishes in update_movement)
+			# Transitions to IDLE when target reached in update_movement
 			pass
 
 

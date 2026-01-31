@@ -58,21 +58,18 @@ func _ready():
 func _setup_navigation():
 	if nav_agent:
 		nav_agent.path_desired_distance = 0.5
-		nav_agent.target_desired_distance = 0.5
+		nav_agent.target_desired_distance = 1.5  # Increased to prevent getting stuck near walls
 		# Enable avoidance for enemy-enemy collision
 		nav_agent.avoidance_enabled = true
-		nav_agent.radius = 0.5
+		nav_agent.radius = 0.8  # Increased to keep paths away from walls
 
 
 func _physics_process(delta: float):
 	if is_dead or not target:
 		return
 
-	# Update navigation target
-	if nav_agent and target:
-		nav_agent.target_position = target.global_position
-
 	# Get desired velocity from movement behavior
+	# Movement behaviors handle their own nav target setting
 	var target_velocity := Vector3.ZERO
 	if movement_behaviour:
 		target_velocity = movement_behaviour.update_movement(delta, self, target.global_position)

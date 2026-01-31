@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://iabo45pq04mc"
-path="res://.godot/imported/Silly Dancing.fbx-b556e96c3ca0af1e032b992821b42471.scn"
+uid="uid://ctvpi4au2lwvf"
+path="res://.godot/imported/puddles.fbx-23505dfd963be656577b8f96b2235d36.scn"
 
 [deps]
 
-source_file="res://resources/models/wizard/Silly Dancing.fbx"
-dest_files=["res://.godot/imported/Silly Dancing.fbx-b556e96c3ca0af1e032b992821b42471.scn"]
+source_file="res://resources/models/Puddles/puddles.fbx"
+dest_files=["res://.godot/imported/puddles.fbx-23505dfd963be656577b8f96b2235d36.scn"]
 
 [params]
 
