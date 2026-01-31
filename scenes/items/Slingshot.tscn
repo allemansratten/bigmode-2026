@@ -16,7 +16,7 @@ radius = 0.2
 height = 0.5
 
 [node name="Slingshot" type="RigidBody3D" unique_id=183633123]
-collision_mask = 9
+collision_layer = 4
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2040031631]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.079824686, 0)
@@ -24,6 +24,7 @@ shape = SubResource("CapsuleShape3D_2n8v8")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=782086481]
 transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 0, 0, 0)
+layers = 4
 mesh = ExtResource("1_5s1w3")
 
 [node name="PickupableBehaviour" type="Area3D" parent="." unique_id=941140339]
@@ -45,3 +46,7 @@ categories = Array[int]([0, 10, 20, 24])
 [node name="RangedWeaponBehaviour" type="Node" parent="." unique_id=295059903]
 script = ExtResource("5_5s1w3")
 projectile_scene = ExtResource("6_5s1w3")
+ammo_count = 4
+max_ammo = 4
+debug_projectiles = true
+damage = 33.0
