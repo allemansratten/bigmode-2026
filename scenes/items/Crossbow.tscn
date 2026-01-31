@@ -1,0 +1,49 @@
+[gd_scene format=3 uid="uid://cy23p060r5mga"]
+
+[ext_resource type="PackedScene" uid="uid://cgw2wnbwvfec2" path="res://resources/models/weapons/Rigged_CrossBow_Testing.fbx" id="1_urg8l"]
+[ext_resource type="Script" uid="uid://d3ujs8125ule" path="res://scripts/items/pickupable_behaviour.gd" id="2_fal6r"]
+[ext_resource type="Script" uid="uid://gq8jkdjg8anv" path="res://scripts/items/throwable_behaviour.gd" id="3_5big4"]
+[ext_resource type="Script" uid="uid://6ngjp570ak3h" path="res://scripts/items/spawnable_behaviour.gd" id="4_s6wgo"]
+[ext_resource type="Script" uid="uid://beyljglh35ds6" path="res://scripts/items/ranged_weapon_behaviour.gd" id="5_86tfp"]
+[ext_resource type="PackedScene" uid="uid://bkg6g3wr03ipu" path="res://scenes/items/PlayerArrowProjectile.tscn" id="6_urg8l"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qofw2"]
+size = Vector3(0.6215601, 0.13752441, 0.7686914)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_0ou0u"]
+size = Vector3(0.69509506, 0.19844055, 0.8345032)
+
+[node name="Crossbow" type="RigidBody3D" unique_id=183633123]
+collision_layer = 4
+collision_mask = 9
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2040031631]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0048022866, -0.01166404, -0.29888183)
+shape = SubResource("BoxShape3D_qofw2")
+
+[node name="Rigged_CrossBow_Testing" parent="." unique_id=2005264930 instance=ExtResource("1_urg8l")]
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 0, 0, 0.04024124)
+
+[node name="PickupableBehaviour" type="Area3D" parent="." unique_id=941140339]
+collision_layer = 0
+script = ExtResource("2_fal6r")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PickupableBehaviour" unique_id=1357684458]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.004213333, -0.016356587, -0.29768372)
+shape = SubResource("BoxShape3D_0ou0u")
+
+[node name="ThrowableBehaviour" type="Node" parent="." unique_id=1666972087]
+script = ExtResource("3_5big4")
+throw_force = 8.0
+
+[node name="SpawnableBehaviour" type="Node" parent="." unique_id=1230224406]
+script = ExtResource("4_s6wgo")
+categories = Array[int]([0, 10, 20, 24])
+
+[node name="RangedWeaponBehaviour" type="Node" parent="." unique_id=295059903]
+script = ExtResource("5_86tfp")
+projectile_scene = ExtResource("6_urg8l")
+ammo_count = 4
+max_ammo = 4
+damage = 100.0
+attack_cooldown = 1.5
