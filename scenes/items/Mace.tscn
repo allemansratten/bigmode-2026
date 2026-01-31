@@ -1,0 +1,48 @@
+[gd_scene format=3 uid="uid://6uq32mh8mksx"]
+
+[ext_resource type="PackedScene" uid="uid://cmyrlatviwmef" path="res://resources/models/weapons/SM_Wep_Mace_02.fbx" id="1_w1od3"]
+[ext_resource type="Script" uid="uid://d3ujs8125ule" path="res://scripts/items/pickupable_behaviour.gd" id="2_lkva1"]
+[ext_resource type="Script" uid="uid://gq8jkdjg8anv" path="res://scripts/items/throwable_behaviour.gd" id="3_qrkd0"]
+[ext_resource type="Script" uid="uid://6ngjp570ak3h" path="res://scripts/items/spawnable_behaviour.gd" id="4_eoyvg"]
+[ext_resource type="Script" uid="uid://dg2m87we0c6c8" path="res://scripts/items/melee_weapon_behaviour.gd" id="5_464bp"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_lkva1"]
+radius = 0.2
+height = 1.2
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_dpbjg"]
+radius = 0.3
+height = 1.2
+
+[node name="Mace" type="RigidBody3D" unique_id=183633123]
+collision_mask = 9
+
+[node name="SM_Wep_Mace_02" parent="." unique_id=722907236 instance=ExtResource("1_w1od3")]
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2040031631]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.33379635, 0)
+shape = SubResource("CapsuleShape3D_lkva1")
+
+[node name="PickupableBehaviour" type="Area3D" parent="." unique_id=941140339]
+collision_layer = 0
+script = ExtResource("2_lkva1")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PickupableBehaviour" unique_id=1357684458]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.360295, 0)
+shape = SubResource("CapsuleShape3D_dpbjg")
+
+[node name="ThrowableBehaviour" type="Node" parent="." unique_id=1666972087]
+script = ExtResource("3_qrkd0")
+throw_force = 8.0
+
+[node name="SpawnableBehaviour" type="Node" parent="." unique_id=1230224406]
+script = ExtResource("4_eoyvg")
+categories = Array[int]([0, 10, 20, 24])
+
+[node name="MeleeWeaponBehaviour" type="Node" parent="." unique_id=502907629]
+script = ExtResource("5_464bp")
+swing_range = 3.0
+knockback_force = 15.0
+max_durability = 50
+damage = 100.0
+attack_cooldown = 1.5

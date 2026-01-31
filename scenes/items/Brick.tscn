@@ -49,7 +49,7 @@ categories = Array[int]([0, 10, 20, 24])
 
 [node name="MeleeWeaponBehaviour" type="Node" parent="." unique_id=1349602546]
 script = ExtResource("4_weapon")
-swing_range = 2.0
+swing_range = 1.0
 knockback_force = 8.0
 max_durability = 4
 damage = 15.0
