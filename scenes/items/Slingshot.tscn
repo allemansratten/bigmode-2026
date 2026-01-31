@@ -5,7 +5,7 @@
 [ext_resource type="Script" uid="uid://gq8jkdjg8anv" path="res://scripts/items/throwable_behaviour.gd" id="3_3h7w0"]
 [ext_resource type="Script" uid="uid://6ngjp570ak3h" path="res://scripts/items/spawnable_behaviour.gd" id="4_tb378"]
 [ext_resource type="Script" uid="uid://beyljglh35ds6" path="res://scripts/items/ranged_weapon_behaviour.gd" id="5_5s1w3"]
-[ext_resource type="PackedScene" path="res://scenes/items/PlayerProjectile.tscn" id="6_5s1w3"]
+[ext_resource type="PackedScene" uid="uid://h22vjvr6ouot" path="res://scenes/items/PlayerProjectile.tscn" id="6_5s1w3"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2n8v8"]
 radius = 0.1
@@ -47,7 +47,6 @@ categories = Array[int]([0, 10, 20, 24])
 [node name="RangedWeaponBehaviour" type="Node" parent="." unique_id=295059903]
 script = ExtResource("5_5s1w3")
 projectile_scene = ExtResource("6_5s1w3")
-ammo_count = 4
-max_ammo = 4
-debug_projectiles = true
+ammo_count = 12
+max_ammo = 12
 damage = 33.0
