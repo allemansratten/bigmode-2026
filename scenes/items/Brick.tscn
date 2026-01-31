@@ -20,7 +20,6 @@ size = Vector3(0.6, 0.5, 0.4)
 
 [node name="Brick" type="RigidBody3D" unique_id=1481652315]
 collision_layer = 8
-collision_mask = 1
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=434748579]
 shape = SubResource("BoxShape3D_brick")
@@ -45,7 +44,7 @@ categories = Array[int]([0, 10, 20, 24])
 
 [node name="MeleeWeaponBehaviour" type="Node" parent="." unique_id=1349602546]
 script = ExtResource("4_weapon")
-swing_range = 2.0
+swing_range = 1.0
 knockback_force = 8.0
 max_durability = 50
 damage = 15.0

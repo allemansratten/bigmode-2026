@@ -1,6 +1,6 @@
 [gd_scene format=3 uid="uid://c7sw72207goqx"]
 
-[ext_resource type="ArrayMesh" uid="uid://beh8bljspd4kt" path="res://resources/models/SM_Prop_SwordOrnate_01.obj" id="1_rs3j6"]
+[ext_resource type="ArrayMesh" uid="uid://beh8bljspd4kt" path="res://resources/models/weapons/SM_Prop_SwordOrnate_01.obj" id="1_rs3j6"]
 [ext_resource type="Script" uid="uid://d3ujs8125ule" path="res://scripts/items/pickupable_behaviour.gd" id="1_uitic"]
 [ext_resource type="Script" uid="uid://gq8jkdjg8anv" path="res://scripts/items/throwable_behaviour.gd" id="2_rs3j6"]
 [ext_resource type="Script" uid="uid://6ngjp570ak3h" path="res://scripts/items/spawnable_behaviour.gd" id="3_2n8v8"]
@@ -46,5 +46,5 @@ script = ExtResource("4_dpbjg")
 swing_range = 3.0
 knockback_force = 8.0
 max_durability = 50
-damage = 15.0
-attack_cooldown = 1.5
+damage = 66.0
+attack_cooldown = 1.0

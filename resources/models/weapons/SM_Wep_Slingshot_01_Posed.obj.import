@@ -1,0 +1,25 @@
+[remap]
+
+importer="wavefront_obj"
+importer_version=1
+type="Mesh"
+uid="uid://c4agf84gmu4ak"
+path="res://.godot/imported/SM_Wep_Slingshot_01_Posed.obj-2cd662e2d1822d17bd4f06bc18674bca.mesh"
+
+[deps]
+
+files=["res://.godot/imported/SM_Wep_Slingshot_01_Posed.obj-2cd662e2d1822d17bd4f06bc18674bca.mesh"]
+
+source_file="res://resources/models/weapons/SM_Wep_Slingshot_01_Posed.obj"
+dest_files=["res://.godot/imported/SM_Wep_Slingshot_01_Posed.obj-2cd662e2d1822d17bd4f06bc18674bca.mesh", "res://.godot/imported/SM_Wep_Slingshot_01_Posed.obj-2cd662e2d1822d17bd4f06bc18674bca.mesh"]
+
+[params]
+
+generate_tangents=true
+generate_lods=true
+generate_shadow_mesh=true
+generate_lightmap_uv2=false
+generate_lightmap_uv2_texel_size=0.2
+scale_mesh=Vector3(1, 1, 1)
+offset_mesh=Vector3(0, 0, 0)
+force_disable_mesh_compression=false
