@@ -1,0 +1,9 @@
+[gd_scene load_steps=2 format=3 uid="uid://effect_explosion"]
+
+[ext_resource type="Script" path="res://scripts/items/effects/explosion_effect.gd" id="1"]
+
+[node name="ExplosionEffect" type="Node"]
+script = ExtResource("1")
+explosion_radius = 3.0
+explosion_damage = 30.0
+knockback_force = 10.0
