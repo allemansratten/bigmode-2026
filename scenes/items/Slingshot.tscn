@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://dgg1lo643a5p7"]
+[gd_scene format=3 uid="uid://bc6q5s11yba0s"]
 
 [ext_resource type="ArrayMesh" uid="uid://c4agf84gmu4ak" path="res://resources/models/weapons/SM_Wep_Slingshot_01_Posed.obj" id="1_5s1w3"]
 [ext_resource type="Script" uid="uid://d3ujs8125ule" path="res://scripts/items/pickupable_behaviour.gd" id="2_5s1w3"]
@@ -16,6 +16,7 @@ radius = 0.2
 height = 0.5
 
 [node name="Slingshot" type="RigidBody3D" unique_id=183633123]
+collision_layer = 4
 collision_mask = 9
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2040031631]
@@ -24,6 +25,7 @@ shape = SubResource("CapsuleShape3D_2n8v8")
 
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=782086481]
 transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 0, 0, 0)
+layers = 4
 mesh = ExtResource("1_5s1w3")
 
 [node name="PickupableBehaviour" type="Area3D" parent="." unique_id=941140339]
@@ -45,3 +47,6 @@ categories = Array[int]([0, 10, 20, 24])
 [node name="RangedWeaponBehaviour" type="Node" parent="." unique_id=295059903]
 script = ExtResource("5_5s1w3")
 projectile_scene = ExtResource("6_5s1w3")
+ammo_count = 12
+max_ammo = 12
+damage = 33.0

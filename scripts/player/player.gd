@@ -1,7 +1,6 @@
 extends CharacterBody3D
 
-const DashComponent = preload("res://scripts/player/dash_component.gd")
-const MovementComponent = preload("res://scripts/player/movement_component.gd")
+const SurfaceDetector = preload("res://scripts/surfaces/surface_detector.gd")
 
 ## Move speed in m/s
 @export var move_speed: float = 6.0
@@ -27,6 +26,7 @@ var _facing_direction: Vector2 = Vector2(0.0, -1.0) # Start facing -Z (forward)
 # Movement components
 var _dash_component: DashComponent = null
 var _movement_components: Array[MovementComponent] = []
+var _surface_detector: SurfaceDetector = null
 
 func _ready() -> void:
 	add_to_group("player")
@@ -41,6 +41,9 @@ func _cache_movement_components() -> void:
 
 		if child is MovementComponent:
 			_movement_components.append(child)
+
+		if child is SurfaceDetector:
+			_surface_detector = child
 
 func _physics_process(delta: float) -> void:
 	# Check if any movement component is currently active
@@ -90,8 +93,13 @@ func _physics_process(delta: float) -> void:
 		direction = (transform.basis * Vector3(input_dir.x, 0, input_dir.y)).normalized()
 
 	if direction:
-		velocity.x = direction.x * move_speed
-		velocity.z = direction.z * move_speed
+		# Apply surface effect to movement speed
+		var effective_speed = move_speed
+		if _surface_detector:
+			effective_speed *= _surface_detector.get_speed_multiplier()
+
+		velocity.x = direction.x * effective_speed
+		velocity.z = direction.z * effective_speed
 		# Gradually rotate to face movement direction (2D XZ only)
 		var target_facing := Vector2(direction.x, direction.z).normalized()
 		_facing_direction = _facing_direction.lerp(target_facing, facing_turn_speed * delta)

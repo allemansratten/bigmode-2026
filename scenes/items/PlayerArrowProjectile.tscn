@@ -1,0 +1,17 @@
+[gd_scene format=3 uid="uid://bkg6g3wr03ipu"]
+
+[ext_resource type="Script" uid="uid://c4g7w8sm2q30t" path="res://scripts/items/projectile.gd" id="1_2uyj7"]
+[ext_resource type="PackedScene" uid="uid://bhjtlhhuw6866" path="res://resources/models/weapons/SM_Arrow_01.fbx" id="2_7o32b"]
+
+[sub_resource type="SphereShape3D" id="SphereShape3D_projectile"]
+radius = 0.15
+
+[node name="Projectile" type="Area3D" unique_id=2034799578]
+collision_layer = 0
+collision_mask = 9
+script = ExtResource("1_2uyj7")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=863518758]
+shape = SubResource("SphereShape3D_projectile")
+
+[node name="SM_Arrow_01" parent="." unique_id=1694713645 instance=ExtResource("2_7o32b")]

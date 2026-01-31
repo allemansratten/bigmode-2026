@@ -1,0 +1,9 @@
+[gd_scene load_steps=3 format=3 uid="uid://effect_spawn_surface"]
+
+[ext_resource type="Script" path="res://scripts/items/effects/spawn_surface_effect.gd" id="1"]
+[ext_resource type="PackedScene" uid="uid://surface_oil" path="res://scenes/surfaces/OilSurface.tscn" id="2_surface"]
+
+[node name="SpawnSurfaceEffect" type="Node"]
+script = ExtResource("1")
+surface_scene = ExtResource("2_surface")
+spawn_offset = Vector3(0, 0.05, 0)

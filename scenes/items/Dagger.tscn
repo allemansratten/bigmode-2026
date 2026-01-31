@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://d4ec22vrqavkr"]
+[gd_scene format=3 uid="uid://bww0oa4ua45ir"]
 
 [ext_resource type="ArrayMesh" uid="uid://cu1ymhdsujsbx" path="res://resources/models/weapons/SM_Prop_Dagger_01.obj" id="1_xq7ka"]
 [ext_resource type="Script" uid="uid://d3ujs8125ule" path="res://scripts/items/pickupable_behaviour.gd" id="2_ly43w"]
@@ -15,6 +15,7 @@ radius = 0.2
 height = 0.9
 
 [node name="Dagger" type="RigidBody3D" unique_id=183633123]
+collision_layer = 4
 collision_mask = 9
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2040031631]

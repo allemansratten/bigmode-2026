@@ -6,21 +6,21 @@
 [ext_resource type="Script" uid="uid://dg2m87we0c6c8" path="res://scripts/items/melee_weapon_behaviour.gd" id="4_weapon"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_brick"]
-size = Vector3(0.35, 0.2, 0.12)
+size = Vector3(0.5, 0.3, 0.2)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_brick"]
 albedo_color = Color(0.8, 0.35, 0.1, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_brick"]
 material = SubResource("StandardMaterial3D_brick")
-size = Vector3(0.35, 0.2, 0.12)
+size = Vector3(0.6, 0.3, 0.2)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_pickup_area"]
-size = Vector3(0.6, 0.5, 0.4)
+size = Vector3(0.65, 0.55, 0.45)
 
 [node name="Brick" type="RigidBody3D" unique_id=1481652315]
-collision_layer = 8
-collision_mask = 17
+collision_layer = 4
+collision_mask = 5
 contact_monitor = true
 max_contacts_reported = 4
 
@@ -39,7 +39,7 @@ shape = SubResource("BoxShape3D_pickup_area")
 
 [node name="ThrowableBehaviour" type="Node" parent="." unique_id=120608837]
 script = ExtResource("2_throw")
-throw_force = 20.0
+throw_force = 16.0
 throw_durability_cost = 2.0
 throw_collision_damage = 10.0
 

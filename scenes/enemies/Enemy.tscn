@@ -3,6 +3,7 @@
 [ext_resource type="Script" uid="uid://bvy6016jhccxe" path="res://scripts/enemies/enemy.gd" id="1_enemy"]
 [ext_resource type="Script" uid="uid://gdlmer2evdf1" path="res://scripts/enemies/chase_movement_behaviour.gd" id="2_chase"]
 [ext_resource type="Script" uid="uid://b681gmdscutqr" path="res://scripts/enemies/melee_attack_behaviour.gd" id="3_melee"]
+[ext_resource type="PackedScene" path="res://scenes/components/SurfaceDetector.tscn" id="4_73enu"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_enemy"]
 radius = 0.4
@@ -44,3 +45,5 @@ rotation_speed = 8.0
 [node name="MeleeAttackBehaviour" type="Node" parent="." unique_id=476167444]
 script = ExtResource("3_melee")
 attack_cooldown = 1.5
+
+[node name="SurfaceDetector" parent="." unique_id=1104993392 instance=ExtResource("4_73enu")]

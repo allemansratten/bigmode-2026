@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://6uq32mh8mksx"]
+[gd_scene format=3 uid="uid://7inccmt1dryu"]
 
 [ext_resource type="PackedScene" uid="uid://cmyrlatviwmef" path="res://resources/models/weapons/SM_Wep_Mace_02.fbx" id="1_w1od3"]
 [ext_resource type="Script" uid="uid://d3ujs8125ule" path="res://scripts/items/pickupable_behaviour.gd" id="2_lkva1"]
@@ -15,6 +15,7 @@ radius = 0.3
 height = 1.2
 
 [node name="Mace" type="RigidBody3D" unique_id=183633123]
+collision_layer = 4
 collision_mask = 9
 
 [node name="SM_Wep_Mace_02" parent="." unique_id=722907236 instance=ExtResource("1_w1od3")]
