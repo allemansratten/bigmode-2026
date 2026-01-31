@@ -13,6 +13,7 @@ func _ready() -> void:
 
 func toggle_pause() -> void:
 	pause_menu.visible = !pause_menu.visible
+	basic_obverlay.visible = !basic_obverlay.visible
 
 	if get_tree().paused:
 		EventBus.emit_game_resumed()
