@@ -123,7 +123,12 @@ func _throw_item(item: Node3D, from: Vector3, to: Vector3) -> void:
 		push_warning("ItemSpawningManager: item is not RigidBody3D, cannot throw")
 		return
 
-	# Calculate throw direction with arc
+	# Mark as crowd throw if item has ThrowableBehaviour (prevents durability damage)
+	var throwable = item.get_node_or_null("ThrowableBehaviour") as ThrowableBehaviour
+	if throwable:
+		throwable.mark_as_crowd_throw()
+
+	# Calculate throw direction with arc (same for all items)
 	var direction = (to - from).normalized()
 	var distance = from.distance_to(to)
 

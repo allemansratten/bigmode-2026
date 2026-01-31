@@ -163,7 +163,11 @@ func _try_throw() -> void:
 	var pickupable: PickupableBehaviour = _get_pickupable_behaviour(_held_item)
 	if pickupable and pickupable.dropped.is_connected(_on_item_dropped):
 		pickupable.dropped.disconnect(_on_item_dropped)
-	throwable.throw(get_facing_direction(), get_tree().current_scene)
+
+	# Throw towards cursor position instead of facing direction
+	var throw_direction = _get_cursor_direction()
+	throwable.throw(throw_direction, get_tree().current_scene)
+
 	_held_item = null
 	_held_melee_weapon = null
 	_held_ranged_weapon = null
@@ -174,6 +178,34 @@ func _get_throwable_behaviour(item_root: Node) -> ThrowableBehaviour:
 		if c is ThrowableBehaviour:
 			return c as ThrowableBehaviour
 	return null
+
+
+## Get throw direction towards mouse cursor on XZ plane
+func _get_cursor_direction() -> Vector3:
+	var viewport = get_viewport()
+	var camera = viewport.get_camera_3d()
+	if not camera:
+		# Fallback to facing direction if no camera
+		return get_facing_direction()
+
+	var mouse_pos = viewport.get_mouse_position()
+
+	# Cast ray from camera through mouse position
+	var ray_origin = camera.project_ray_origin(mouse_pos)
+	var ray_direction = camera.project_ray_normal(mouse_pos)
+
+	# Project onto XZ plane at player's Y level
+	var y_level = global_position.y
+	if abs(ray_direction.y) > 0.001:
+		var t = (y_level - ray_origin.y) / ray_direction.y
+		var hit_point = ray_origin + ray_direction * t
+
+		# Calculate direction from player to hit point
+		var direction = (hit_point - global_position).normalized()
+		return direction
+
+	# Fallback: use ray direction flattened to XZ
+	return Vector3(ray_direction.x, 0, ray_direction.z).normalized()
 
 
 func _try_melee_attack() -> void:

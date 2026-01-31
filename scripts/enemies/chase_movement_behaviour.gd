@@ -25,6 +25,9 @@ func update_movement(delta: float, enemy: CharacterBody3D, target_position: Vect
 	if distance_to_target <= attack_range:
 		return Vector3.ZERO
 
+	# Update nav target to chase player
+	nav_agent.target_position = target_position
+
 	# Chase using nav agent
 	if nav_agent.is_navigation_finished():
 		return Vector3.ZERO

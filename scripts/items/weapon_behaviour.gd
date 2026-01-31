@@ -63,6 +63,8 @@ func _connect_to_throwable_behaviour() -> void:
 	var throwable = item.get_node_or_null("ThrowableBehaviour")
 	if throwable and throwable.has_signal("thrown"):
 		throwable.thrown.connect(_handle_throw)
+	if throwable and throwable.has_signal("throw_landed"):
+		throwable.throw_landed.connect(_handle_throw_landed)
 
 
 ## Perform attack (calls _attack if not on cooldown)
@@ -87,7 +89,7 @@ func is_on_cooldown() -> bool:
 
 
 ## Damage the weapon
-func damage_weapon(amount: int) -> void:
+func damage_weapon(amount: float) -> void:
 	current_durability = max(0, current_durability - amount)
 	durability_changed.emit(current_durability, max_durability)
 
@@ -97,6 +99,11 @@ func damage_weapon(amount: int) -> void:
 
 ## Destroy the weapon
 func destroy() -> void:
+	print("WeaponBehaviour: %s destroyed (durability: %d/%d)" % [item.name, current_durability, max_durability])
+
+	# TODO: Spawn break particles (wood splinters, metal shards, etc.)
+	# TODO: Play break sound effect (crack, shatter, clang, etc.)
+
 	_on_destroyed()
 	weapon_destroyed.emit()
 
@@ -117,9 +124,14 @@ func _handle_drop() -> void:
 
 
 ## Handle throw event from ThrowableBehaviour
-func _handle_throw(direction: Vector3, force: float) -> void:
+func _handle_throw(direction: Vector3, force: float, _from_crowd: bool) -> void:
 	_on_throw(direction, force)
 	weapon_thrown.emit(direction, force)
+
+
+## Handle throw landed event from ThrowableBehaviour
+func _handle_throw_landed(collision) -> void:
+	_on_throw_landed(collision)
 
 
 ## VIRTUAL: Override to implement attack logic
@@ -134,6 +146,11 @@ func _on_pickup(_picker: Node3D) -> void:
 
 ## VIRTUAL: Override for custom throw behavior
 func _on_throw(_direction: Vector3, _force: float) -> void:
+	pass
+
+
+## VIRTUAL: Override for custom throw landed behavior
+func _on_throw_landed(_collision) -> void:
 	pass
 
 
