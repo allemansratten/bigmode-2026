@@ -23,8 +23,8 @@ height = 0.6
 radius = 0.45
 
 [node name="OilFlask" type="RigidBody3D" unique_id=1188964105]
-collision_layer = 8
-collision_mask = 5
+collision_layer = 4
+collision_mask = 13
 contact_monitor = true
 max_contacts_reported = 4
 
