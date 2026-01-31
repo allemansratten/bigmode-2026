@@ -12,6 +12,5 @@ class_name PlaySoundOnDestroyEffect
 func execute() -> void:
 	if sound and Audio:
 		Audio.play_sound(sound, channel)
-		print("PlaySoundOnDestroyEffect: played %s" % sound.resource_path if sound.resource_path else "sound")
 	else:
 		push_warning("PlaySoundOnDestroyEffect: no sound assigned to %s" % get_parent().name if get_parent() else "effect")
