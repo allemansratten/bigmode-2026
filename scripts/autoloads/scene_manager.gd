@@ -59,7 +59,7 @@ func check_can_transition(room_id):
 
 
 ## Load and transition to a new room by enum ID
-func transition_to_room(room_id: Room) -> void:
+func transition_to_room(room_id: SceneManager.Room) -> void:
 	if not check_can_transition(room_id):
 		return
 

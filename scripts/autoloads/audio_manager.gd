@@ -139,7 +139,7 @@ func _on_music_player_finished() -> void:
 
 
 ## Handle debug console commands
-func _on_debug_command(cmd: String, args: PackedStringArray) -> void:
+func _on_debug_command(cmd: String, _args: PackedStringArray) -> void:
 	match cmd:
 		"mute":
 			toggle_mute()

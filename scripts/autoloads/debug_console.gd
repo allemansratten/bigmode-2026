@@ -172,7 +172,7 @@ func _parse_command(input: String) -> PackedStringArray:
 
 ## Handle built-in commands
 ## Returns true if command was handled, false otherwise
-func _handle_builtin_command(command: String, args: PackedStringArray) -> bool:
+func _handle_builtin_command(command: String, _args: PackedStringArray) -> bool:
 	match command:
 		"help":
 			_show_help()

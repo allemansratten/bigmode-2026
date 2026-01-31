@@ -128,12 +128,12 @@ func _attack() -> void:
 
 
 ## VIRTUAL: Override for custom pickup behavior
-func _on_pickup(picker: Node3D) -> void:
+func _on_pickup(_picker: Node3D) -> void:
 	pass
 
 
 ## VIRTUAL: Override for custom throw behavior
-func _on_throw(direction: Vector3, force: float) -> void:
+func _on_throw(_direction: Vector3, _force: float) -> void:
 	pass
 
 
