@@ -4,15 +4,24 @@ Guide for creating weapons with custom effects using the composition-based effec
 
 ## Quick Start (For Non-Developers)
 
-**Want to make an explosive sword?**
+**Want to add a glass break sound to a weapon?**
+
+1. Open your weapon scene (e.g., `scenes/items/Brick.tscn`)
+2. Add a container: Right-click root → Add Child Node → Node → Name it "AudioEffects"
+3. In FileSystem, navigate to `scenes/effects/audio/`
+4. **Drag** `PlaySoundOnDestroyEffect.tscn` into the AudioEffects container
+5. Select it → In Inspector → **Drag your .wav file** into the "Sound" property
+6. Save!
+
+Your weapon now plays a sound when it breaks. No coding required!
+
+**Want an explosive sword?**
 
 1. Open `scenes/items/Sword.tscn`
-2. In FileSystem, navigate to `scenes/effects/`
-3. **Drag** `ExplosionEffect.tscn` onto the Sword in Scene tree
-4. **Configure** explosion properties in Inspector (radius, damage, etc.)
+2. Add a container: Right-click root → Add Child Node → Node → Name it "Effects"
+3. **Drag** `ExplosionEffect.tscn` into the Effects container
+4. **Configure** properties in Inspector
 5. Save!
-
-Your sword now explodes when it breaks. No coding required!
 
 ## How It Works
 
@@ -34,6 +43,31 @@ Optional for melee attacks:
 ## Adding Effects
 
 Effects are separate nodes you attach as children of the weapon. They automatically trigger at specific events.
+
+### Organizing Effects with Containers
+
+**Recommended**: Group effects in container nodes for clean scene organization:
+
+```
+Sword (RigidBody3D)
+├── [Visuals]
+├── [Behaviors]
+├── AudioEffects (Node)
+│   ├── PlaySoundOnAttackEffect
+│   ├── PlaySoundOnEnemyHitEffect
+│   └── PlaySoundOnDestroyEffect
+└── VisualEffects (Node)
+    ├── ExplosionEffect
+    └── TrailParticlesEffect
+```
+
+**Benefits:**
+- Cleaner scene tree (collapsible containers)
+- Easy to find and manage effects
+- Group by type (audio, visual, gameplay)
+- Scales well with many effects
+
+**Note:** Effects work in containers OR as direct children - both work!
 
 ### Available Effects
 
@@ -101,6 +135,24 @@ Examples: sound effects, particles, UI notifications, player buffs
 ```gdscript
 func execute(picker: Node3D) -> void
 ```
+
+### Audio Effects
+
+Pre-built sound effect components in `scenes/effects/audio/`:
+
+**PlaySoundOnDestroyEffect** - Play sound when weapon breaks
+```
+Properties:
+- sound: AudioStream (drag .wav/.ogg file here)
+- channel: Audio.Channels (SFX by default)
+- volume_scale: float (1.0 = normal volume)
+```
+
+**PlaySoundOnAttackEffect** - Play sound when attacking
+**PlaySoundOnEnemyHitEffect** - Play sound when hitting enemy
+**PlaySoundOnThrowLandedEffect** - Play sound when thrown item lands
+
+All audio effects use the same properties (sound, channel, volume_scale).
 
 ## Examples
 

@@ -1,7 +1,6 @@
 class_name PickupableBehaviour
 extends Area3D
 
-const OnPickupEffect = preload("res://scripts/items/effects/on_pickup_effect.gd")
 
 ## Composition behaviour: makes the parent node pickupable by the player.
 ## Attach this script to an Area3D; the parent is the "item" (e.g. RigidBody3D).
@@ -55,9 +54,7 @@ func try_pick_up(by: Node3D) -> bool:
 	_holder = by
 
 	# Execute OnPickupEffect components
-	for child in item.get_children():
-		if child is OnPickupEffect:
-			child.execute(by)
+	EffectUtils.execute_effects(item, OnPickupEffect, [by])
 
 	picked_up.emit(by)
 	return true

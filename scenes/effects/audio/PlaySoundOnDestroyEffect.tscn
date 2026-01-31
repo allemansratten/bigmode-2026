@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://audio_effect_on_destroy"]
+
+[ext_resource type="Script" path="res://scripts/items/effects/audio/play_sound_on_destroy_effect.gd" id="1"]
+
+[node name="PlaySoundOnDestroyEffect" type="Node"]
+script = ExtResource("1")
+channel = 1
+volume_scale = 1.0

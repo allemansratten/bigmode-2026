@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://audio_effect_on_enemy_hit"]
+
+[ext_resource type="Script" path="res://scripts/items/effects/audio/play_sound_on_enemy_hit_effect.gd" id="1"]
+
+[node name="PlaySoundOnEnemyHitEffect" type="Node"]
+script = ExtResource("1")
+channel = 1
+volume_scale = 1.0
