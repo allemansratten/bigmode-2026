@@ -4,7 +4,7 @@
 [ext_resource type="Script" uid="uid://yhnq5bvgu0a" path="res://scripts/rooms/item_spawning_manager.gd" id="2_spawning"]
 [ext_resource type="PackedScene" path="res://scenes/ItemSpawnPoint.tscn" id="4_spawn_point"]
 [ext_resource type="PackedScene" path="res://scenes/ItemThrowTarget.tscn" id="5_throw_target"]
-[ext_resource type="PackedScene" uid="uid://crowd_manager_001" path="res://scenes/CrowdManager.tscn" id="6_manager"]
+[ext_resource type="PackedScene" path="res://scenes/CrowdManager.tscn" id="6_manager"]
 [ext_resource type="PackedScene" path="res://scenes/PeopleSpawner.tscn" id="7_spawner"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
@@ -117,7 +117,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.5, -3)
 [node name="ThrowTarget5" parent="ItemSpawningManager" unique_id=602858523 instance=ExtResource("5_throw_target")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 6)
 
-[node name="CrowdManager" parent="." instance=ExtResource("6_manager")]
+[node name="CrowdManager" parent="." unique_id=632418086 instance=ExtResource("6_manager")]
 
 [node name="SpawnZoneWest" parent="CrowdManager" unique_id=1388655268 instance=ExtResource("7_spawner")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.887893, 0, 0)
