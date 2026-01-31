@@ -4,8 +4,8 @@
 [ext_resource type="PackedScene" uid="uid://fjrqjm0d4cgo" path="res://scenes/ui/GUI.tscn" id="2_3x8es"]
 [ext_resource type="PackedScene" uid="uid://cplayer001" path="res://scenes/Player.tscn" id="3_player"]
 [ext_resource type="PackedScene" uid="uid://brick001" path="res://scenes/items/Brick.tscn" id="5_brick"]
-[ext_resource type="PackedScene" path="res://scenes/items/Crate.tscn" id="6_aug50"]
-[ext_resource type="PackedScene" path="res://scenes/rooms/ExampleRoom.tscn" id="7_kiw3p"]
+[ext_resource type="PackedScene" uid="uid://dcrate001" path="res://scenes/items/Crate.tscn" id="6_aug50"]
+[ext_resource type="PackedScene" uid="uid://b5ye7aiomms1g" path="res://scenes/rooms/ExampleRoom.tscn" id="7_kiw3p"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 sky_top_color = Color(0.25, 0.45, 0.75, 1)

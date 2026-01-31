@@ -37,6 +37,7 @@ shape = SubResource("BoxShape3D_pickup_area")
 
 [node name="ThrowableBehaviour" type="Node" parent="." unique_id=120608837]
 script = ExtResource("2_throw")
+throw_force = 20.0
 
 [node name="SpawnableBehaviour" type="Node" parent="." unique_id=1673821538]
 script = ExtResource("3_spawnable")

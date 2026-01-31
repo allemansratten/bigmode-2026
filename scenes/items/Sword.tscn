@@ -1,0 +1,50 @@
+[gd_scene format=3 uid="uid://c7sw72207goqx"]
+
+[ext_resource type="ArrayMesh" uid="uid://beh8bljspd4kt" path="res://resources/models/SM_Prop_SwordOrnate_01.obj" id="1_rs3j6"]
+[ext_resource type="Script" uid="uid://d3ujs8125ule" path="res://scripts/items/pickupable_behaviour.gd" id="1_uitic"]
+[ext_resource type="Script" uid="uid://gq8jkdjg8anv" path="res://scripts/items/throwable_behaviour.gd" id="2_rs3j6"]
+[ext_resource type="Script" uid="uid://6ngjp570ak3h" path="res://scripts/items/spawnable_behaviour.gd" id="3_2n8v8"]
+[ext_resource type="Script" uid="uid://dg2m87we0c6c8" path="res://scripts/items/melee_weapon_behaviour.gd" id="4_dpbjg"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2n8v8"]
+radius = 0.1
+height = 1.3
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_dpbjg"]
+radius = 0.2
+height = 1.8
+
+[node name="Sword" type="RigidBody3D" unique_id=183633123]
+collision_mask = 9
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2040031631]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.39820144, 0)
+shape = SubResource("CapsuleShape3D_2n8v8")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=782086481]
+transform = Transform3D(0.01, 0, 0, 0, 0.01, 0, 0, 0, 0.01, 0, 0, 0)
+mesh = ExtResource("1_rs3j6")
+
+[node name="PickupableBehaviour" type="Area3D" parent="." unique_id=941140339]
+collision_layer = 0
+script = ExtResource("1_uitic")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PickupableBehaviour" unique_id=1357684458]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.44958967, 0)
+shape = SubResource("CapsuleShape3D_dpbjg")
+
+[node name="ThrowableBehaviour" type="Node" parent="." unique_id=1666972087]
+script = ExtResource("2_rs3j6")
+throw_force = 8.0
+
+[node name="SpawnableBehaviour" type="Node" parent="." unique_id=1230224406]
+script = ExtResource("3_2n8v8")
+categories = Array[int]([0, 10, 20, 24])
+
+[node name="MeleeWeaponBehaviour" type="Node" parent="." unique_id=502907629]
+script = ExtResource("4_dpbjg")
+swing_range = 3.0
+knockback_force = 8.0
+max_durability = 50
+damage = 15.0
+attack_cooldown = 1.5
