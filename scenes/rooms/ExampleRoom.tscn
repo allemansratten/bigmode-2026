@@ -1,27 +1,19 @@
 [gd_scene format=3 uid="uid://b5ye7aiomms1g"]
 
-[ext_resource type="Script" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="PackedScene" path="res://scenes/RoomConnector.tscn" id="1_connector"]
+[ext_resource type="Script" uid="uid://bkgbdnr1wbg1w" path="res://scripts/rooms/room.gd" id="1_room"]
 [ext_resource type="Script" uid="uid://yhnq5bvgu0a" path="res://scripts/rooms/item_spawning_manager.gd" id="2_spawning"]
 [ext_resource type="PackedScene" path="res://scenes/ItemSpawnPoint.tscn" id="4_spawn_point"]
 [ext_resource type="PackedScene" path="res://scenes/ItemThrowTarget.tscn" id="5_throw_target"]
 [ext_resource type="PackedScene" path="res://scenes/crowd/CrowdManager.tscn" id="6_manager"]
 [ext_resource type="PackedScene" path="res://scenes/crowd/PeopleSpawner.tscn" id="7_spawner"]
 [ext_resource type="PackedScene" uid="uid://enemy001" path="res://scenes/enemies/Enemy.tscn" id="8_enemy"]
-[ext_resource type="PackedScene" uid="uid://enemy_spawner001" path="res://scenes/spawners/EnemySpawner.tscn" id="9_spawner"]
-[ext_resource type="PackedScene" uid="uid://ranged_enemy001" path="res://scenes/enemies/RangedEnemy.tscn" id="10_ranged"]
+[ext_resource type="PackedScene" path="res://scenes/spawners/EnemySpawner.tscn" id="9_spawner"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_room"]
-vertices = PackedVector3Array()
-polygons = []
 geometry_parsed_geometry_type = 1
-geometry_source_geometry_mode = 0
-cell_size = 0.25
-cell_height = 0.25
 agent_height = 2.0
-agent_radius = 0.5
 agent_max_climb = 1.0
-agent_max_slope = 45.0
 filter_low_hanging_obstacles = true
 filter_ledge_spans = true
 filter_walkable_low_height_spans = true
@@ -56,7 +48,7 @@ size = Vector3(0.2, 3, 20.4)
 [node name="ExampleRoom" type="Node3D" unique_id=779589000]
 script = ExtResource("1_room")
 
-[node name="NavigationRegion3D" type="NavigationRegion3D" parent="."]
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=1196801133]
 navigation_mesh = SubResource("NavigationMesh_room")
 
 [node name="Floor" type="StaticBody3D" parent="NavigationRegion3D" unique_id=1080193025]
@@ -112,7 +104,7 @@ spawn_facing_degrees = 180.0
 
 [node name="ItemSpawningManager" type="Node" parent="." unique_id=1081236601]
 script = ExtResource("2_spawning")
-allowed_categories = Array[int]([10])
+allowed_categories = Array[int]([0])
 throw_force = 7.0
 arc_height = 3.0
 
@@ -150,23 +142,21 @@ spawn_area_size = Vector2(5.0183067, 18.764166)
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.13179779, 0.15661716, -15.888239)
 spawn_area_size = Vector2(19.693493, 7.7934)
 
-[node name="TestEnemy" parent="." instance=ExtResource("8_enemy")]
+[node name="TestEnemy" parent="." unique_id=322626469 instance=ExtResource("8_enemy")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.8, 5)
+enemy_name = ""
 
-[node name="TestRangedEnemy" parent="." instance=ExtResource("10_ranged")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.8, 5)
-
-[node name="EnemySpawner" parent="." instance=ExtResource("9_spawner")]
+[node name="EnemySpawner" parent="." unique_id=1229589690 instance=ExtResource("9_spawner")]
 spawn_area_size = Vector2(18, 18)
 
-[node name="SpawnNorth" type="Marker3D" parent="EnemySpawner"]
+[node name="SpawnNorth" type="Marker3D" parent="EnemySpawner" unique_id=845532282]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 8)
 
-[node name="SpawnSouth" type="Marker3D" parent="EnemySpawner"]
+[node name="SpawnSouth" type="Marker3D" parent="EnemySpawner" unique_id=564006769]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, -8)
 
-[node name="SpawnEast" type="Marker3D" parent="EnemySpawner"]
+[node name="SpawnEast" type="Marker3D" parent="EnemySpawner" unique_id=603382463]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.8, 0)
 
-[node name="SpawnWest" type="Marker3D" parent="EnemySpawner"]
+[node name="SpawnWest" type="Marker3D" parent="EnemySpawner" unique_id=142756940]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0.8, 0)

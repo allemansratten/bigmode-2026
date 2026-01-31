@@ -1,0 +1,8 @@
+[gd_scene load_steps=2 format=3 uid="uid://component_surface_detector"]
+
+[ext_resource type="Script" path="res://scripts/surfaces/surface_detector.gd" id="1"]
+
+[node name="SurfaceDetector" type="Node"]
+script = ExtResource("1")
+detection_interval = 0.1
+debug_print = false
