@@ -1,6 +1,10 @@
 extends Node
 class_name WeaponBehaviour
 
+const OnAttackEffect = preload("res://scripts/items/effects/on_attack_effect.gd")
+const OnDestroyEffect = preload("res://scripts/items/effects/on_destroy_effect.gd")
+const OnPickupEffect = preload("res://scripts/items/effects/on_pickup_effect.gd")
+
 ## Base weapon behavior for all weapons
 ## Handles durability, events, and shared weapon logic
 
@@ -74,6 +78,12 @@ func attack() -> bool:
 
 	_attack()
 	last_attack_time = Time.get_ticks_msec() / 1000.0
+
+	# Execute OnAttackEffect components
+	for child in item.get_children():
+		if child is OnAttackEffect:
+			child.execute()
+
 	weapon_attacked.emit()
 
 	# Damage weapon on attack
@@ -101,6 +111,11 @@ func damage_weapon(amount: float) -> void:
 func destroy() -> void:
 	print("WeaponBehaviour: %s destroyed (durability: %d/%d)" % [item.name, current_durability, max_durability])
 
+	# Execute all OnDestroyEffect components
+	for child in item.get_children():
+		if child is OnDestroyEffect:
+			child.execute()
+
 	# TODO: Spawn break particles (wood splinters, metal shards, etc.)
 	# TODO: Play break sound effect (crack, shatter, clang, etc.)
 
@@ -116,6 +131,9 @@ func _handle_pickup(picker: Node3D) -> void:
 	is_held = true
 	_on_pickup(picker)
 	weapon_picked_up.emit(picker)
+	for child in item.get_children():
+		if child is OnPickupEffect:
+			child.execute(picker)
 
 
 ## Handle drop event from PickupableBehaviour

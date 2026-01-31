@@ -1,0 +1,6 @@
+[gd_scene load_steps=2 format=3 uid="uid://effect_on_enemy_hit"]
+
+[ext_resource type="Script" path="res://scripts/items/effects/on_enemy_hit_effect.gd" id="1"]
+
+[node name="OnEnemyHitEffect" type="Node"]
+script = ExtResource("1")

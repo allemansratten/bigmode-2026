@@ -6,6 +6,9 @@ extends Node
 ## Call throw() when the holder releases (e.g. from player input).
 
 const PickupableBehaviourScript := preload("res://scripts/items/pickupable_behaviour.gd")
+const OnThrowEffect = preload("res://scripts/items/effects/on_throw_effect.gd")
+const OnThrowLandedEffect = preload("res://scripts/items/effects/on_throw_landed_effect.gd")
+const OnEnemyHitEffect = preload("res://scripts/items/effects/on_enemy_hit_effect.gd")
 
 ## Impulse force applied when thrown (tune per item)
 @export var throw_force: float = 12.0
@@ -73,6 +76,11 @@ func throw(direction: Vector3, world_root: Node, from_crowd: bool = false) -> vo
 	var throw_dir := (flat * (1.0 - throw_up_bias) + up * throw_up_bias).normalized()
 	rb.apply_central_impulse(throw_dir * throw_force)
 
+	# Execute OnThrowEffect components
+	for child in item.get_children():
+		if child is OnThrowEffect:
+			child.execute(throw_dir, throw_force, from_crowd)
+
 	# Emit thrown signal
 	thrown.emit(throw_dir, throw_force, from_crowd)
 
@@ -105,8 +113,16 @@ func _on_body_entered(body: Node) -> void:
 		if _weapon_behaviour:
 			print("  -> Applying %d durability damage to weapon" % throw_durability_cost)
 			_weapon_behaviour.damage_weapon(throw_durability_cost)
+			for child in _item.get_children():
+				if child is OnEnemyHitEffect:
+					child.execute(body, throw_collision_damage)
 		else:
 			print("  -> No WeaponBehaviour found, skipping durability damage")
+
+	# Execute OnThrowLandedEffect components
+	for child in _item.get_children():
+		if child is OnThrowLandedEffect:
+			child.execute(body)
 
 	# Emit landed signal
 	throw_landed.emit(null)

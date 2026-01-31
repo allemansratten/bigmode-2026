@@ -5,6 +5,8 @@ class_name MeleeWeaponBehaviour
 ## Uses area detection to hit nearby entities
 
 const Layers = preload("res://scripts/core/collision_layers.gd")
+const OnEnemyHitEffect = preload("res://scripts/items/effects/on_enemy_hit_effect.gd")
+const OnEnemyKilledEffect = preload("res://scripts/items/effects/on_enemy_killed_effect.gd")
 
 ## Range of the swing attack
 @export var swing_range: float = 1.5
@@ -65,9 +67,31 @@ func _attack() -> void:
 
 ## Apply damage and knockback to hit entity
 func _apply_hit(target: Node3D, direction: Vector3) -> void:
-	# Apply damage (if target has health/damageable component)
-	# TODO: Implement when we have health system
 	print("MeleeWeaponBehaviour: hit ", target.name, " for ", damage, " damage")
+
+	var target_killed = false
+
+	# Apply damage if target is an enemy
+	if target is Enemy:
+		var enemy = target as Enemy
+		var health_before = enemy.current_health
+		enemy.take_damage(damage, item)
+		var health_after = enemy.current_health
+
+		# Check if enemy was killed
+		if health_before > 0 and health_after <= 0:
+			target_killed = true
+
+		# Execute OnEnemyHitEffect components
+		for child in item.get_children():
+			if child is OnEnemyHitEffect:
+				child.execute(target, damage)
+
+		# Execute OnEnemyKilledEffect components if enemy died
+		if target_killed:
+			for child in item.get_children():
+				if child is OnEnemyKilledEffect:
+					child.execute(target)
 
 	# Apply knockback if target is RigidBody
 	if target is RigidBody3D:
