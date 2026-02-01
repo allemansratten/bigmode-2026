@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://7inccmt1dryu"]
+[gd_scene format=3 uid="uid://6uq32mh8mksx"]
 
 [ext_resource type="PackedScene" uid="uid://cmyrlatviwmef" path="res://resources/models/weapons/SM_Wep_Mace_02.fbx" id="1_w1od3"]
 [ext_resource type="Script" uid="uid://d3ujs8125ule" path="res://scripts/items/pickupable_behaviour.gd" id="2_lkva1"]
@@ -44,6 +44,6 @@ categories = Array[int]([0, 10, 20, 24])
 script = ExtResource("5_464bp")
 swing_range = 3.0
 knockback_force = 15.0
-max_durability = 50
+max_durability = 4
 damage = 100.0
 attack_cooldown = 1.5
