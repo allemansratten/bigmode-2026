@@ -11,11 +11,14 @@ signal item_selected(slot: int)
 @export var wheel_radius: float = 100.0
 @export var item_icon_size: Vector2 = Vector2(64, 64)
 @export var selection_threshold: float = 20.0  # Minimum distance from center to select
+@export var background_texture: Texture2D  # Background wheel texture
+@export var fallback_icons: Dictionary = {}  # Category -> Texture2D mapping
 
 var inventory: PlayerInventoryClass
 var slot_positions: Array[Vector2] = []
 var slot_panels: Array[Panel] = []
 var currently_hovered_slot: int = -1
+var background_rect: TextureRect
 
 ## Item icon textures - you may want to replace these with actual item icons
 var default_item_texture: Texture2D
@@ -28,6 +31,7 @@ func _ready() -> void:
 	default_item_texture = ImageTexture.new()
 	default_item_texture.set_image(image)
 	
+	_setup_fallback_icons()
 	_setup_wheel_layout()
 
 
@@ -82,6 +86,16 @@ func _setup_wheel_layout() -> void:
 	var wheel_size = wheel_radius * 2 + item_icon_size.x
 	size = Vector2(wheel_size, wheel_size)
 	
+	# Add background texture if provided
+	if background_texture:
+		background_rect = TextureRect.new()
+		background_rect.texture = background_texture
+		background_rect.size = size
+		background_rect.position = Vector2.ZERO
+		background_rect.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+		background_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		add_child(background_rect)
+	
 	# Create 4 slots positioned in a circle
 	for i in range(4):
 		var angle = (i * PI / 2.0)  # Start at right, go clockwise: right, bottom, left, top
@@ -135,8 +149,9 @@ func _update_wheel_items() -> void:
 			var item = inventory.get_item(i)
 			
 			if item:
-				# Try to get item icon from item (you might want to add icon property to SpawnableBehaviour)
-				texture_rect.texture = default_item_texture
+				# Get item icon from item or use fallback
+				var item_icon = _get_item_icon(item)
+				texture_rect.texture = item_icon
 				# Update panel color to show it has an item
 				var style_box = panel.get_theme_stylebox("panel") as StyleBoxFlat
 				if style_box:
@@ -187,3 +202,54 @@ func _update_selection_hover() -> void:
 		var style_box = slot_panels[closest_slot].get_theme_stylebox("panel") as StyleBoxFlat
 		if style_box:
 			style_box.border_color = Color(1.0, 1.0, 0.0)  # Yellow highlight
+
+
+## Setup fallback icons for different item categories
+func _setup_fallback_icons() -> void:
+	# Create simple colored icons for different categories
+	# You can replace these with actual icon textures later
+	var weapon_icon = _create_colored_icon(Color(0.8, 0.2, 0.2))  # Red for weapons
+	var consumable_icon = _create_colored_icon(Color(0.2, 0.8, 0.2))  # Green for consumables
+	var movement_icon = _create_colored_icon(Color(0.2, 0.2, 0.8))  # Blue for movement items
+	
+	# Map categories to icons (using ItemCategories enum)
+	fallback_icons[10] = weapon_icon  # Category.WEAPON
+	fallback_icons[13] = consumable_icon  # Category.CONSUMABLE
+	fallback_icons[11] = movement_icon  # Category.MOVEMENT
+
+
+## Get icon for a specific item
+func _get_item_icon(item: Node3D) -> Texture2D:
+	# First, try to get custom icon from SpawnableBehaviour
+	var spawnable = _get_spawnable_behaviour(item)
+	if spawnable and spawnable.has_method("get_icon"):
+		var custom_icon = spawnable.get_icon()
+		if custom_icon:
+			return custom_icon
+	
+	# Fallback to category-based icon
+	if spawnable:
+		var categories = spawnable.categories
+		for category in categories:
+			if fallback_icons.has(category):
+				return fallback_icons[category]
+	
+	# Final fallback to default texture
+	return default_item_texture
+
+
+## Get SpawnableBehaviour from item
+func _get_spawnable_behaviour(item: Node3D) -> Node:
+	for child in item.get_children():
+		if child.get_script() and child.get_script().get_path().ends_with("spawnable_behaviour.gd"):
+			return child
+	return null
+
+
+## Create a simple colored icon texture
+func _create_colored_icon(color: Color) -> Texture2D:
+	var image = Image.create(64, 64, false, Image.FORMAT_RGBA8)
+	image.fill(color)
+	var texture = ImageTexture.new()
+	texture.set_image(image)
+	return texture
