@@ -6,10 +6,11 @@ class_name EnemySpawner
 
 signal enemy_spawned(enemy: Enemy)
 
-@export var drop_height: float = 5.0  # How high above the spawner to drop enemies from
-@export var spawn_area_size: Vector2 = Vector2(10, 10)  # Area for random drop spawning
+@export var drop_height: float = 5.0 # How high above the spawner to drop enemies from
+@export var spawn_area_size: Vector2 = Vector2(10, 10) # Area for random drop spawning
 
 var spawn_points: Array[Marker3D] = []
+var _alive_enemies: int = 0
 
 
 func _ready():
@@ -20,6 +21,9 @@ func _ready():
 	if room and room.has_signal("navigation_ready"):
 		if not room.navigation_ready.is_connected(_on_navigation_ready):
 			room.navigation_ready.connect(_on_navigation_ready)
+
+	# Listen for room transitions
+	SceneManager.room_transition_completed.connect(_on_room_transition_completed)
 
 	# Register debug commands
 	_register_commands()
@@ -41,6 +45,26 @@ func _find_room() -> Node:
 
 func _on_navigation_ready() -> void:
 	print("EnemySpawner: Navigation ready, can spawn enemies now")
+
+
+func _on_room_transition_completed(room: Node3D) -> void:
+	if room.name == "ExampleRoom":
+		_spawn_wave()
+
+
+func _spawn_wave() -> void:
+	# TODO more sophisticated wave spawning logic
+	spawn_enemy_by_name("melee", "dropped")
+	spawn_enemy_by_name("melee", "random")
+
+
+func _on_enemy_died(_enemy: Enemy) -> void:
+	_alive_enemies -= 1
+	if _alive_enemies <= 0:
+		# Wave completed! We can make a signal here if needed
+		# TODO spawn wave only after player moves through door
+		_alive_enemies = 0
+		_spawn_wave()
 
 
 ## Register debug console commands
@@ -155,6 +179,10 @@ func _spawn_enemy_at(enemy_scene: PackedScene, spawn_position: Vector3) -> Enemy
 	# Add to scene tree
 	get_parent().add_child(enemy)
 	enemy.global_position = spawn_position
+
+	# Track alive enemies
+	_alive_enemies += 1
+	enemy.died.connect(_on_enemy_died)
 
 	enemy_spawned.emit(enemy)
 

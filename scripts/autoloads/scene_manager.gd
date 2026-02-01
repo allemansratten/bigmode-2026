@@ -105,7 +105,6 @@ func transition_to_room(room_id: SceneManager.Room) -> void:
 	_start_cooldown()
 
 
-
 ## Reload the current room (for testing/debugging)
 func reload_current_room() -> void:
 	if not current_room:

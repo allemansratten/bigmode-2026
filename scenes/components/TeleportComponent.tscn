@@ -1,0 +1,8 @@
+[gd_scene format=3 uid="uid://e47y6ou2xsfx"]
+
+[ext_resource type="Script" path="res://scripts/components/teleport_component.gd" id="1_teleport"]
+
+[node name="TeleportComponent" type="Node"]
+script = ExtResource("1_teleport")
+teleport_distance = 10.0
+cooldown = 1.0

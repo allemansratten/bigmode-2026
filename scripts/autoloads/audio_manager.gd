@@ -56,6 +56,12 @@ func _ready():
 	else:
 		update_volumes()
 
+	# Setup pitch shift effects on all audio buses
+	_setup_pitch_shift_effects()
+
+	# Connect to TimeScaleManager for pitch adjustment
+	TimeScaleManager.time_scale_changed.connect(_on_time_scale_changed)
+
 	# Register debug commands
 	DebugConsole.register_command("mute", "Toggle audio mute")
 	DebugConsole.command_entered.connect(_on_debug_command)
@@ -136,6 +142,41 @@ func set_channel_volume(channel: Channels, value: float) -> void:
 ## Re-emit the music_finished signal when the music player finishes
 func _on_music_player_finished() -> void:
 	music_finished.emit()
+
+
+## Setup pitch shift effects on all audio buses
+func _setup_pitch_shift_effects() -> void:
+	for bus_idx in AudioServer.bus_count:
+		# Check if bus already has a pitch shift effect
+		var has_pitch_shift = false
+		for effect_idx in AudioServer.get_bus_effect_count(bus_idx):
+			if AudioServer.get_bus_effect(bus_idx, effect_idx) is AudioEffectPitchShift:
+				has_pitch_shift = true
+				break
+
+		# Add pitch shift effect if not present
+		if not has_pitch_shift:
+			var pitch_shift = AudioEffectPitchShift.new()
+			pitch_shift.pitch_scale = 1.0
+			AudioServer.add_bus_effect(bus_idx, pitch_shift)
+
+
+## Handle time scale changes from TimeScaleManager
+func _on_time_scale_changed(new_scale: float) -> void:
+	# Update pitch for all audio buses
+	for bus_idx in AudioServer.bus_count:
+		var pitch_effect = _get_pitch_shift_effect(bus_idx)
+		if pitch_effect:
+			pitch_effect.pitch_scale = new_scale
+
+
+## Get the pitch shift effect from a bus (returns null if not found)
+func _get_pitch_shift_effect(bus_idx: int) -> AudioEffectPitchShift:
+	for effect_idx in AudioServer.get_bus_effect_count(bus_idx):
+		var effect = AudioServer.get_bus_effect(bus_idx, effect_idx)
+		if effect is AudioEffectPitchShift:
+			return effect
+	return null
 
 
 ## Handle debug console commands
