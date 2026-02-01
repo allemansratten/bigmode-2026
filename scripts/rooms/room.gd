@@ -4,8 +4,6 @@ class_name Room
 ## Base class for room scenes
 ## Handles navigation mesh baking after room setup
 
-const Surface = preload("res://scripts/surfaces/surface.gd")
-
 signal navigation_ready()
 
 @export var auto_bake_navigation: bool = true
@@ -60,8 +58,6 @@ func bake_navigation() -> void:
 	if nav_mesh:
 		print("  NavMesh vertices: ", nav_mesh.vertices.size())
 		print("  NavMesh polygons: ", nav_mesh.polygons.size())
-		if nav_mesh.vertices.size() == 0:
-			print("  Note: Vertex count is 0, but navigation may still work (data populates asynchronously)")
 	else:
 		push_warning("NavigationRegion3D has no NavigationMesh resource!")
 

@@ -12,18 +12,14 @@ func _ready() -> void:
 	SceneManager.room_transition_completed.connect(_on_room_loaded)
 
 	# Initialize SceneManager with this node as the room container
-	print("RoomTest: calling SceneManager.setup()")
 	SceneManager.setup(self)
 
 	# Load the initial room (ExampleRoom) - defer to next frame to ensure scene tree is ready
-	print("RoomTest: about to load initial room")
-	call_deferred("_load_initial_room")
+	_load_initial_room.call_deferred()
 
 
 func _load_initial_room() -> void:
-	print("RoomTest: calling transition_to_room()")
 	SceneManager.transition_to_room(SceneManager.Room.EXAMPLE_ROOM)
-	print("RoomTest: transition_to_room() call completed")
 
 
 func _input(event: InputEvent) -> void:
@@ -33,21 +29,8 @@ func _input(event: InputEvent) -> void:
 
 
 func _test_spawn_item() -> void:
-	if not SceneManager.current_room:
-		print("RoomTest: no current room")
-		return
-
-	var spawner = SceneManager.current_room.get_node_or_null("ItemSpawningManager") as ItemSpawningManager
-	if not spawner:
-		print("RoomTest: no ItemSpawningManager found in room")
-		return
-
-	print("RoomTest: spawning item...")
-	var item = spawner.spawn_item()
-	if item:
-		print("RoomTest: successfully spawned ", item.name)
-	else:
-		print("RoomTest: failed to spawn item")
+	var item_spawner = SceneManager.current_room.get_node_or_null("ItemSpawningManager") as ItemSpawningManager
+	item_spawner.spawn_item()
 
 
 func _on_room_loaded(room: Node3D) -> void:

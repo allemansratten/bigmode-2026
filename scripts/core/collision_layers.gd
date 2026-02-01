@@ -9,6 +9,7 @@ enum Layer {
 	PLAYER = 1,  	 	# Layer 1: Player character
 	ENEMY = 2,    		# Layer 2: Enemy characters (e.g. enemies, NPCs, etc.)
 	ITEM = 3,     		# Layer 3: Items (e.g. weapons, powerups) (pickupable)
+	PLAYER_INTERACTION = 4,  # Layer 4: Player interaction body (for pushing items)
 }
 
 ## Get the layer mask value for a specific layer
