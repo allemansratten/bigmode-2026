@@ -9,6 +9,7 @@ class_name TeleportComponent
 @export var aim_time_scale: float = 0.2  ## Time scale when aiming
 @export var line_dash_length: float = 0.3  ## Length of each dash in the preview line
 @export var line_gap_length: float = 0.2  ## Gap between dashes
+@export var player_radius: float = 0.5  ## Player collision radius for wall detection
 
 var _player: Node3D = null
 var _item: Node3D = null
@@ -130,6 +131,9 @@ func _update_aim_preview() -> void:
 		var direction = (cursor_pos - _player.global_position).normalized()
 		cursor_pos = _player.global_position + direction * teleport_distance
 
+	# Check for walls and clamp position before collision
+	cursor_pos = _clamp_to_wall_collision(cursor_pos)
+
 	# Store the target position for teleport execution
 	_target_position = cursor_pos
 
@@ -247,6 +251,38 @@ func _clear_previews() -> void:
 	if _player_preview:
 		_player_preview.queue_free()
 		_player_preview = null
+
+
+## Check for wall collisions and clamp target position
+func _clamp_to_wall_collision(target_pos: Vector3) -> Vector3:
+	if not _player:
+		return target_pos
+
+	var from = _player.global_position
+	var to = target_pos
+
+	# Create raycast query
+	var space_state = _player.get_world_3d().direct_space_state
+	var query = PhysicsRayQueryParameters3D.create(from, to)
+	query.collision_mask = 1  # Environment layer
+	query.exclude = [_player]  # Don't hit the player
+
+	# Perform raycast
+	var result = space_state.intersect_ray(query)
+
+	if result:
+		# Hit a wall - clamp position to just before the wall
+		var hit_point = result.position
+		var direction = (to - from).normalized()
+
+		# Move back by player radius to avoid clipping into wall
+		var safe_position = hit_point - direction * player_radius
+
+		print("TeleportComponent: wall detected at %s, clamping to %s" % [hit_point, safe_position])
+		return safe_position
+
+	# No collision, use original target
+	return target_pos
 
 
 ## Get world position of cursor on the ground plane
