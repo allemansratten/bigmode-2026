@@ -13,10 +13,13 @@ class_name TeleportComponent
 var _player: Node3D = null
 var _item: Node3D = null
 var _pickupable: PickupableBehaviour = null
+var _weapon: WeaponBehaviour = null
 var _cooldown_timer: Timer = null
 var _is_aiming: bool = false
 var _aim_line: Node3D = null
 var _player_preview: Node3D = null
+var _target_position: Vector3 = Vector3.ZERO
+var _line_material: StandardMaterial3D = null
 
 
 func _ready() -> void:
@@ -25,6 +28,11 @@ func _ready() -> void:
 	_cooldown_timer.wait_time = cooldown
 	_cooldown_timer.one_shot = true
 	add_child(_cooldown_timer)
+
+	# Create reusable line material
+	_line_material = StandardMaterial3D.new()
+	_line_material.albedo_color = Color.WHITE
+	_line_material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
 
 	# Find parent item and its pickupable behaviour
 	_item = get_parent() as Node3D
@@ -37,6 +45,14 @@ func _ready() -> void:
 	if not _pickupable:
 		push_warning("TeleportComponent: no PickupableBehaviour found on %s" % _item.name)
 		return
+
+	# Find WeaponBehaviour for durability
+	_weapon = _item.get_node_or_null("WeaponBehaviour")
+	if not _weapon:
+		push_warning("TeleportComponent: no WeaponBehaviour found on %s (item won't have durability)" % _item.name)
+	else:
+		# Connect to destruction signal to clean up when weapon breaks
+		_weapon.weapon_destroyed.connect(_on_weapon_destroyed)
 
 	# Connect to pickup/drop signals
 	_pickupable.picked_up.connect(_on_picked_up)
@@ -79,28 +95,27 @@ func _execute_teleport() -> void:
 	# Clean up previews
 	_clear_previews()
 
-	# Get cursor world position
-	var cursor_pos = _get_cursor_world_position()
-	if cursor_pos == Vector3.ZERO:
-		print("TeleportComponent: failed to get cursor position")
+	# Check if we have a valid player and target
+	if not _player or not is_instance_valid(_player):
+		print("TeleportComponent: no valid player")
 		return
 
-	# Clamp to maximum distance
-	var distance = _player.global_position.distance_to(cursor_pos)
-	if distance > teleport_distance:
-		var direction = (cursor_pos - _player.global_position).normalized()
-		cursor_pos = _player.global_position + direction * teleport_distance
-		print("TeleportComponent: clamped to max distance (%.1fm)" % teleport_distance)
-
-	# Teleport!
-	print("TeleportComponent: teleporting to %s" % cursor_pos)
-	_player.global_position = cursor_pos
+	# Teleport to preview location!
+	print("TeleportComponent: teleporting to %s" % _target_position)
+	_player.global_position = _target_position
 	_cooldown_timer.start()
+
+	# Damage the weapon on use
+	if _weapon:
+		_weapon.damage_weapon(1)
 
 
 ## Update aim preview (line and player ghost)
 func _update_aim_preview() -> void:
-	if not _player:
+	if not _player or not is_instance_valid(_player):
+		_clear_previews()
+		_is_aiming = false
+		Engine.time_scale = 1.0
 		return
 
 	var cursor_pos = _get_cursor_world_position()
@@ -114,6 +129,9 @@ func _update_aim_preview() -> void:
 	if distance > teleport_distance:
 		var direction = (cursor_pos - _player.global_position).normalized()
 		cursor_pos = _player.global_position + direction * teleport_distance
+
+	# Store the target position for teleport execution
+	_target_position = cursor_pos
 
 	# Update dashed line
 	_update_dashed_line(_player.global_position, cursor_pos)
@@ -138,11 +156,6 @@ func _update_dashed_line(from: Vector3, to: Vector3) -> void:
 	var total_distance = from.distance_to(to)
 	var current_distance = 0.0
 
-	# Create material
-	var material = StandardMaterial3D.new()
-	material.albedo_color = Color.WHITE
-	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
-
 	# Create dashed line segments using cylinders for thickness
 	while current_distance < total_distance:
 		var dash_end_dist = min(current_distance + line_dash_length, total_distance)
@@ -158,7 +171,7 @@ func _update_dashed_line(from: Vector3, to: Vector3) -> void:
 		cylinder.bottom_radius = 0.05
 		cylinder.height = actual_dash_length
 		mesh_instance.mesh = cylinder
-		mesh_instance.material_override = material
+		mesh_instance.material_override = _line_material
 
 		# Add to tree first
 		_aim_line.add_child(mesh_instance)
@@ -193,8 +206,8 @@ func _update_player_preview(position: Vector3) -> void:
 	# Create preview container
 	_player_preview = Node3D.new()
 	_player_preview.name = "TeleportPreview"
-	_player_preview.global_position = position
 	get_tree().root.add_child(_player_preview)
+	_player_preview.global_position = position
 
 	# Clone player mesh
 	var mesh_copy = player_mesh.duplicate()
@@ -286,3 +299,19 @@ func _on_dropped() -> void:
 	# Reparent back to item
 	if _item:
 		reparent(_item)
+
+
+## Called when weapon is destroyed
+func _on_weapon_destroyed() -> void:
+	print("TeleportComponent: weapon destroyed, cleaning up")
+
+	# Clean up if we were aiming
+	if _is_aiming:
+		_is_aiming = false
+		Engine.time_scale = 1.0
+		_clear_previews()
+
+	_player = null
+
+	# Remove ourselves since the parent item is being destroyed
+	queue_free()
