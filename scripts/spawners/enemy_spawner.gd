@@ -6,8 +6,8 @@ class_name EnemySpawner
 
 signal enemy_spawned(enemy: Enemy)
 
-@export var drop_height: float = 5.0  # How high above the spawner to drop enemies from
-@export var spawn_area_size: Vector2 = Vector2(10, 10)  # Area for random drop spawning
+@export var drop_height: float = 5.0 # How high above the spawner to drop enemies from
+@export var spawn_area_size: Vector2 = Vector2(10, 10) # Area for random drop spawning
 
 var spawn_points: Array[Marker3D] = []
 
@@ -20,6 +20,9 @@ func _ready():
 	if room and room.has_signal("navigation_ready"):
 		if not room.navigation_ready.is_connected(_on_navigation_ready):
 			room.navigation_ready.connect(_on_navigation_ready)
+
+	# Listen for room transitions
+	SceneManager.room_transition_completed.connect(_on_room_transition_completed)
 
 	# Register debug commands
 	_register_commands()
@@ -41,6 +44,11 @@ func _find_room() -> Node:
 
 func _on_navigation_ready() -> void:
 	print("EnemySpawner: Navigation ready, can spawn enemies now")
+
+
+func _on_room_transition_completed(_room: Node3D) -> void:
+	# TODO: wave management
+	_spawn_enemy("melee")
 
 
 ## Register debug console commands
