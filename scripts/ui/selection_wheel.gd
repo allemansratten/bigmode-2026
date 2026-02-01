@@ -19,6 +19,7 @@ var slot_positions: Array[Vector2] = []
 var slot_panels: Array[Panel] = []
 var currently_hovered_slot: int = -1
 var background_rect: TextureRect
+var highlight_control: Control
 
 ## Item icon textures - you may want to replace these with actual item icons
 var default_item_texture: Texture2D
@@ -96,6 +97,13 @@ func _setup_wheel_layout() -> void:
 		background_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		add_child(background_rect)
 	
+	# Add highlight control for quarter circle highlights
+	highlight_control = Control.new()
+	highlight_control.size = size
+	highlight_control.position = Vector2.ZERO
+	highlight_control.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	add_child(highlight_control)
+	
 	# Create 4 slots positioned in a circle
 	for i in range(4):
 		var angle = (i * PI / 2.0)  # Start at right, go clockwise: right, bottom, left, top
@@ -172,11 +180,16 @@ func _update_selection_hover() -> void:
 	var local_mouse_pos = get_local_mouse_position() - size / 2
 	var distance_from_center = local_mouse_pos.length()
 	
-	# Reset all slot highlights
+	# Reset all slot highlights and clear quarter circle highlight
 	for i in range(slot_panels.size()):
 		var style_box = slot_panels[i].get_theme_stylebox("panel") as StyleBoxFlat
 		if style_box:
 			style_box.border_color = Color(0.6, 0.6, 0.6)
+	
+	# Clear previous highlight
+	if highlight_control:
+		for child in highlight_control.get_children():
+			child.queue_free()
 	
 	currently_hovered_slot = -1
 	
@@ -202,6 +215,9 @@ func _update_selection_hover() -> void:
 		var style_box = slot_panels[closest_slot].get_theme_stylebox("panel") as StyleBoxFlat
 		if style_box:
 			style_box.border_color = Color(1.0, 1.0, 0.0)  # Yellow highlight
+		
+		# Add quarter circle highlight
+		_add_quarter_highlight(closest_slot)
 
 
 ## Setup fallback icons for different item categories
@@ -253,3 +269,44 @@ func _create_colored_icon(color: Color) -> Texture2D:
 	var texture = ImageTexture.new()
 	texture.set_image(image)
 	return texture
+
+
+## Add quarter circle highlight for a specific slot
+func _add_quarter_highlight(slot: int) -> void:
+	if not highlight_control:
+		return
+	
+	# Create a custom control that draws a quarter circle
+	var quarter_highlight = Control.new()
+	quarter_highlight.size = size
+	quarter_highlight.position = Vector2.ZERO
+	quarter_highlight.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	
+	# Connect to draw signal to render the quarter circle
+	quarter_highlight.draw.connect(_draw_quarter_circle.bind(quarter_highlight, slot))
+	highlight_control.add_child(quarter_highlight)
+	quarter_highlight.queue_redraw()
+
+
+## Draw quarter circle highlight for specific slot
+func _draw_quarter_circle(control: Control, slot: int) -> void:
+	var center = size / 2
+	var radius = wheel_radius + item_icon_size.x / 2
+	
+	# Calculate start and end angles for this slot's quarter
+	var start_angle = slot * PI / 2.0 - PI / 4.0  # -45 degrees from slot position
+	var end_angle = slot * PI / 2.0 + PI / 4.0   # +45 degrees from slot position
+	
+	# Create points for the quarter circle arc
+	var points = PackedVector2Array()
+	points.append(center)  # Start from center
+	
+	# Add arc points
+	var segments = 16  # Number of segments for smooth arc
+	for i in range(segments + 1):
+		var angle = start_angle + (end_angle - start_angle) * i / segments
+		var point = center + Vector2(cos(angle), sin(angle)) * radius
+		points.append(point)
+	
+	# Draw the quarter circle as a colored polygon
+	control.draw_colored_polygon(points, Color(1.0, 1.0, 0.0, 0.3))  # Semi-transparent yellow
