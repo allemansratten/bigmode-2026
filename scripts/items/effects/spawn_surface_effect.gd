@@ -19,8 +19,12 @@ func execute() -> void:
 		push_warning("SpawnSurfaceEffect: No room found to spawn surface in!")
 		return
 
-	# Get spawn position from parent item (item is Node3D, weapon is just Node)
-	var spawn_position = item.global_position + spawn_offset
+	# Raycast downward from impact position to find floor
+	var impact_position = item.global_position
+	var floor_position = _find_floor_position(impact_position)
+
+	# Use floor position with offset, or fallback to impact position if no floor found
+	var spawn_position = floor_position + spawn_offset
 
 	# Instance and spawn the surface
 	var surface = surface_scene.instantiate()
@@ -32,3 +36,24 @@ func execute() -> void:
 	surface.global_position = spawn_position
 
 	print("SpawnSurfaceEffect: Spawned %s at %s" % [surface.name, spawn_position])
+
+
+## Raycast downward to find floor position
+func _find_floor_position(from_position: Vector3) -> Vector3:
+	var space_state = item.get_world_3d().direct_space_state
+
+	# Raycast downward from impact position (max 10 units down)
+	var ray_origin = from_position
+	var ray_end = from_position + Vector3(0, -10, 0)
+
+	var query = PhysicsRayQueryParameters3D.create(ray_origin, ray_end)
+	query.collision_mask = CollisionLayers.get_mask(CollisionLayers.Layer.ENVIRONMENT)
+
+	var result = space_state.intersect_ray(query)
+
+	if result:
+		# Found floor, return hit position
+		return result.position
+	else:
+		# No floor found, return original position (flask may have hit the floor directly)
+		return from_position
