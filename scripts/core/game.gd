@@ -78,9 +78,10 @@ func _on_room_loaded(room: Node3D) -> void:
 		player.global_position = Vector3(0, 0.5, 0)
 		print("RoomTest: spawned player at room center pos=", player.global_position)
 
-	_test_spawn_item()
-	_test_spawn_item()
-	_test_spawn_item()
+	if room.name == "ExampleRoom":
+		_test_spawn_item()
+		_test_spawn_item()
+		_test_spawn_item()
 
 
 ####
