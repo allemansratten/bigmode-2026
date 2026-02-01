@@ -6,11 +6,17 @@ class_name TeleportComponent
 
 @export var teleport_distance: float = 10.0  ## Maximum teleport distance
 @export var cooldown: float = 1.0  ## Cooldown between teleports in seconds
+@export var aim_time_scale: float = 0.2  ## Time scale when aiming
+@export var line_dash_length: float = 0.3  ## Length of each dash in the preview line
+@export var line_gap_length: float = 0.2  ## Gap between dashes
 
 var _player: Node3D = null
 var _item: Node3D = null
 var _pickupable: PickupableBehaviour = null
 var _cooldown_timer: Timer = null
+var _is_aiming: bool = false
+var _aim_line: Node3D = null
+var _player_preview: Node3D = null
 
 
 func _ready() -> void:
@@ -37,39 +43,197 @@ func _ready() -> void:
 	_pickupable.dropped.connect(_on_dropped)
 
 
+func _process(_delta: float) -> void:
+	if _is_aiming:
+		_update_aim_preview()
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	# Only process input when attached to player
 	if not _player:
 		return
 
 	if event.is_action_pressed("attack_melee"):
-		_try_teleport()
+		_start_aiming()
+	elif event.is_action_released("attack_melee"):
+		if _is_aiming:
+			_execute_teleport()
 
-## Attempt to teleport player to cursor position
-func _try_teleport() -> void:
-	if not _player:
-		return
 
+## Start aiming mode
+func _start_aiming() -> void:
 	# Check cooldown
 	if not _cooldown_timer.is_stopped():
 		return
 
+	_is_aiming = true
+	Engine.time_scale = aim_time_scale
+	print("TeleportComponent: entering aim mode (time scale: %.1f)" % aim_time_scale)
+
+
+## Execute the teleport
+func _execute_teleport() -> void:
+	_is_aiming = false
+	Engine.time_scale = 1.0
+
+	# Clean up previews
+	_clear_previews()
+
 	# Get cursor world position
 	var cursor_pos = _get_cursor_world_position()
-	if cursor_pos == null:
+	if cursor_pos == Vector3.ZERO:
 		print("TeleportComponent: failed to get cursor position")
 		return
 
-	# Check distance
+	# Clamp to maximum distance
 	var distance = _player.global_position.distance_to(cursor_pos)
 	if distance > teleport_distance:
-		print("TeleportComponent: too far (%.1fm, max %.1fm)" % [distance, teleport_distance])
-		return
+		var direction = (cursor_pos - _player.global_position).normalized()
+		cursor_pos = _player.global_position + direction * teleport_distance
+		print("TeleportComponent: clamped to max distance (%.1fm)" % teleport_distance)
 
 	# Teleport!
 	print("TeleportComponent: teleporting to %s" % cursor_pos)
 	_player.global_position = cursor_pos
 	_cooldown_timer.start()
+
+
+## Update aim preview (line and player ghost)
+func _update_aim_preview() -> void:
+	if not _player:
+		return
+
+	var cursor_pos = _get_cursor_world_position()
+	if cursor_pos == Vector3.ZERO:
+		_clear_previews()
+		return
+
+	var distance = _player.global_position.distance_to(cursor_pos)
+
+	# Clamp cursor position to max distance
+	if distance > teleport_distance:
+		var direction = (cursor_pos - _player.global_position).normalized()
+		cursor_pos = _player.global_position + direction * teleport_distance
+
+	# Update dashed line
+	_update_dashed_line(_player.global_position, cursor_pos)
+
+	# Update player preview
+	_update_player_preview(cursor_pos)
+
+
+## Create or update the dashed line from player to target
+func _update_dashed_line(from: Vector3, to: Vector3) -> void:
+	# Clear existing line
+	if _aim_line:
+		_aim_line.queue_free()
+		_aim_line = null
+
+	# Create container for line segments
+	_aim_line = Node3D.new()
+	_aim_line.name = "TeleportLine"
+	get_tree().root.add_child(_aim_line)
+
+	var direction = (to - from).normalized()
+	var total_distance = from.distance_to(to)
+	var current_distance = 0.0
+
+	# Create material
+	var material = StandardMaterial3D.new()
+	material.albedo_color = Color.WHITE
+	material.shading_mode = BaseMaterial3D.SHADING_MODE_UNSHADED
+
+	# Create dashed line segments using cylinders for thickness
+	while current_distance < total_distance:
+		var dash_end_dist = min(current_distance + line_dash_length, total_distance)
+		var actual_dash_length = dash_end_dist - current_distance
+
+		if actual_dash_length <= 0:
+			break
+
+		# Create cylinder for this dash
+		var mesh_instance = MeshInstance3D.new()
+		var cylinder = CylinderMesh.new()
+		cylinder.top_radius = 0.05  # Thickness
+		cylinder.bottom_radius = 0.05
+		cylinder.height = actual_dash_length
+		mesh_instance.mesh = cylinder
+		mesh_instance.material_override = material
+
+		# Add to tree first
+		_aim_line.add_child(mesh_instance)
+
+		# Position and orient the cylinder
+		var dash_center = from + direction * (current_distance + actual_dash_length * 0.5)
+		mesh_instance.global_position = dash_center
+
+		# Rotate cylinder to align with direction
+		var up = Vector3.UP
+		if abs(direction.dot(up)) > 0.99:
+			up = Vector3.RIGHT
+		mesh_instance.look_at(dash_center + direction, up)
+		mesh_instance.rotate_object_local(Vector3.RIGHT, PI / 2)
+
+		# Move to next dash
+		current_distance += line_dash_length + line_gap_length
+
+
+## Create or update the player preview at target location
+func _update_player_preview(position: Vector3) -> void:
+	# Clear existing preview
+	if _player_preview:
+		_player_preview.queue_free()
+		_player_preview = null
+
+	# Find player mesh to clone
+	var player_mesh = _find_player_mesh()
+	if not player_mesh:
+		return
+
+	# Create preview container
+	_player_preview = Node3D.new()
+	_player_preview.name = "TeleportPreview"
+	_player_preview.global_position = position
+	get_tree().root.add_child(_player_preview)
+
+	# Clone player mesh
+	var mesh_copy = player_mesh.duplicate()
+	_player_preview.add_child(mesh_copy)
+
+	# Make it semi-transparent white
+	var material = StandardMaterial3D.new()
+	material.albedo_color = Color.WHITE
+	material.albedo_color.a = 0.3
+	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	mesh_copy.material_override = material
+
+
+## Find the player's visual mesh
+func _find_player_mesh() -> MeshInstance3D:
+	if not _player:
+		return null
+
+	# Look for MeshInstance3D in player's children
+	for child in _player.get_children():
+		if child is MeshInstance3D:
+			return child
+		# Check nested children
+		for nested in child.get_children():
+			if nested is MeshInstance3D:
+				return nested
+
+	return null
+
+
+## Clear all preview visuals
+func _clear_previews() -> void:
+	if _aim_line:
+		_aim_line.queue_free()
+		_aim_line = null
+
+	if _player_preview:
+		_player_preview.queue_free()
+		_player_preview = null
 
 
 ## Get world position of cursor on the ground plane
@@ -110,6 +274,13 @@ func _on_picked_up(picker: Node3D) -> void:
 ## Called when item is dropped
 func _on_dropped() -> void:
 	print("TeleportComponent: dropped")
+
+	# Clean up if we were aiming
+	if _is_aiming:
+		_is_aiming = false
+		Engine.time_scale = 1.0
+		_clear_previews()
+
 	_player = null
 
 	# Reparent back to item
