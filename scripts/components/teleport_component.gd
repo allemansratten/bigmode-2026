@@ -258,31 +258,33 @@ func _clamp_to_wall_collision(target_pos: Vector3) -> Vector3:
 	if not _player:
 		return target_pos
 
-	var from = _player.global_position
+	var from = _player.global_position + Vector3.UP * 0.5
 	var to = target_pos
 
 	# Create raycast query
 	var space_state = _player.get_world_3d().direct_space_state
 	var query = PhysicsRayQueryParameters3D.create(from, to)
 	query.collision_mask = 1  # Environment layer
-	query.exclude = [_player]  # Don't hit the player
+	query.exclude = [_player, _item]  # Don't hit the player or item
 
 	# Perform raycast
 	var result = space_state.intersect_ray(query)
 
-	if result:
-		# Hit a wall - clamp position to just before the wall
-		var hit_point = result.position
-		var direction = (to - from).normalized()
-
-		# Move back by player radius to avoid clipping into wall
-		var safe_position = hit_point - direction * player_radius
-
-		print("TeleportComponent: wall detected at %s, clamping to %s" % [hit_point, safe_position])
-		return safe_position
-
 	# No collision, use original target
-	return target_pos
+	if result.is_empty():
+		return target_pos
+
+	# Hit a wall - clamp position to just before the wall
+	var hit_point = result.position
+	var direction = (to - from).normalized()
+
+	# Move back by player radius to avoid clipping into wall
+	var safe_position = hit_point - direction * player_radius
+
+	print("TeleportComponent: wall detected at %s, clamping to %s" % [hit_point, safe_position])
+	return safe_position
+
+
 
 
 ## Get world position of cursor on the ground plane
