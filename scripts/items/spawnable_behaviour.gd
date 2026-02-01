@@ -12,6 +12,7 @@ const Categories = preload("res://scripts/core/item_categories.gd")
 ## Reference to the parent item (set automatically)
 var item: Node3D
 
+@export var custom_icon: Texture2D
 
 func _ready() -> void:
 	item = get_parent() as Node3D
@@ -35,3 +36,6 @@ func get_category_string() -> String:
 	for cat in categories:
 		tags.append(Categories.Category.keys()[cat])
 	return ", ".join(tags)
+
+func get_icon() -> Texture2D:
+	return custom_icon

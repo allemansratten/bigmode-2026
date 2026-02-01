@@ -1,0 +1,11 @@
+[gd_scene format=3 uid="uid://csagj6njtnvm7"]
+
+[ext_resource type="Script" uid="uid://bondryfqasow0" path="res://scripts/ui/selection_wheel.gd" id="1_5dcvy"]
+
+[node name="SelectionWheel" type="Control" unique_id=378065247]
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_5dcvy")
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=810235886]
+layer = 100

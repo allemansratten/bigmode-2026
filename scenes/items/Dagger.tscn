@@ -1,4 +1,4 @@
-[gd_scene format=3 uid="uid://bww0oa4ua45ir"]
+[gd_scene format=3 uid="uid://d4ec22vrqavkr"]
 
 [ext_resource type="ArrayMesh" uid="uid://cu1ymhdsujsbx" path="res://resources/models/weapons/SM_Prop_Dagger_01.obj" id="1_xq7ka"]
 [ext_resource type="Script" uid="uid://d3ujs8125ule" path="res://scripts/items/pickupable_behaviour.gd" id="2_ly43w"]
@@ -47,5 +47,5 @@ script = ExtResource("5_vpvlp")
 swing_range = 2.0
 swing_angle = 60.0
 knockback_force = 8.0
-max_durability = 50
+max_durability = 12
 damage = 33.0

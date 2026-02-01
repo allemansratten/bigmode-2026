@@ -1,6 +1,8 @@
 extends CharacterBody3D
 
-const SurfaceDetector = preload("res://scripts/surfaces/surface_detector.gd")
+const SurfaceDetectorClass = preload("res://scripts/surfaces/surface_detector.gd")
+const PlayerInventoryClass = preload("res://scripts/player/player_inventory.gd")
+const SelectionWheelClass = preload("res://scripts/ui/selection_wheel.gd")
 
 ## Move speed in m/s
 @export var move_speed: float = 6.0
@@ -17,11 +19,15 @@ signal health_changed(current: float, maximum: float)
 signal died()
 
 var current_health: float = max_health
-var _held_item: Node3D = null # Root of the held item (e.g. Brick RigidBody3D)
-var _held_melee_weapon: MeleeWeaponBehaviour = null
-var _held_ranged_weapon: RangedWeaponBehaviour = null
 ## Facing direction on XZ plane (x, z). Normalized when used for rotation.
 var _facing_direction: Vector2 = Vector2(0.0, -1.0) # Start facing -Z (forward)
+
+# Selection wheel variables
+var _selection_wheel: SelectionWheelClass = null
+var _original_time_scale: float = 1.0
+
+# Get inventory from scene instead of creating it
+@onready var _inventory: PlayerInventoryClass = $PlayerInventory
 
 # Movement components
 var _dash_component: DashComponent = null
@@ -32,6 +38,7 @@ func _ready() -> void:
 	add_to_group("player")
 	current_health = max_health
 	_cache_movement_components()
+	_setup_inventory_system()
 
 
 func _cache_movement_components() -> void:
@@ -42,7 +49,7 @@ func _cache_movement_components() -> void:
 		if child is MovementComponent:
 			_movement_components.append(child)
 
-		if child is SurfaceDetector:
+		if child is SurfaceDetectorClass:
 			_surface_detector = child
 
 func _physics_process(delta: float) -> void:
@@ -122,11 +129,19 @@ func _unhandled_input(event: InputEvent) -> void:
 		_try_melee_attack()
 	if event.is_action_pressed("attack_ranged"):
 		_try_ranged_attack()
+	
+	# Inventory selection wheel
+	if event.is_action_pressed("inventory_select"):
+		_show_selection_wheel()
+	if event.is_action_released("inventory_select"):
+		_hide_selection_wheel()
 
 
 func _try_pick_up() -> void:
-	if _held_item != null:
+	if not _inventory or _inventory.is_full():
+		print("Player: Inventory full, cannot pick up item")
 		return
+	
 	var pickups := get_tree().get_nodes_in_group("pickupable")
 	var closest: Node3D = null
 	var closest_dist_sq := pickup_range * pickup_range
@@ -144,12 +159,12 @@ func _try_pick_up() -> void:
 			continue
 		closest = n
 		closest_dist_sq = d_sq
+	
 	if closest != null:
 		var behaviour: PickupableBehaviour = _get_pickupable_behaviour(closest)
 		if behaviour and behaviour.try_pick_up(self):
-			_held_item = closest
-			_cache_weapon_behaviours(closest)
-			behaviour.dropped.connect(_on_item_dropped)
+			_inventory.add_item(closest)
+			behaviour.dropped.connect(_on_item_dropped_from_world)
 
 
 func _get_pickupable_behaviour(item_root: Node) -> PickupableBehaviour:
@@ -160,25 +175,27 @@ func _get_pickupable_behaviour(item_root: Node) -> PickupableBehaviour:
 
 
 func _try_throw() -> void:
-	if _held_item == null or not is_instance_valid(_held_item):
-		_held_item = null
-		_held_melee_weapon = null
-		_held_ranged_weapon = null
+	if not _inventory:
 		return
-	var throwable: ThrowableBehaviour = _get_throwable_behaviour(_held_item)
+	
+	var active_item = _inventory.get_active_item()
+	if not active_item or not is_instance_valid(active_item):
+		return
+	
+	var throwable: ThrowableBehaviour = _get_throwable_behaviour(active_item)
 	if not throwable:
 		return
-	var pickupable: PickupableBehaviour = _get_pickupable_behaviour(_held_item)
-	if pickupable and pickupable.dropped.is_connected(_on_item_dropped):
-		pickupable.dropped.disconnect(_on_item_dropped)
+	
+	var pickupable: PickupableBehaviour = _get_pickupable_behaviour(active_item)
+	if pickupable and pickupable.dropped.is_connected(_on_item_dropped_from_world):
+		pickupable.dropped.disconnect(_on_item_dropped_from_world)
 
+	# Remove from inventory before throwing
+	_inventory.remove_item(_inventory.active_item_index)
+	
 	# Throw towards cursor position instead of facing direction
 	var throw_direction = _get_cursor_direction()
 	throwable.throw(throw_direction, get_tree().current_scene)
-
-	_held_item = null
-	_held_melee_weapon = null
-	_held_ranged_weapon = null
 
 
 func _get_throwable_behaviour(item_root: Node) -> ThrowableBehaviour:
@@ -217,29 +234,51 @@ func _get_cursor_direction() -> Vector3:
 
 
 func _try_melee_attack() -> void:
-	if _held_melee_weapon:
-		_held_melee_weapon.attack()
+	if _inventory:
+		var melee_weapon = _inventory.get_active_melee_weapon()
+		if melee_weapon:
+			melee_weapon.attack()
 
 
 func _try_ranged_attack() -> void:
-	if _held_ranged_weapon:
-		_held_ranged_weapon.attack()
+	if _inventory:
+		var ranged_weapon = _inventory.get_active_ranged_weapon()
+		if ranged_weapon:
+			ranged_weapon.attack()
+
+func _setup_inventory_system() -> void:
+	# Create selection wheel UI only
+	var selection_wheel_scene = preload("res://scenes/ui/SelectionWheel.tscn")
+	_selection_wheel = selection_wheel_scene.instantiate() as SelectionWheelClass
+	_selection_wheel.set_inventory(_inventory)
+	_selection_wheel.item_selected.connect(_on_item_selected)
+	
+	# Add to scene tree (attach to root to be above other UI)
+	get_tree().root.add_child.call_deferred(_selection_wheel)
 
 
-func _cache_weapon_behaviours(item_root: Node) -> void:
-	_held_melee_weapon = null
-	_held_ranged_weapon = null
-	for c in item_root.get_children():
-		if c is MeleeWeaponBehaviour:
-			_held_melee_weapon = c as MeleeWeaponBehaviour
-		elif c is RangedWeaponBehaviour:
-			_held_ranged_weapon = c as RangedWeaponBehaviour
+func _show_selection_wheel() -> void:
+	if _selection_wheel:
+		_original_time_scale = Engine.time_scale
+		Engine.time_scale = 0.3  # Slow down to 30%
+		_selection_wheel.show_wheel()
 
 
-func _on_item_dropped() -> void:
-	_held_item = null
-	_held_melee_weapon = null
-	_held_ranged_weapon = null
+func _hide_selection_wheel() -> void:
+	if _selection_wheel:
+		Engine.time_scale = _original_time_scale
+		_selection_wheel.hide_wheel()
+
+
+func _on_item_selected(slot: int) -> void:
+	if _inventory:
+		_inventory.set_active_item(slot)
+
+
+func _on_item_dropped_from_world() -> void:
+	# This is called when an item is dropped back into the world
+	# The inventory system handles removing it from inventory
+	pass
 
 
 ## Takes damage from an enemy or other source
