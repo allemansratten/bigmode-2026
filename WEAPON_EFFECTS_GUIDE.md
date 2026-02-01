@@ -138,21 +138,25 @@ func execute(picker: Node3D) -> void
 
 ### Audio Effects
 
-Pre-built sound effect components in `scenes/effects/audio/`:
+Add sounds to weapons by dragging pre-built audio effect scenes from `scenes/effects/audio/`.
 
-**PlaySoundOnDestroyEffect** - Play sound when weapon breaks
-```
-Properties:
-- sound: AudioStream (drag .wav/.ogg file here)
-- channel: Audio.Channels (SFX by default)
-- volume_scale: float (1.0 = normal volume)
-```
+#### How to Add Sound to Any Action
 
-**PlaySoundOnAttackEffect** - Play sound when attacking
-**PlaySoundOnEnemyHitEffect** - Play sound when hitting enemy
-**PlaySoundOnThrowLandedEffect** - Play sound when thrown item lands
+1. Open your weapon scene (e.g., `Sword.tscn`)
+2. Add "AudioEffects" container node (right-click root → Add Child Node → Node)
+3. Navigate to `scenes/effects/audio/` in FileSystem
+4. **Drag the effect scene** into AudioEffects container:
+   - `PlaySoundOnDestroyEffect.tscn` - when weapon breaks
+   - `PlaySoundOnAttackEffect.tscn` - when player attacks
+   - `PlaySoundOnEnemyHitEffect.tscn` - when hit connects with enemy
+   - `PlaySoundOnThrowLandedEffect.tscn` - when thrown item lands
+5. Select the effect → Inspector → **drag your sound file** into "Sound" property
+6. Save!
 
-All audio effects use the same properties (sound, channel, volume_scale).
+**Common setups:**
+- **Metal sword**: attack → `metal_impact_light.wav`, destroy → `metal_break.wav`
+- **Wood crate**: throw landed → `wood_impact_heavy.wav`, destroy → `wood_break_splinter.wav`
+- **Brick**: throw landed → `stone_impact.wav`, destroy → `stone_break_crumble.wav`
 
 ## Examples
 
