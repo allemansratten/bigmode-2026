@@ -24,6 +24,7 @@ var _has_landed: bool = false
 var _is_from_crowd: bool = false
 var _item: RigidBody3D = null
 var _weapon_behaviour: WeaponBehaviour = null
+var _original_collision_mask: int = 0
 
 func _ready() -> void:
 	_pickupable = get_parent().get_node_or_null("PickupableBehaviour")
@@ -65,6 +66,10 @@ func throw(direction: Vector3, world_root: Node, from_crowd: bool = false) -> vo
 	_has_landed = false
 	_is_from_crowd = from_crowd
 
+	# Store original collision layer and disable PLAYER_INTERACTION layer during flight
+	_original_collision_mask = rb.collision_mask
+	rb.collision_mask = rb.collision_mask & ~CollisionLayers.get_mask(CollisionLayers.Layer.PLAYER_INTERACTION)
+
 	# Throw direction: blend horizontal direction with upward bias
 	var up := Vector3.UP
 	var flat := Vector3(direction.x, 0.0, direction.z)
@@ -93,6 +98,10 @@ func _on_body_entered(body: Node) -> void:
 		return  # Only trigger on first collision
 
 	_has_landed = true
+
+	# Restore original collision layer (re-enable PLAYER_INTERACTION)
+	if _item and _original_collision_mask != 0:
+		_item.collision_mask = _original_collision_mask
 
 	print("ThrowableBehaviour: %s landed (hit %s), from_crowd=%s" % [_item.name, body.name, _is_from_crowd])
 

@@ -9,5 +9,4 @@
 	Roguelike progression
 	Surfaces + status effects
 	Enemies
- Technical TODOS
-- [] replace all uses of manual cooldowns with timer - timeout based approaches	
+

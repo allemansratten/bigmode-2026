@@ -5,8 +5,8 @@
 [ext_resource type="Script" uid="uid://6ngjp570ak3h" path="res://scripts/items/spawnable_behaviour.gd" id="3_spawnable"]
 [ext_resource type="Script" uid="uid://cjqf3ba7ehoaf" path="res://scripts/items/weapon_behaviour.gd" id="4_weapon"]
 [ext_resource type="PackedScene" path="res://scenes/effects/SpawnSurfaceEffect.tscn" id="5_effect"]
-[ext_resource type="PackedScene" uid="uid://dl3lv5uy3k4p2" path="res://scenes/effects/audio/PlaySoundOnDestroyEffect.tscn" id="6_audio_destroy"]
-[ext_resource type="AudioStream" uid="uid://cgqfmh6t6u7kf" path="res://resources/sounds/glass-breaking-386153.mp3" id="7_glass_sound"]
+[ext_resource type="PackedScene" path="res://scenes/effects/audio/PlaySoundOnDestroyEffect.tscn" id="6_audio_destroy"]
+[ext_resource type="AudioStream" uid="uid://cy6reeja7npy3" path="res://resources/sounds/glass-breaking-386153.mp3" id="7_glass_sound"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_flask"]
 radius = 0.3
@@ -25,8 +25,8 @@ height = 0.6
 radius = 0.45
 
 [node name="OilFlask" type="RigidBody3D" unique_id=1188964105]
-collision_layer = 4
-collision_mask = 13
+collision_layer = 20
+collision_mask = 29
 contact_monitor = true
 max_contacts_reported = 4
 
@@ -61,7 +61,7 @@ damage = 5.0
 
 [node name="SpawnSurfaceEffect" parent="." unique_id=351748846 instance=ExtResource("5_effect")]
 
-[node name="AudioEffects" type="Node" parent="."]
+[node name="AudioEffects" type="Node" parent="." unique_id=1179257583]
 
-[node name="PlaySoundOnDestroyEffect" parent="AudioEffects" instance=ExtResource("6_audio_destroy")]
+[node name="PlaySoundOnDestroyEffect" parent="AudioEffects" unique_id=713449680 instance=ExtResource("6_audio_destroy")]
 sound = ExtResource("7_glass_sound")

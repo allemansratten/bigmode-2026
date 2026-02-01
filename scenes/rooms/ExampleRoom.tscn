@@ -19,14 +19,14 @@ filter_ledge_spans = true
 filter_walkable_low_height_spans = true
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
-size = Vector3(20, 0.2, 20)
+size = Vector3(20, 1, 20)
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
 albedo_color = Color(0.2, 0.22, 0.25, 1)
 
 [sub_resource type="BoxMesh" id="BoxMesh_floor"]
 material = SubResource("StandardMaterial3D_floor")
-size = Vector3(20, 0.2, 20)
+size = Vector3(20, 1, 20)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_wall"]
 size = Vector3(20.4, 3, 0.2)
@@ -52,7 +52,7 @@ script = ExtResource("1_room")
 navigation_mesh = SubResource("NavigationMesh_room")
 
 [node name="Floor" type="StaticBody3D" parent="NavigationRegion3D" unique_id=1080193025]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="NavigationRegion3D/Floor" unique_id=2122926703]
 shape = SubResource("BoxShape3D_floor")
