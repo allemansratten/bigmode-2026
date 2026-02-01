@@ -72,7 +72,7 @@ func _physics_process(delta: float) -> void:
 	# Handle movement ability inputs
 	if Input.is_action_just_pressed("dash") and _dash_component and _dash_component.can_activate():
 		_dash_component.activate(velocity)
-		return  # Skip normal movement this frame
+		return # Skip normal movement this frame
 
 	# Apply gravity
 	if not is_on_floor():
@@ -112,7 +112,7 @@ func _physics_process(delta: float) -> void:
 		_facing_direction = _facing_direction.lerp(target_facing, facing_turn_speed * delta)
 		if _facing_direction.length_squared() > 0.01:
 			_facing_direction = _facing_direction.normalized()
-			rotation.y = -atan2(_facing_direction.x, -_facing_direction.y)
+			rotation.y = - atan2(_facing_direction.x, -_facing_direction.y)
 	else:
 		velocity.x = move_toward(velocity.x, 0, move_speed)
 		velocity.z = move_toward(velocity.z, 0, move_speed)
@@ -162,7 +162,7 @@ func _try_pick_up() -> void:
 	
 	if closest != null:
 		var behaviour: PickupableBehaviour = _get_pickupable_behaviour(closest)
-		if behaviour and behaviour.try_pick_up(self):
+		if behaviour and behaviour.try_pick_up(self ):
 			_inventory.add_item(closest)
 			behaviour.dropped.connect(_on_item_dropped_from_world)
 
@@ -260,7 +260,7 @@ func _setup_inventory_system() -> void:
 func _show_selection_wheel() -> void:
 	if _selection_wheel:
 		_original_time_scale = Engine.time_scale
-		Engine.time_scale = 0.3  # Slow down to 30%
+		Engine.time_scale = 0.3 # Slow down to 30%
 		_selection_wheel.show_wheel()
 
 
@@ -284,7 +284,7 @@ func _on_item_dropped_from_world() -> void:
 ## Takes damage from an enemy or other source
 func take_damage(amount: float, _source: Node3D = null) -> void:
 	if current_health <= 0:
-		return  # Already dead
+		return # Already dead
 
 	current_health -= amount
 	health_changed.emit(current_health, max_health)

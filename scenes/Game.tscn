@@ -2,10 +2,8 @@
 
 [ext_resource type="Script" uid="uid://b2qim3ljwi076" path="res://scripts/core/game.gd" id="1_e3hwy"]
 [ext_resource type="PackedScene" uid="uid://fjrqjm0d4cgo" path="res://scenes/ui/GUI.tscn" id="2_3x8es"]
+[ext_resource type="PackedScene" uid="uid://cnj5bktqrv8yh" path="res://scenes/globals/DebugConsole.tscn" id="2_78awf"]
 [ext_resource type="PackedScene" uid="uid://cplayer001" path="res://scenes/Player.tscn" id="3_player"]
-[ext_resource type="PackedScene" uid="uid://brick001" path="res://scenes/items/Brick.tscn" id="5_brick"]
-[ext_resource type="PackedScene" uid="uid://dcrate001" path="res://scenes/items/Crate.tscn" id="6_aug50"]
-[ext_resource type="PackedScene" uid="uid://b5ye7aiomms1g" path="res://scenes/rooms/ExampleRoom.tscn" id="7_kiw3p"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 sky_top_color = Color(0.25, 0.45, 0.75, 1)
@@ -24,44 +22,19 @@ background_mode = 2
 sky = SubResource("Sky_main")
 ambient_light_energy = 0.7
 
-[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
-size = Vector3(20, 0.2, 20)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_s0nni"]
-albedo_color = Color(0, 0.35686275, 0.07450981, 1)
-
-[sub_resource type="BoxMesh" id="BoxMesh_floor"]
-material = SubResource("StandardMaterial3D_s0nni")
-size = Vector3(20, 0.2, 20)
-
 [node name="Game" type="Node3D" unique_id=999502841]
 script = ExtResource("1_e3hwy")
+
+[node name="DebugConsole" parent="." unique_id=1953156074 instance=ExtResource("2_78awf")]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1962583014]
 environment = SubResource("Environment_main")
 
 [node name="GUI" parent="." unique_id=293961667 instance=ExtResource("2_3x8es")]
 
-[node name="Floor" type="StaticBody3D" parent="." unique_id=856633677]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.1, 0)
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor" unique_id=318761628]
-shape = SubResource("BoxShape3D_floor")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor" unique_id=1741129295]
-mesh = SubResource("BoxMesh_floor")
-
-[node name="Player" parent="." unique_id=1515017457 instance=ExtResource("3_player")]
-
-[node name="Brick" parent="." unique_id=1546642140 instance=ExtResource("5_brick")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.2, 5.152452)
-
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1906586219]
 transform = Transform3D(0.86602503, -0.35299784, 0.35410902, -0.0006801896, 0.70738465, 0.7068285, -0.50000024, -0.612372, 0.61237276, 15.330542, 5.8353186, 0.6168461)
 shadow_enabled = true
 
-[node name="Crate" parent="." unique_id=149966801 instance=ExtResource("6_aug50")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3.9937057, 0.4000004, 6.0330143)
-
-[node name="ExampleRoom" parent="." unique_id=367529650 instance=ExtResource("7_kiw3p")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 15.286578, 0.52830935, 0)
+[node name="Player" parent="." unique_id=276495145 instance=ExtResource("3_player")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 0)

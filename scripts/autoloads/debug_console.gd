@@ -31,7 +31,7 @@ var _max_history: int = 50
 var _log_entries: Array[Dictionary] = []
 var _max_log_size: int = 100
 
-enum LogLevel { INFO, WARNING, ERROR }
+enum LogLevel {INFO, WARNING, ERROR}
 
 ## UI references
 @onready var _ui_panel: Panel = $UI/Panel
@@ -54,7 +54,7 @@ func _ready():
 func _input(event: InputEvent) -> void:
 	# Toggle console with tilde key
 	if event is InputEventKey and event.pressed and not event.echo:
-		if event.keycode == KEY_QUOTELEFT:  # Tilde/backtick key
+		if event.keycode == KEY_QUOTELEFT: # Tilde/backtick key
 			toggle_console()
 			get_viewport().set_input_as_handled()
 
@@ -122,7 +122,7 @@ func process_input(input: String) -> void:
 		debug_warn("Commands must start with /")
 		return
 
-	var parts = _parse_command(input.substr(1))  # Remove leading /
+	var parts = _parse_command(input.substr(1)) # Remove leading /
 	if parts.is_empty():
 		return
 
@@ -234,8 +234,10 @@ func _add_to_log(message: String, level: LogLevel) -> void:
 		LogLevel.INFO:
 			print("[DebugConsole] ", message)
 		LogLevel.WARNING:
+			print("[DebugConsole warning] ", message)
 			push_warning("[DebugConsole] " + message)
 		LogLevel.ERROR:
+			print("[DebugConsole error] ", message)
 			push_error("[DebugConsole] " + message)
 
 

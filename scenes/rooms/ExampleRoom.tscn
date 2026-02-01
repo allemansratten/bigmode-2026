@@ -7,7 +7,6 @@
 [ext_resource type="PackedScene" path="res://scenes/ItemThrowTarget.tscn" id="5_throw_target"]
 [ext_resource type="PackedScene" path="res://scenes/crowd/CrowdManager.tscn" id="6_manager"]
 [ext_resource type="PackedScene" path="res://scenes/crowd/PeopleSpawner.tscn" id="7_spawner"]
-[ext_resource type="PackedScene" uid="uid://enemy001" path="res://scenes/enemies/Enemy.tscn" id="8_enemy"]
 [ext_resource type="PackedScene" path="res://scenes/spawners/EnemySpawner.tscn" id="9_spawner"]
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_room"]
@@ -141,10 +140,6 @@ spawn_area_size = Vector2(5.0183067, 18.764166)
 [node name="PeopleSpawnerNorth" parent="CrowdManager" unique_id=754786613 instance=ExtResource("7_spawner")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.13179779, 0.15661716, -15.888239)
 spawn_area_size = Vector2(19.693493, 7.7934)
-
-[node name="TestEnemy" parent="." unique_id=322626469 instance=ExtResource("8_enemy")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 5, 0.8, 5)
-enemy_name = ""
 
 [node name="EnemySpawner" parent="." unique_id=1229589690 instance=ExtResource("9_spawner")]
 spawn_area_size = Vector2(18, 18)
