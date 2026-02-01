@@ -104,7 +104,7 @@ spawn_facing_degrees = 180.0
 
 [node name="ItemSpawningManager" type="Node" parent="." unique_id=1081236601]
 script = ExtResource("2_spawning")
-allowed_categories = Array[int]([0])
+allowed_categories = Array[int]([11])
 throw_force = 7.0
 arc_height = 3.0
 
