@@ -10,8 +10,8 @@ const SelectionWheelClass = preload("res://scripts/ui/selection_wheel.gd")
 @export var gravity: float = 9.8
 ## Max distance to pick up an item
 @export var pickup_range: float = 2.0
-## How quickly the character rotates to face movement direction (1 = instant, lower = smoother)
-@export var facing_turn_speed: float = 8.0
+## How quickly the character rotates to face movement direction (higher is faster)
+@export var facing_turn_speed: float = 30.0
 ## Player health
 @export var max_health: float = 100.0
 
