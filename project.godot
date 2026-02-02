@@ -30,6 +30,8 @@ Audio="*res://scenes/globals/AudioManager.tscn"
 MusicController="*res://scenes/globals/MusicController.tscn"
 SceneManager="*res://scripts/autoloads/scene_manager.gd"
 TimeScaleManager="*res://scripts/autoloads/time_scale_manager.gd"
+UpgradeRegistry="*res://scripts/autoloads/upgrade_registry.gd"
+UpgradeManager="*res://scripts/autoloads/upgrade_manager.gd"
 
 [display]
 
