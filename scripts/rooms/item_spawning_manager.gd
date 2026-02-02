@@ -87,6 +87,9 @@ func spawn_item() -> Node3D:
 	room.add_child(item)
 	item.global_position = spawn_point.global_position
 
+	# Emit global event for upgrade system (weapon modifiers applied here)
+	EventBus.weapon_spawned.emit(item)
+
 	_throw_item(item, spawn_point.global_position, throw_target.global_position)
 
 	return item

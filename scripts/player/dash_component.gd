@@ -46,6 +46,9 @@ func activate(current_velocity: Vector3) -> void:
 
 	performed.emit(_dash_direction)
 
+	# Emit global event for upgrade system
+	EventBus.player_dashed.emit(_dash_direction)
+
 
 ## Override: Apply dash velocity while active
 func apply_velocity(_delta: float) -> Vector3:

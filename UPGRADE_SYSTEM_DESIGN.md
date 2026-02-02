@@ -475,33 +475,38 @@ CrowdThrowOnBreak.tscn
 
 ## Implementation order
 
-### Phase 1: Core infrastructure
-1. [ ] Create `UpgradeCategories` enum (`scripts/core/upgrade_categories.gd`)
-2. [ ] Create `StatModifier` resource (`scripts/upgrades/stat_modifier.gd`)
-3. [ ] Create `BaseUpgrade` script (`scripts/upgrades/base_upgrade.gd`)
-4. [ ] Create `UpgradeTrigger` enum and script (`scripts/upgrades/upgrade_trigger.gd`)
-5. [ ] Create `TriggerUpgrade` script (`scripts/upgrades/trigger_upgrade.gd`)
-6. [ ] Create `WeaponModifierUpgrade` script (`scripts/upgrades/weapon_modifier_upgrade.gd`)
+### Phase 1: Core infrastructure ✅
+1. [x] Create `UpgradeCategories` enum (`scripts/core/upgrade_categories.gd`)
+2. [x] Create `StatModifier` resource (`scripts/upgrades/stat_modifier.gd`)
+3. [x] Create `BaseUpgrade` script (`scripts/upgrades/base_upgrade.gd`)
+4. [x] Create `UpgradeTrigger` enum and script (`scripts/upgrades/upgrade_trigger.gd`)
+5. [x] Create `TriggerUpgrade` script (`scripts/upgrades/trigger_upgrade.gd`)
+6. [x] Create `WeaponModifierUpgrade` script (`scripts/upgrades/weapon_modifier_upgrade.gd`)
+7. [x] Create `UpgradeEffect` base class (`scripts/upgrades/effects/upgrade_effect.gd`)
 
-### Phase 2: Autoloads and registries
-7. [ ] Create `UpgradeRegistry` autoload (`scripts/autoloads/upgrade_registry.gd`)
-8. [ ] Create `UpgradeManager` autoload (`scripts/autoloads/upgrade_manager.gd`)
-9. [ ] Add new signals to `EventBus`
-10. [ ] Register autoloads in `project.godot`
+### Phase 2: Autoloads and registries ✅
+8. [x] Create `UpgradeRegistry` autoload (`scripts/autoloads/upgrade_registry.gd`)
+9. [x] Create `UpgradeManager` autoload (`scripts/autoloads/upgrade_manager.gd`)
+10. [x] Add new signals to `EventBus`
+11. [x] Register autoloads in `project.godot`
 
-### Phase 3: Event emissions
-11. [ ] Add `enemy_killed` emission to `Enemy.die()`
-12. [ ] Add `weapon_spawned` emission to spawn logic
-13. [ ] Add `weapon_broken` emission to `WeaponBehaviour.destroy()`
-14. [ ] Add movement ability emissions to `DashComponent`, `TeleportComponent`
+### Phase 3: Event emissions ✅
+12. [x] Add `enemy_killed` emission to `Enemy.die()`
+13. [x] Add `enemy_spawned` emission to `EnemySpawner._spawn_enemy_at()`
+14. [x] Add `weapon_spawned` emission to `ItemSpawningManager.spawn_item()`
+15. [x] Add `weapon_broken` emission to `WeaponBehaviour.destroy()`
+16. [x] Add `weapon_thrown` emission to `ThrowableBehaviour.throw()`
+17. [x] Add `player_dashed` emission to `DashComponent.activate()`
+18. [x] Add `player_teleported` emission to `TeleportComponent._execute_teleport()`
+19. [x] Add `item_picked_up` emission to `PickupableBehaviour.try_pick_up()`
 
 ### Phase 4: Debug commands
-15. [ ] Add `/upgrade` commands to DebugConsole
+20. [ ] Add `/upgrade` commands to DebugConsole
 
 ### Phase 5: Example upgrades
-16. [ ] Create `scenes/upgrades/` directory
-17. [ ] Create 3-5 example upgrades (one of each type)
-18. [ ] Test via console commands
+21. [ ] Create example upgrade effects (HealPlayerEffect, etc.)
+22. [ ] Create 3-5 example upgrade scenes (one of each type)
+23. [ ] Test via console commands
 
 ### Phase 6: Future (not this PR)
 - [ ] Upgrade selection UI (pick-from-3)
@@ -525,3 +530,4 @@ CrowdThrowOnBreak.tscn
 *Use this section when we change scope or make implementation choices.*
 
 - **2026-02-02**: Initial design. Scene-based upgrades, two types (trigger + weapon modifier), manual console granting for v1.
+- **2026-02-02**: Phases 1-3 complete. Core infrastructure, autoloads, and event emissions implemented.

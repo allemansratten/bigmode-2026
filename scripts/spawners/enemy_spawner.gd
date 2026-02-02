@@ -232,4 +232,7 @@ func _spawn_enemy_at(enemy_scene: PackedScene, spawn_position: Vector3) -> Enemy
 
 	enemy_spawned.emit(enemy)
 
+	# Emit global event for upgrade system
+	EventBus.enemy_spawned.emit(enemy)
+
 	return enemy
