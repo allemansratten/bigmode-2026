@@ -84,6 +84,9 @@ func throw(direction: Vector3, world_root: Node, from_crowd: bool = false) -> vo
 	# Emit thrown signal
 	thrown.emit(throw_dir, throw_force, from_crowd)
 
+	# Emit global event for upgrade system
+	EventBus.weapon_thrown.emit(item, throw_dir, from_crowd)
+
 
 ## Mark this item as being thrown by the crowd (won't take durability damage on landing)
 ## Call this before applying custom throw physics

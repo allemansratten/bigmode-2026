@@ -101,10 +101,16 @@ func _execute_teleport() -> void:
 		print("TeleportComponent: no valid player")
 		return
 
+	# Store start position for event
+	var from_position = _player.global_position
+
 	# Teleport to preview location!
 	print("TeleportComponent: teleporting to %s" % _target_position)
 	_player.global_position = _target_position
 	_cooldown_timer.start()
+
+	# Emit global event for upgrade system
+	EventBus.player_teleported.emit(from_position, _target_position)
 
 	# Damage the weapon on use
 	if _weapon:

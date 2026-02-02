@@ -91,10 +91,14 @@ func _physics_process(delta: float):
 		attack_behaviour.execute_attack(self , target)
 
 
-func take_damage(amount: float, _source: Node3D = null) -> void:
+## Track last damage source for kill attribution
+var _last_damage_source: Node3D = null
+
+func take_damage(amount: float, source: Node3D = null) -> void:
 	if is_dead:
 		return
 
+	_last_damage_source = source
 	current_health -= amount
 	health_changed.emit(current_health, max_health)
 
@@ -107,7 +111,10 @@ func die() -> void:
 		return
 
 	is_dead = true
-	died.emit(self )
+	died.emit(self)
+
+	# Emit global event for upgrade system
+	EventBus.enemy_killed.emit(self, _last_damage_source)
 
 	# Spawn item drops
 	if drop_items.size() > 0 and randf() < drop_chance:
