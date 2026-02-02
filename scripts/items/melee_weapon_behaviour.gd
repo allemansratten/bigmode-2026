@@ -6,61 +6,120 @@ class_name MeleeWeaponBehaviour
 
 const Layers = preload("res://scripts/core/collision_layers.gd")
 
-## Range of the swing attack
-@export var swing_range: float = 1.5
-## Arc angle of swing in degrees
-@export var swing_angle: float = 90.0
+## Whether to show the hitbox sphere for debugging
+const DEBUG_SHOW_HITBOX: bool = true
+
+## Distance from player where the stab starts
+@export var stab_start_distance: float = 0.5
+## Distance from player where the stab ends
+@export var stab_end_distance: float = 1.5
+## Radius of the stab hitbox
+@export var stab_radius: float = 0.3
+## Time in seconds before the stab hitbox becomes active
+@export var stab_start_time: float = 0.1
+## Time in seconds when the stab completes (hitbox reaches end distance)
+@export var stab_end_time: float = 0.3
 ## Knockback force applied to hit entities
 @export var knockback_force: float = 5.0
+## How much to slow player movement when attacking (1 = normal speed, 0 = no movement)
+@export var speed_multiplier_when_attacking: float = 0.5
 ## Collision mask for what can be hit (default: enemies and items)
 @export var hit_collision_mask: int = 12 # Layer 3 (ENEMY) + Layer 4 (ITEM)
 
 
-## Override attack to perform melee hitbox check
+## Tracks which entities have been hit during current stab (to avoid double hits)
+var _hit_entities: Array[Node3D] = []
+## Current stab attack direction (stored for duration of attack)
+var _stab_direction: Vector3 = Vector3.ZERO
+## Current stab attack origin (stored for duration of attack)
+var _stab_origin: Vector3 = Vector3.ZERO
+## The hitbox sphere used for both collision detection and visualization
+var _hitbox_sphere: Area3D = null
+## The collision shape inside the hitbox sphere
+var _hitbox_shape: SphereShape3D = null
+## Whether an attack is currently in progress
+var is_attacking: bool = false
+
+
+func _exit_tree() -> void:
+	_cleanup_hitbox_sphere()
+
+
+func _cleanup_hitbox_sphere() -> void:
+	if _hitbox_sphere and is_instance_valid(_hitbox_sphere):
+		_hitbox_sphere.queue_free()
+		_hitbox_sphere = null
+
+
+## Override attack to perform animated stab
 func _attack() -> void:
 	if not item or not is_held:
 		return
 
 	print("MeleeWeaponBehaviour: attacking with ", item.name)
 
+	is_attacking = true
+
 	# Get attack origin (weapon position or holder position)
-	var attack_origin = item.global_position
+	_stab_origin = item.global_position
 
 	# Get attack direction towards mouse cursor
-	var attack_direction = _get_mouse_direction(attack_origin)
+	_stab_direction = _get_mouse_direction(_stab_origin)
 
-	# Perform shape cast or area check for hits
-	var space_state = item.get_world_3d().direct_space_state
-	var query = PhysicsShapeQueryParameters3D.new()
+	# Reset hit tracking for new attack
+	_hit_entities.clear()
 
-	# Create sphere shape for hit detection (reduced size)
-	var shape = SphereShape3D.new()
-	var attack_radius = swing_range * 0.5  # Make AOE smaller
-	shape.radius = attack_radius
+	# Create tween for animated stab
+	var tween = create_tween()
 
-	# Position the attack sphere towards the mouse direction
-	var attack_distance = swing_range * 0.8
-	query.shape = shape
-	query.transform = Transform3D(Basis(), attack_origin + attack_direction * attack_distance)
-	query.collision_mask = hit_collision_mask
+	# Wait for start time before activating hitbox
+	if stab_start_time > 0:
+		tween.tween_interval(stab_start_time)
 
-	# Query for overlapping bodies
-	var results = space_state.intersect_shape(query, 10)
+	# Create hitbox sphere when the stab actually starts
+	tween.tween_callback(_create_hitbox_sphere)
 
-	# Process hits
-	for result in results:
-		var hit_body = result["collider"]
+	# Animate from start to end distance
+	var stab_duration = stab_end_time - stab_start_time
+	tween.tween_method(_stab_tick, 0.0, 1.0, stab_duration)
 
+	# Clean up after stab completes
+	tween.tween_callback(_stab_finished)
+
+
+## Called each frame during stab animation
+func _stab_tick(progress: float) -> void:
+	if not _hitbox_sphere or not is_instance_valid(_hitbox_sphere):
+		return
+
+	# Calculate current distance along stab
+	var current_distance = lerpf(stab_start_distance, stab_end_distance, progress)
+	var stab_position = _stab_origin + _stab_direction * current_distance
+
+	# Update hitbox position
+	_hitbox_sphere.global_position = stab_position
+
+	# Check for overlapping bodies using the Area3D
+	var overlapping_bodies = _hitbox_sphere.get_overlapping_bodies()
+
+	for hit_body in overlapping_bodies:
 		# Don't hit self or holder
 		if hit_body == item:
 			continue
 
-		_apply_hit(hit_body, attack_direction)
+		# Don't hit same entity twice in one stab
+		if hit_body in _hit_entities:
+			continue
 
-	print("MeleeWeaponBehaviour: hit %d targets" % results.size())
+		_hit_entities.append(hit_body)
+		_apply_hit(hit_body, _stab_direction)
 
-	# Create debug visualization
-	_create_debug_sphere(attack_origin + attack_direction * attack_distance, attack_radius)
+
+## Called when stab animation completes
+func _stab_finished() -> void:
+	print("MeleeWeaponBehaviour: hit %d targets" % _hit_entities.size())
+	is_attacking = false
+	_cleanup_hitbox_sphere()
 
 
 ## Apply damage and knockback to hit entity
@@ -121,31 +180,38 @@ func _get_mouse_direction(from_position: Vector3) -> Vector3:
 	return Vector3(ray_direction.x, 0, ray_direction.z).normalized()
 
 
-## Create debug visualization sphere for attack range
-func _create_debug_sphere(position: Vector3, radius: float) -> void:
-	var mesh_instance = MeshInstance3D.new()
-	var sphere_mesh = SphereMesh.new()
-	sphere_mesh.radius = radius
-	sphere_mesh.height = radius * 2.0
+## Create hitbox sphere for collision detection and optional visualization
+func _create_hitbox_sphere() -> void:
+	# Create Area3D as the hitbox container
+	_hitbox_sphere = Area3D.new()
+	_hitbox_sphere.collision_mask = hit_collision_mask
+	_hitbox_sphere.collision_layer = 0 # Don't collide with anything, just detect
+	_hitbox_sphere.monitoring = true
 
-	# Create semi-transparent red material
-	var material = StandardMaterial3D.new()
-	material.albedo_color = Color(1.0, 0.0, 0.0, 0.3) # Red with 30% opacity
-	material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
+	# Create collision shape
+	var collision_shape = CollisionShape3D.new()
+	_hitbox_shape = SphereShape3D.new()
+	_hitbox_shape.radius = stab_radius
+	collision_shape.shape = _hitbox_shape
+	_hitbox_sphere.add_child(collision_shape)
 
-	sphere_mesh.material = material
-	mesh_instance.mesh = sphere_mesh
+	# Create visual mesh if debug is enabled
+	if DEBUG_SHOW_HITBOX:
+		var mesh_instance = MeshInstance3D.new()
+		var sphere_mesh = SphereMesh.new()
+		sphere_mesh.radius = stab_radius
+		sphere_mesh.height = stab_radius * 2.0
 
-	# Add to scene first
-	item.get_tree().root.add_child(mesh_instance)
+		var material = StandardMaterial3D.new()
+		material.albedo_color = Color(1.0, 0.0, 0.0, 0.3)
+		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 
-	# Then set global position (must be in tree first)
-	mesh_instance.global_position = position
+		sphere_mesh.material = material
+		mesh_instance.mesh = sphere_mesh
+		_hitbox_sphere.add_child(mesh_instance)
 
-	# Create timer as child of the sphere to ensure cleanup
-	var timer = Timer.new()
-	timer.wait_time = 0.2
-	timer.one_shot = true
-	timer.autostart = true
-	timer.timeout.connect(func(): mesh_instance.queue_free())
-	mesh_instance.add_child(timer)
+	# Add to scene
+	item.get_tree().root.add_child(_hitbox_sphere)
+
+	# Set initial position at stab start
+	_hitbox_sphere.global_position = _stab_origin + _stab_direction * stab_start_distance

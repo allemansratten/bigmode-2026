@@ -8,6 +8,7 @@ signal enemy_spawned(enemy: Enemy)
 
 @export var drop_height: float = 5.0 # How high above the spawner to drop enemies from
 @export var spawn_area_size: Vector2 = Vector2(10, 10) # Area for random drop spawning
+@export var min_distance_from_player: float = 3.0 # Minimum distance from player for spawning
 
 var spawn_points: Array[Marker3D] = []
 var _alive_enemies: int = 0
@@ -116,6 +117,24 @@ func _collect_spawn_points():
 		print("EnemySpawner found %d spawn points" % spawn_points.size())
 
 
+func _get_player() -> Node3D:
+	var players = get_tree().get_nodes_in_group("player")
+	if players.size() > 0:
+		return players[0]
+	return null
+
+
+func _is_position_far_from_player(pos: Vector3) -> bool:
+	var player = _get_player()
+	if not player:
+		return true  # No player found, allow spawning anywhere
+
+	# Use XZ distance (ignore height difference)
+	var player_pos_xz = Vector2(player.global_position.x, player.global_position.z)
+	var spawn_pos_xz = Vector2(pos.x, pos.z)
+	return player_pos_xz.distance_to(spawn_pos_xz) >= min_distance_from_player
+
+
 ## Spawns an enemy at a specific spawn point by index
 func spawn_at_point(point_index: int, enemy_scene: PackedScene) -> Enemy:
 	if point_index < 0 or point_index >= spawn_points.size():
@@ -126,27 +145,54 @@ func spawn_at_point(point_index: int, enemy_scene: PackedScene) -> Enemy:
 	return _spawn_enemy_at(enemy_scene, spawn_point.global_position)
 
 
-## Spawns an enemy at a random spawn point
+## Spawns an enemy at a random spawn point (avoiding positions too close to player)
 func spawn_at_random_point(enemy_scene: PackedScene) -> Enemy:
 	if spawn_points.size() == 0:
 		push_error("No spawn points available")
 		return null
 
-	var random_index := randi() % spawn_points.size()
-	return spawn_at_point(random_index, enemy_scene)
+	# Filter spawn points that are far enough from the player
+	var valid_points: Array[int] = []
+	for i in range(spawn_points.size()):
+		if _is_position_far_from_player(spawn_points[i].global_position):
+			valid_points.append(i)
+
+	# If no valid points, fall back to any spawn point with a warning
+	if valid_points.size() == 0:
+		push_warning("All spawn points are too close to player, using random point anyway")
+		var fallback_index := randi() % spawn_points.size()
+		return spawn_at_point(fallback_index, enemy_scene)
+
+	var chosen_index := valid_points[randi() % valid_points.size()]
+	return spawn_at_point(chosen_index, enemy_scene)
 
 
 ## Spawns an enemy dropped from above at a random location within spawn_area_size
+## (avoiding positions too close to player)
 func spawn_dropped(enemy_scene: PackedScene) -> Enemy:
-	# Random position within area
-	var random_offset := Vector3(
+	const MAX_ATTEMPTS := 10
+
+	for attempt in range(MAX_ATTEMPTS):
+		# Random position within area
+		var random_offset := Vector3(
+			randf_range(-spawn_area_size.x * 0.5, spawn_area_size.x * 0.5),
+			drop_height,
+			randf_range(-spawn_area_size.y * 0.5, spawn_area_size.y * 0.5)
+		)
+
+		var spawn_pos := global_position + random_offset
+
+		if _is_position_far_from_player(spawn_pos):
+			return _spawn_enemy_at(enemy_scene, spawn_pos)
+
+	# Fallback: spawn anyway after max attempts
+	push_warning("Could not find spawn position far from player after %d attempts" % MAX_ATTEMPTS)
+	var fallback_offset := Vector3(
 		randf_range(-spawn_area_size.x * 0.5, spawn_area_size.x * 0.5),
 		drop_height,
 		randf_range(-spawn_area_size.y * 0.5, spawn_area_size.y * 0.5)
 	)
-
-	var spawn_pos := global_position + random_offset
-	return _spawn_enemy_at(enemy_scene, spawn_pos)
+	return _spawn_enemy_at(enemy_scene, global_position + fallback_offset)
 
 
 ## Spawn enemy by name using EnemyRegistry
@@ -185,5 +231,8 @@ func _spawn_enemy_at(enemy_scene: PackedScene, spawn_position: Vector3) -> Enemy
 	enemy.died.connect(_on_enemy_died)
 
 	enemy_spawned.emit(enemy)
+
+	# Emit global event for upgrade system
+	EventBus.enemy_spawned.emit(enemy)
 
 	return enemy

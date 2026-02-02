@@ -1,0 +1,26 @@
+[gd_scene format=3 uid="uid://cxn4p7y2k1qmf"]
+
+[ext_resource type="Script" path="res://scripts/upgrades/base_upgrade.gd" id="1_base"]
+[ext_resource type="Script" path="res://scripts/upgrades/trigger_upgrade.gd" id="2_trigger"]
+[ext_resource type="Script" path="res://scripts/upgrades/effects/spawn_surface_upgrade_effect.gd" id="3_effect"]
+[ext_resource type="PackedScene" uid="uid://surface_ice" path="res://scenes/surfaces/IceSurface.tscn" id="4_ice"]
+
+[node name="IceTeleport" type="Node"]
+script = ExtResource("1_base")
+upgrade_name = "Frostblink"
+description = "Leave an ice surface when you teleport"
+categories = Array[int]([1, 10, 23])
+max_stacks = -1
+
+[node name="TriggerUpgrade" type="Node" parent="."]
+script = ExtResource("2_trigger")
+trigger = 9
+chance = 1.0
+cooldown = 0.0
+
+[node name="SpawnSurfaceUpgradeEffect" type="Node" parent="TriggerUpgrade"]
+script = ExtResource("3_effect")
+surface_scene = ExtResource("4_ice")
+spawn_offset = Vector3(0, 0.05, 0)
+use_from_position = true
+lifetime = 3.0

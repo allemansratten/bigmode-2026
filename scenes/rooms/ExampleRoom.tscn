@@ -96,14 +96,14 @@ shape = SubResource("BoxShape3D_wall_ew")
 mesh = SubResource("BoxMesh_wall_ew")
 
 [node name="ConnectorNorth" parent="." unique_id=1373684951 instance=ExtResource("1_connector")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 9.138304)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -9)
 target_room_id = 1
 connector_id = "north"
 spawn_facing_degrees = 180.0
 
 [node name="ItemSpawningManager" type="Node" parent="." unique_id=1081236601]
 script = ExtResource("2_spawning")
-allowed_categories = Array[int]([11])
+allowed_categories = Array[int]([0])
 throw_force = 7.0
 arc_height = 3.0
 
@@ -145,10 +145,10 @@ spawn_area_size = Vector2(19.693493, 7.7934)
 spawn_area_size = Vector2(18, 18)
 
 [node name="SpawnNorth" type="Marker3D" parent="EnemySpawner" unique_id=845532282]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, -8)
 
 [node name="SpawnSouth" type="Marker3D" parent="EnemySpawner" unique_id=564006769]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, -8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 8)
 
 [node name="SpawnEast" type="Marker3D" parent="EnemySpawner" unique_id=603382463]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.8, 0)
