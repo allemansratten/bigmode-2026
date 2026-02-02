@@ -503,9 +503,13 @@ CrowdThrowOnBreak.tscn
 ### Phase 4: Debug commands ✅
 20. [x] Add `/upgrade` commands to DebugConsole
 
-### Phase 5: Example upgrades
-21. [ ] Create example upgrade effects (HealPlayerEffect, etc.)
-22. [ ] Create 3-5 example upgrade scenes (one of each type)
+### Phase 5: Example upgrades ✅
+21. [x] Create example upgrade effects (HealPlayerEffect, SpawnSurfaceUpgradeEffect, DamageAreaEffect)
+22. [x] Create 4 example upgrade scenes:
+    - HealOnKill (trigger: enemy killed, effect: heal)
+    - MeleeDurability (weapon modifier: +5 durability to melee)
+    - IceTeleport (trigger: teleport, effect: spawn ice)
+    - DashDamage (trigger: dash, effect: area damage)
 23. [ ] Test via console commands
 
 ### Phase 6: Future (not this PR)
@@ -531,3 +535,4 @@ CrowdThrowOnBreak.tscn
 
 - **2026-02-02**: Initial design. Scene-based upgrades, two types (trigger + weapon modifier), manual console granting for v1.
 - **2026-02-02**: Phases 1-3 complete. Core infrastructure, autoloads, and event emissions implemented.
+- **2026-02-02**: Phases 4-5 complete. Debug commands and 4 example upgrades implemented.
