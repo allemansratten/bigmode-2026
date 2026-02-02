@@ -500,8 +500,8 @@ CrowdThrowOnBreak.tscn
 18. [x] Add `player_teleported` emission to `TeleportComponent._execute_teleport()`
 19. [x] Add `item_picked_up` emission to `PickupableBehaviour.try_pick_up()`
 
-### Phase 4: Debug commands
-20. [ ] Add `/upgrade` commands to DebugConsole
+### Phase 4: Debug commands ✅
+20. [x] Add `/upgrade` commands to DebugConsole
 
 ### Phase 5: Example upgrades
 21. [ ] Create example upgrade effects (HealPlayerEffect, etc.)

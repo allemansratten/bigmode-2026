@@ -17,6 +17,7 @@ var _upgrade_instances: Dictionary = {}
 
 func _ready() -> void:
 	_connect_to_event_bus()
+	_register_debug_commands()
 
 
 func _connect_to_event_bus() -> void:
@@ -271,5 +272,129 @@ func _cleanup_all_instances() -> void:
 		if is_instance_valid(instance):
 			instance.queue_free()
 	_upgrade_instances.clear()
+
+#endregion
+
+
+#region Debug Commands
+
+func _register_debug_commands() -> void:
+	DebugConsole.register_command("upgrade", "Manage upgrades: list, grant, remove, clear, status")
+	DebugConsole.command_entered.connect(_on_debug_command)
+
+
+func _on_debug_command(cmd: String, args: PackedStringArray) -> void:
+	if cmd != "upgrade":
+		return
+
+	if args.is_empty():
+		_show_upgrade_help()
+		return
+
+	var subcommand = args[0].to_lower()
+	var subargs = args.slice(1)
+
+	match subcommand:
+		"list":
+			_cmd_list()
+		"grant":
+			_cmd_grant(subargs)
+		"remove":
+			_cmd_remove(subargs)
+		"clear":
+			_cmd_clear()
+		"status":
+			_cmd_status()
+		_:
+			DebugConsole.debug_warn("Unknown subcommand: %s" % subcommand)
+			_show_upgrade_help()
+
+
+func _show_upgrade_help() -> void:
+	DebugConsole.debug_log("Usage: /upgrade <subcommand>")
+	DebugConsole.debug_log("  list          - List all registered upgrades")
+	DebugConsole.debug_log("  grant <id>    - Grant upgrade to player")
+	DebugConsole.debug_log("  grant <id> <n> - Grant n stacks of upgrade")
+	DebugConsole.debug_log("  remove <id>   - Remove one stack of upgrade")
+	DebugConsole.debug_log("  clear         - Remove all upgrades")
+	DebugConsole.debug_log("  status        - Show acquired upgrades")
+
+
+func _cmd_list() -> void:
+	var all_ids = UpgradeRegistry.get_all_upgrade_ids()
+	if all_ids.is_empty():
+		DebugConsole.debug_warn("No upgrades registered. Add scenes to res://scenes/upgrades/")
+		return
+
+	DebugConsole.debug_log("Registered upgrades (%d):" % all_ids.size())
+	for upgrade_id in all_ids:
+		var upgrade_scene = UpgradeRegistry.get_upgrade(upgrade_id)
+		if upgrade_scene:
+			var temp = upgrade_scene.instantiate() as BaseUpgrade
+			if temp:
+				DebugConsole.debug_log("  %s - %s" % [upgrade_id, temp.upgrade_name])
+				temp.queue_free()
+			else:
+				DebugConsole.debug_log("  %s" % upgrade_id)
+
+
+func _cmd_grant(args: PackedStringArray) -> void:
+	if args.is_empty():
+		DebugConsole.debug_warn("Usage: /upgrade grant <id> [count]")
+		return
+
+	var upgrade_id = args[0]
+	var count = 1
+	if args.size() > 1:
+		count = int(args[1])
+		if count < 1:
+			count = 1
+
+	if not UpgradeRegistry.get_upgrade(upgrade_id):
+		DebugConsole.debug_warn("Unknown upgrade: %s" % upgrade_id)
+		DebugConsole.debug_log("Use '/upgrade list' to see available upgrades")
+		return
+
+	grant_upgrade(upgrade_id, count)
+	DebugConsole.debug_log("Granted %s x%d (total: x%d)" % [upgrade_id, count, get_upgrade_count(upgrade_id)])
+
+
+func _cmd_remove(args: PackedStringArray) -> void:
+	if args.is_empty():
+		DebugConsole.debug_warn("Usage: /upgrade remove <id> [count]")
+		return
+
+	var upgrade_id = args[0]
+	var count = 1
+	if args.size() > 1:
+		count = int(args[1])
+		if count < 1:
+			count = 1
+
+	if not has_upgrade(upgrade_id):
+		DebugConsole.debug_warn("You don't have upgrade: %s" % upgrade_id)
+		return
+
+	var removed = remove_upgrade(upgrade_id, count)
+	DebugConsole.debug_log("Removed %s x%d (remaining: x%d)" % [upgrade_id, removed, get_upgrade_count(upgrade_id)])
+
+
+func _cmd_clear() -> void:
+	var count = _acquired_upgrades.size()
+	reset_upgrades()
+	DebugConsole.debug_log("Cleared %d upgrade(s)" % count)
+
+
+func _cmd_status() -> void:
+	if _acquired_upgrades.is_empty():
+		DebugConsole.debug_log("No upgrades acquired")
+		return
+
+	DebugConsole.debug_log("Acquired upgrades (%d):" % _acquired_upgrades.size())
+	for upgrade_id in _acquired_upgrades:
+		var count = _acquired_upgrades[upgrade_id]
+		var base_upgrade = _get_or_create_instance(upgrade_id)
+		var upgrade_name = base_upgrade.upgrade_name if base_upgrade else upgrade_id
+		DebugConsole.debug_log("  %s x%d" % [upgrade_name, count])
 
 #endregion
