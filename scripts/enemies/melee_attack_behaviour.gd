@@ -10,6 +10,8 @@ class_name MeleeAttackBehaviour
 @export var attack_duration: float = 2.0  # How long the attack animation lasts
 @export var show_range_indicator: bool = false  # Show visual range indicator
 @export var attack_arc_degrees: float = 180.0  # Attack arc in degrees
+@export var attack_sound: AudioStream  # Sound to play when attack starts
+@export var attack_sound_delay: float = 0.0  # Delay before playing attack sound
 
 var _cooldown_timer: Timer
 var _damage_timer: Timer
@@ -146,8 +148,12 @@ func execute_attack(enemy: Node3D, target: Node3D) -> void:
 	# Deal damage at the end of attack animation (50% through to feel impactful)
 	_damage_timer.start(attack_duration * 0.5)
 
-	# TODO: Play attack animation
-	# TODO: Trigger attack sound effect
+	# Play attack sound
+	if attack_sound:
+		if attack_sound_delay > 0.0:
+			get_tree().create_timer(attack_sound_delay).timeout.connect(func(): Audio.play_sound(attack_sound, Audio.Channels.SFX))
+		else:
+			Audio.play_sound(attack_sound, Audio.Channels.SFX)
 
 
 func _deal_damage() -> void:
