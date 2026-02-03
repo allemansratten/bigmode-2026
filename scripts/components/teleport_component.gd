@@ -59,6 +59,8 @@ func _ready() -> void:
 	# Connect to pickup/drop signals
 	_pickupable.picked_up.connect(_on_picked_up)
 	_pickupable.dropped.connect(_on_dropped)
+	_pickupable.deactivated.connect(_on_deactivated)
+	_pickupable.activated.connect(_on_activated)
 
 
 func _process(_delta: float) -> void:
@@ -337,6 +339,30 @@ func _on_dropped() -> void:
 	# Reparent back to item
 	if _item:
 		reparent(_item)
+
+
+## Called when item becomes inactive in inventory (switched to another slot)
+func _on_deactivated() -> void:
+	# Clean up if we were aiming
+	if _is_aiming:
+		_is_aiming = false
+		_cancel_time_scale_effect()
+		_clear_previews()
+
+	_player = null
+
+	# Reparent back to item so we follow it to storage
+	if _item:
+		reparent(_item)
+
+
+## Called when item becomes active again in inventory
+func _on_activated() -> void:
+	# Find the player (item's holder)
+	if _pickupable:
+		_player = _pickupable.get_holder()
+		if _player:
+			reparent(_player)
 
 
 ## Called when weapon is destroyed

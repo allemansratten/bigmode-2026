@@ -8,6 +8,8 @@ extends Area3D
 
 signal picked_up(by: Node)
 signal dropped()
+signal deactivated()  ## Emitted when item becomes inactive in inventory (but still held)
+signal activated()  ## Emitted when item becomes active again in inventory
 
 ## Optional: node path from holder to the container where the item is reparented (e.g. "HoldPoint")
 @export var holder_attach_path: NodePath = ^"HoldPoint"
@@ -86,3 +88,13 @@ func get_holder() -> Node3D:
 
 func is_held() -> bool:
 	return _holder != null
+
+
+## Called by inventory when item becomes inactive (switched to another slot)
+func deactivate() -> void:
+	deactivated.emit()
+
+
+## Called by inventory when item becomes active again
+func activate() -> void:
+	activated.emit()

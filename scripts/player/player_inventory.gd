@@ -134,26 +134,31 @@ func _activate_current_item() -> void:
 	var item = get_active_item()
 	if not item:
 		return
-	
+
 	# Make item visible
 	item.visible = true
-	
+
 	# Attach item to player's HoldPoint
 	var hold_point = player.get_node_or_null("HoldPoint")
 	if not hold_point:
 		hold_point = player
-	
+
 	item.reparent(hold_point)
 	item.position = Vector3.ZERO
 	item.rotation = Vector3.ZERO
-	
+
 	# Make item kinematic so it doesn't fall
 	if item is RigidBody3D:
 		var rb = item as RigidBody3D
 		rb.freeze = true
-	
+
 	# Cache weapon behaviours
 	_cache_weapon_behaviours(item)
+
+	# Notify pickupable behaviour that item is now active
+	var pickupable = _get_pickupable_behaviour(item)
+	if pickupable:
+		pickupable.activate()
 
 
 ## Private: Deactivate current item (store it inactive)
@@ -161,7 +166,12 @@ func _deactivate_current_item() -> void:
 	var item = get_active_item()
 	if not item:
 		return
-	
+
+	# Notify pickupable behaviour that item is being deactivated
+	var pickupable = _get_pickupable_behaviour(item)
+	if pickupable:
+		pickupable.deactivate()
+
 	# Store item in inactive state
 	_store_item_inactive(item)
 
