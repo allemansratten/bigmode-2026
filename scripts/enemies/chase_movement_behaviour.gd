@@ -19,10 +19,27 @@ func update_movement(delta: float, enemy: CharacterBody3D, target_position: Vect
 
 	# Too far away - idle
 	if distance_to_target > max_chase_distance:
+		# Signal stop moving for idle animation
+		if enemy.has_method("signal_stop_moving"):
+			enemy.signal_stop_moving()
+		return Vector3.ZERO
+
+	# Check if enemy is attacking or stunned - stop moving
+	if "is_attacking" in enemy and enemy.is_attacking:
+		if enemy.has_method("signal_stop_moving"):
+			enemy.signal_stop_moving()
+		return Vector3.ZERO
+		
+	if "is_stunned" in enemy and enemy.is_stunned:
+		if enemy.has_method("signal_stop_moving"):
+			enemy.signal_stop_moving()
 		return Vector3.ZERO
 
 	# Within attack range - stop moving
 	if distance_to_target <= attack_range:
+		# Signal stop moving when in attack range
+		if enemy.has_method("signal_stop_moving"):
+			enemy.signal_stop_moving()
 		return Vector3.ZERO
 
 	# Update nav target to chase player
@@ -30,7 +47,14 @@ func update_movement(delta: float, enemy: CharacterBody3D, target_position: Vect
 
 	# Chase using nav agent
 	if nav_agent.is_navigation_finished():
+		# Signal stop moving when reached destination
+		if enemy.has_method("signal_stop_moving"):
+			enemy.signal_stop_moving()
 		return Vector3.ZERO
+
+	# Signal start moving when chasing
+	if enemy.has_method("signal_start_moving"):
+		enemy.signal_start_moving()
 
 	var next_path_position := nav_agent.get_next_path_position()
 	var direction := (next_path_position - enemy.global_position).normalized()
