@@ -5,7 +5,7 @@
 [ext_resource type="Script" uid="uid://gq8jkdjg8anv" path="res://scripts/items/throwable_behaviour.gd" id="3_5big4"]
 [ext_resource type="Script" uid="uid://6ngjp570ak3h" path="res://scripts/items/spawnable_behaviour.gd" id="4_s6wgo"]
 [ext_resource type="Script" uid="uid://beyljglh35ds6" path="res://scripts/items/ranged_weapon_behaviour.gd" id="5_86tfp"]
-[ext_resource type="PackedScene" uid="uid://bkg6g3wr03ipu" path="res://scenes/items/PlayerArrowProjectile.tscn" id="6_urg8l"]
+[ext_resource type="PackedScene" path="res://scenes/items/PlayerArrowProjectile.tscn" id="6_urg8l"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_qofw2"]
 size = Vector3(0.6215601, 0.13752441, 0.7686914)
