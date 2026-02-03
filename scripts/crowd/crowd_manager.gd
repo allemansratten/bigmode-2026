@@ -27,6 +27,9 @@ var all_crowd_members: Array[Node3D] = []
 
 
 func _ready() -> void:
+	# Add to group so upgrade effects can find us
+	add_to_group("crowd_manager")
+
 	# Find all spawn zones (PeopleSpawner children)
 	_gather_spawn_zones()
 

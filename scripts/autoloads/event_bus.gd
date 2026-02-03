@@ -30,6 +30,9 @@ signal item_dropped(item: Node3D)
 signal room_entered(room: Node3D)
 signal room_cleared(room: Node3D)
 
+# Crowd signals (for upgrade effects)
+signal crowd_throw_requested(categories: Array)
+
 
 # Example: Emit this signal when a new level starts
 func start_level(level_name: String) -> void:

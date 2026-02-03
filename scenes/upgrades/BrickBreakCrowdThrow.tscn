@@ -1,0 +1,24 @@
+[gd_scene load_steps=4 format=3 uid="uid://brick_break_crowd_throw"]
+
+[ext_resource type="Script" path="res://scripts/upgrades/base_upgrade.gd" id="1_base"]
+[ext_resource type="Script" path="res://scripts/upgrades/trigger_upgrade.gd" id="2_trigger"]
+[ext_resource type="Script" path="res://scripts/upgrades/effects/crowd_throw_effect.gd" id="3_effect"]
+
+[node name="BrickBreakCrowdThrow" type="Node"]
+script = ExtResource("1_base")
+upgrade_name = "Brick Bonanza"
+description = "When a brick breaks, 10% chance the crowd throws a weapon"
+categories = Array[int]([1, 10, 22])
+max_stacks = -1
+
+[node name="TriggerUpgrade" type="Node" parent="."]
+script = ExtResource("2_trigger")
+trigger = 5
+chance = 0.1
+cooldown = 0.5
+item_name_filter = "Brick"
+trigger_every_n = 0
+
+[node name="CrowdThrowEffect" type="Node" parent="TriggerUpgrade"]
+script = ExtResource("3_effect")
+item_categories = Array[int]([10])
