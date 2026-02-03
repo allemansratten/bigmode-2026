@@ -71,9 +71,9 @@ func _unhandled_input(event: InputEvent) -> void:
 	if not _player:
 		return
 
-	if event.is_action_pressed("attack_melee"):
+	if event.is_action_pressed("primary_interact"):
 		_start_aiming()
-	elif event.is_action_released("attack_melee"):
+	elif event.is_action_released("primary_interact"):
 		if _is_aiming:
 			_execute_teleport()
 
