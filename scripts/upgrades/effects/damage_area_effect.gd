@@ -5,7 +5,7 @@ class_name DamageAreaEffect
 ## Attach as child of TriggerUpgrade
 
 ## Damage dealt to each enemy
-@export var damage: float = 10.0
+@export var damage: float = 1.0
 
 ## Radius of the damage area
 @export var radius: float = 3.0
