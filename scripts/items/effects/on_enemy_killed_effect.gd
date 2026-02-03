@@ -43,5 +43,5 @@ func _find_item_root() -> Node3D:
 ## VIRTUAL: Override to implement custom kill effect
 ## Called by WeaponBehaviour when weapon kills an enemy
 ## target: the enemy that was killed
-func execute(target: Node3D) -> void:
+func execute(_target: Node3D) -> void:
 	push_warning("OnEnemyKilledEffect.execute() not implemented for %s" % get_script().get_path())

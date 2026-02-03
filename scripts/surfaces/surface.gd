@@ -5,8 +5,6 @@ class_name Surface
 ## Surfaces affect entity movement when standing on them
 ## Multiple surfaces can stack - only the top one (highest Y) has effect
 
-const SurfaceEffect = preload("res://scripts/surfaces/surface_effect.gd")
-
 signal lifetime_expired(surface: Surface)
 
 @export var surface_type: SurfaceEffect.Type = SurfaceEffect.Type.OIL

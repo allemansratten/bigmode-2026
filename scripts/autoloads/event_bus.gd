@@ -1,5 +1,6 @@
 extends Node
 
+@warning_ignore_start("unused_signal")
 
 # Define global signals here
 signal level_started(level_name: String)
@@ -33,6 +34,7 @@ signal room_cleared(room: Node3D)
 # Crowd signals (for upgrade effects)
 signal crowd_throw_requested(categories: Array)
 
+@warning_ignore_restore("unused_signal")
 
 # Example: Emit this signal when a new level starts
 func start_level(level_name: String) -> void:

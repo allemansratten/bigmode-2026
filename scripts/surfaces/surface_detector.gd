@@ -4,9 +4,6 @@ class_name SurfaceDetector
 ## Component that detects which surface an entity is standing on
 ## Attached to Player or Enemy to apply surface effects
 
-const Surface = preload("res://scripts/surfaces/surface.gd")
-const SurfaceEffect = preload("res://scripts/surfaces/surface_effect.gd")
-
 signal surface_changed(old_surface: Surface, new_surface: Surface)
 
 @export var detection_interval: float = 0.1  # Check every 0.1 seconds
