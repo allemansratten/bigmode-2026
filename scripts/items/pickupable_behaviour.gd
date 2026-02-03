@@ -57,6 +57,10 @@ func try_pick_up(by: Node3D) -> bool:
 	EffectUtils.execute_effects(item, OnPickupEffect, [by])
 
 	picked_up.emit(by)
+
+	# Emit global event for upgrade system
+	EventBus.item_picked_up.emit(item, by)
+
 	return true
 
 

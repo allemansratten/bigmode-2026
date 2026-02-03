@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://cn8p4xwqy2m5k"]
+
+[ext_resource type="Script" path="res://scripts/upgrades/base_upgrade.gd" id="1_base"]
+[ext_resource type="Script" path="res://scripts/upgrades/trigger_upgrade.gd" id="2_trigger"]
+[ext_resource type="Script" path="res://scripts/upgrades/effects/damage_area_effect.gd" id="3_effect"]
+
+[node name="DashDamage" type="Node"]
+script = ExtResource("1_base")
+upgrade_name = "Shockwave Dash"
+description = "Deal 5 damage to nearby enemies when you dash"
+categories = Array[int]([1, 10, 23])
+max_stacks = -1
+
+[node name="TriggerUpgrade" type="Node" parent="."]
+script = ExtResource("2_trigger")
+trigger = 8
+chance = 1.0
+cooldown = 0.0
+
+[node name="DamageAreaEffect" type="Node" parent="TriggerUpgrade"]
+script = ExtResource("3_effect")
+damage = 5.0
+radius = 2.5
+scales_with_stacks = true

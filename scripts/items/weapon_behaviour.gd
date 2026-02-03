@@ -109,6 +109,9 @@ func destroy() -> void:
 	# Execute all OnDestroyEffect components
 	EffectUtils.execute_effects(item, OnDestroyEffect)
 
+	# Emit global event for upgrade system
+	EventBus.weapon_broken.emit(item)
+
 	# TODO: Spawn break particles (wood splinters, metal shards, etc.)
 	# TODO: Play break sound effect (crack, shatter, clang, etc.)
 

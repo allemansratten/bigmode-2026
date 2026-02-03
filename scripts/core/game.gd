@@ -32,7 +32,7 @@ func _ready() -> void:
 func _process(delta: float) -> void:
 	time_passed += delta
 	timestamp_label.text = str(time_passed).pad_decimals(2)
-		
+
 
 func _on_game_paused() -> void:
 	get_tree().paused = true

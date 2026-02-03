@@ -104,7 +104,8 @@ func _physics_process(delta: float) -> void:
 		var effective_speed = move_speed
 		if _surface_detector:
 			effective_speed *= _surface_detector.get_speed_multiplier()
-
+		effective_speed *= _get_speed_multiplier_from_weapon()
+		
 		velocity.x = direction.x * effective_speed
 		velocity.z = direction.z * effective_speed
 		# Gradually rotate to face movement direction (2D XZ only)
@@ -238,6 +239,16 @@ func _try_melee_attack() -> void:
 		var melee_weapon = _inventory.get_active_melee_weapon()
 		if melee_weapon:
 			melee_weapon.attack()
+
+
+func _get_speed_multiplier_from_weapon() -> float:
+	if not _inventory:
+		return 1.0
+	var melee_weapon = _inventory.get_active_melee_weapon()
+
+	if melee_weapon and melee_weapon.is_attacking:
+		return melee_weapon.speed_multiplier_when_attacking
+	return 1.0
 
 
 func _try_ranged_attack() -> void:

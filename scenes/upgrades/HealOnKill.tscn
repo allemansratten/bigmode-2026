@@ -1,0 +1,24 @@
+[gd_scene format=3 uid="uid://dkq8h2xwmr4pl"]
+
+[ext_resource type="Script" path="res://scripts/upgrades/base_upgrade.gd" id="1_base"]
+[ext_resource type="Script" path="res://scripts/upgrades/trigger_upgrade.gd" id="2_trigger"]
+[ext_resource type="Script" path="res://scripts/upgrades/effects/heal_player_effect.gd" id="3_effect"]
+
+[node name="HealOnKill" type="Node"]
+script = ExtResource("1_base")
+upgrade_name = "Vampiric Strike"
+description = "10% chance to heal 5 HP when killing an enemy"
+categories = Array[int]([0, 10, 20])
+max_stacks = -1
+
+[node name="TriggerUpgrade" type="Node" parent="."]
+script = ExtResource("2_trigger")
+trigger = 0
+chance = 0.1
+cooldown = 0.0
+
+[node name="HealPlayerEffect" type="Node" parent="TriggerUpgrade"]
+script = ExtResource("3_effect")
+heal_amount = 5.0
+heal_percent = 0.0
+scales_with_stacks = true

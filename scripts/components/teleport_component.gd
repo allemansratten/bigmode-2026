@@ -21,6 +21,7 @@ var _aim_line: Node3D = null
 var _player_preview: Node3D = null
 var _target_position: Vector3 = Vector3.ZERO
 var _line_material: StandardMaterial3D = null
+var _time_scale_effect_id: String = ""
 
 
 func _ready() -> void:
@@ -82,16 +83,14 @@ func _start_aiming() -> void:
 	# Check cooldown
 	if not _cooldown_timer.is_stopped():
 		return
-
 	_is_aiming = true
-	Engine.time_scale = aim_time_scale
-	print("TeleportComponent: entering aim mode (time scale: %.1f)" % aim_time_scale)
+	_time_scale_effect_id = TimeScaleManager.request_time_scale(aim_time_scale)
 
 
 ## Execute the teleport
 func _execute_teleport() -> void:
 	_is_aiming = false
-	Engine.time_scale = 1.0
+	_cancel_time_scale_effect()
 
 	# Clean up previews
 	_clear_previews()
@@ -101,10 +100,15 @@ func _execute_teleport() -> void:
 		print("TeleportComponent: no valid player")
 		return
 
+	# Store start position for event
+	var from_position = _player.global_position
+
 	# Teleport to preview location!
-	print("TeleportComponent: teleporting to %s" % _target_position)
 	_player.global_position = _target_position
 	_cooldown_timer.start()
+
+	# Emit global event for upgrade system
+	EventBus.player_teleported.emit(from_position, _target_position)
 
 	# Damage the weapon on use
 	if _weapon:
@@ -116,7 +120,7 @@ func _update_aim_preview() -> void:
 	if not _player or not is_instance_valid(_player):
 		_clear_previews()
 		_is_aiming = false
-		Engine.time_scale = 1.0
+		_cancel_time_scale_effect()
 		return
 
 	var cursor_pos = _get_cursor_world_position()
@@ -315,21 +319,17 @@ func _get_cursor_world_position() -> Vector3:
 
 ## Called when item is picked up
 func _on_picked_up(picker: Node3D) -> void:
-	print("TeleportComponent: picked up by %s" % picker.name)
 	_player = picker
-
 	# Reparent to player to process input
 	reparent(picker)
 
 
 ## Called when item is dropped
 func _on_dropped() -> void:
-	print("TeleportComponent: dropped")
-
 	# Clean up if we were aiming
 	if _is_aiming:
 		_is_aiming = false
-		Engine.time_scale = 1.0
+		_cancel_time_scale_effect()
 		_clear_previews()
 
 	_player = null
@@ -341,15 +341,20 @@ func _on_dropped() -> void:
 
 ## Called when weapon is destroyed
 func _on_weapon_destroyed() -> void:
-	print("TeleportComponent: weapon destroyed, cleaning up")
-
 	# Clean up if we were aiming
 	if _is_aiming:
 		_is_aiming = false
-		Engine.time_scale = 1.0
+		_cancel_time_scale_effect()
 		_clear_previews()
 
 	_player = null
 
 	# Remove ourselves since the parent item is being destroyed
 	queue_free()
+
+
+## Cancel the active time scale effect if one exists
+func _cancel_time_scale_effect() -> void:
+	if _time_scale_effect_id != "":
+		TimeScaleManager.cancel_time_scale(_time_scale_effect_id)
+		_time_scale_effect_id = ""
