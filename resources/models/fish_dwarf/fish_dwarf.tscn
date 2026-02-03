@@ -1,0 +1,194 @@
+[gd_scene format=3 uid="uid://cm8vdnysrsclb"]
+
+[ext_resource type="PackedScene" uid="uid://bwhmu68e3ys5k" path="res://resources/models/fish_dwarf/Running bis.fbx" id="1_nwkdi"]
+[ext_resource type="Animation" uid="uid://2i0xvwad3j6e" path="res://resources/models/fish_dwarf/Attack.res" id="2_pe01o"]
+[ext_resource type="Animation" uid="uid://bwi2xx3a2m3ce" path="res://resources/models/fish_dwarf/Death.res" id="3_f35hl"]
+[ext_resource type="Animation" uid="uid://brajqs7ejf4yr" path="res://resources/models/fish_dwarf/OnHit.res" id="4_h1sub"]
+[ext_resource type="Animation" uid="uid://co48bfhmhl8" path="res://resources/models/fish_dwarf/Idle.res" id="4_pe01o"]
+[ext_resource type="Animation" uid="uid://c5uw67xed3vn2" path="res://resources/models/fish_dwarf/Punch.res" id="5_6a7bm"]
+[ext_resource type="Animation" uid="uid://dcppcmkx2jrw1" path="res://resources/models/fish_dwarf/Running.res" id="6_fmcim"]
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_27xp3"]
+_data = {
+&"Attack": ExtResource("2_pe01o"),
+&"Death": ExtResource("3_f35hl"),
+&"Idle": ExtResource("4_pe01o"),
+&"OnHit": ExtResource("4_h1sub"),
+&"Punch": ExtResource("5_6a7bm"),
+&"Running": ExtResource("6_fmcim")
+}
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_attack"]
+animation = &"Enemy/Attack"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_death"]
+animation = &"Enemy/Death"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_pe01o"]
+animation = &"Enemy/Idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_hit"]
+animation = &"Enemy/OnHit"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_f35hl"]
+animation = &"Enemy/Running"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_h1sub"]
+advance_mode = 2
+
+[sub_resource type="Curve" id="Curve_6a7bm"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_fmcim"]
+xfade_time = 0.2
+xfade_curve = SubResource("Curve_6a7bm")
+advance_mode = 2
+advance_condition = &"to_running"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_27xp3"]
+xfade_time = 0.2
+xfade_curve = SubResource("Curve_6a7bm")
+advance_mode = 2
+advance_condition = &"to_idle"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_jer8o"]
+xfade_time = 0.2
+xfade_curve = SubResource("Curve_6a7bm")
+advance_mode = 2
+advance_condition = &"to_attack"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_5fajq"]
+xfade_time = 0.2
+xfade_curve = SubResource("Curve_6a7bm")
+switch_mode = 2
+advance_mode = 2
+advance_condition = &"to_idle"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_8ly7n"]
+xfade_time = 0.2
+xfade_curve = SubResource("Curve_6a7bm")
+advance_mode = 2
+advance_condition = &"to_attack"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_pkt5c"]
+xfade_time = 0.2
+xfade_curve = SubResource("Curve_6a7bm")
+switch_mode = 2
+advance_mode = 2
+advance_condition = &"to_running"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_iju4o"]
+xfade_time = 0.2
+xfade_curve = SubResource("Curve_6a7bm")
+advance_mode = 2
+advance_condition = &"to_onhit"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_n4iwu"]
+switch_mode = 2
+advance_mode = 2
+advance_condition = &"to_idle"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_51w7w"]
+xfade_time = 0.2
+xfade_curve = SubResource("Curve_6a7bm")
+advance_mode = 2
+advance_condition = &"to_onhit"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_15pud"]
+xfade_time = 0.2
+xfade_curve = SubResource("Curve_6a7bm")
+switch_mode = 2
+advance_mode = 2
+advance_condition = &"to_running"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_nlr2b"]
+xfade_time = 0.2
+xfade_curve = SubResource("Curve_6a7bm")
+priority = 10
+advance_mode = 2
+advance_condition = &"to_death"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_idle_death"]
+xfade_time = 0.1
+priority = 10
+advance_mode = 2
+advance_condition = &"to_death"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_running_death"]
+xfade_time = 0.1
+priority = 10
+advance_mode = 2
+advance_condition = &"to_death"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_attack_death"]
+xfade_time = 0.1
+priority = 10
+advance_mode = 2
+advance_condition = &"to_death"
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_enemy"]
+states/Attack/node = SubResource("AnimationNodeAnimation_attack")
+states/Attack/position = Vector2(372, 273)
+states/Death/node = SubResource("AnimationNodeAnimation_death")
+states/Death/position = Vector2(701, 32)
+states/Idle/node = SubResource("AnimationNodeAnimation_pe01o")
+states/Idle/position = Vector2(348, 88)
+states/OnHit/node = SubResource("AnimationNodeAnimation_hit")
+states/OnHit/position = Vector2(552, 273)
+states/Running/node = SubResource("AnimationNodeAnimation_f35hl")
+states/Running/position = Vector2(552, 100)
+transitions = ["Start", "Idle", SubResource("AnimationNodeStateMachineTransition_h1sub"), "Idle", "Running", SubResource("AnimationNodeStateMachineTransition_fmcim"), "Running", "Idle", SubResource("AnimationNodeStateMachineTransition_27xp3"), "Idle", "Attack", SubResource("AnimationNodeStateMachineTransition_jer8o"), "Attack", "Idle", SubResource("AnimationNodeStateMachineTransition_5fajq"), "Running", "Attack", SubResource("AnimationNodeStateMachineTransition_8ly7n"), "Attack", "Running", SubResource("AnimationNodeStateMachineTransition_pkt5c"), "Idle", "OnHit", SubResource("AnimationNodeStateMachineTransition_iju4o"), "OnHit", "Idle", SubResource("AnimationNodeStateMachineTransition_n4iwu"), "Running", "OnHit", SubResource("AnimationNodeStateMachineTransition_51w7w"), "OnHit", "Running", SubResource("AnimationNodeStateMachineTransition_15pud"), "OnHit", "Death", SubResource("AnimationNodeStateMachineTransition_nlr2b"), "Idle", "Death", SubResource("AnimationNodeStateMachineTransition_idle_death"), "Running", "Death", SubResource("AnimationNodeStateMachineTransition_running_death"), "Attack", "Death", SubResource("AnimationNodeStateMachineTransition_attack_death")]
+graph_offset = Vector2(212, -90)
+
+[node name="FishDwarf" unique_id=1147591676 instance=ExtResource("1_nwkdi")]
+
+[node name="Skeleton3D" parent="." index="0" unique_id=104488213]
+bones/0/position = Vector3(0.036922697, 0.8800648, -0.005286373)
+bones/0/rotation = Quaternion(0.09985346, -0.17236961, -0.029578537, 0.97951174)
+bones/1/rotation = Quaternion(0.032362532, -0.0021974004, 0.025039813, 0.9991601)
+bones/2/rotation = Quaternion(0.06623584, -0.010868228, 0.0094722975, 0.9976999)
+bones/3/position = Vector3(0, 0.12888099, 6.938894e-18)
+bones/3/rotation = Quaternion(0.06630668, -0.009805985, 0.010171769, 0.99769926)
+bones/4/rotation = Quaternion(-0.061826497, 0.027184201, -0.018127413, 0.99755204)
+bones/5/rotation = Quaternion(-0.19159456, 0.12098059, -0.034344252, 0.97338367)
+bones/7/rotation = Quaternion(0.5253441, 0.47672686, -0.50032544, 0.4964067)
+bones/8/position = Vector3(0, 0.23263569, -4.440892e-16)
+bones/8/rotation = Quaternion(0.47187737, 0.11918867, 0.20951867, 0.84807295)
+bones/9/position = Vector3(-1.110223e-16, 0.31387895, 0)
+bones/9/rotation = Quaternion(-0.1980528, -0.0074693197, 0.64140856, 0.74115753)
+bones/10/position = Vector3(-5.551115e-17, 0.3533042, -6.661338e-16)
+bones/10/rotation = Quaternion(5.89806e-17, 8.326673e-17, 5.551115e-17, 1)
+bones/11/rotation = Quaternion(0.53850996, -0.47531575, 0.49468723, 0.48925102)
+bones/12/position = Vector3(2.7755576e-17, 0.23087494, -2.220446e-16)
+bones/12/rotation = Quaternion(0.5557094, 0.06163156, -0.21618867, 0.8004068)
+bones/13/position = Vector3(1.3877788e-17, 0.30740905, 0)
+bones/13/rotation = Quaternion(-0.00036448776, 0.0011637099, -0.69025457, 0.7235656)
+bones/14/position = Vector3(-6.938894e-18, 0.35280344, 2.220446e-16)
+bones/14/rotation = Quaternion(1.1178124e-16, -5.8546917e-18, 0, 1)
+bones/15/rotation = Quaternion(0.16521384, 0.36323488, 0.89278495, -0.20904514)
+bones/16/position = Vector3(-5.551115e-17, 0.45852587, 6.938894e-18)
+bones/16/rotation = Quaternion(-0.4389292, -0.05824475, -0.033756614, 0.8959963)
+bones/17/position = Vector3(-5.551115e-17, 0.3611856, 6.938894e-18)
+bones/17/rotation = Quaternion(0.6434935, -0.28147903, 0.07657865, 0.7076874)
+bones/18/position = Vector3(1.110223e-16, 0.38004464, -1.2490009e-16)
+bones/18/rotation = Quaternion(0.1434533, -0.007410761, -0.016126614, 0.989498)
+bones/20/rotation = Quaternion(-0.14637524, 0.23019284, 0.9470737, 0.16922511)
+bones/21/position = Vector3(1.6653345e-16, 0.45890158, 0)
+bones/21/rotation = Quaternion(-0.40082338, 0.045904618, 0.06667911, 0.91257185)
+bones/22/position = Vector3(8.326673e-17, 0.36141533, -6.938894e-18)
+bones/22/rotation = Quaternion(0.674426, 0.31425816, -0.03644455, 0.66713053)
+bones/23/position = Vector3(-1.110223e-16, 0.3787355, 2.7755576e-17)
+bones/23/rotation = Quaternion(0.13262178, 0.0040248237, 0.012864836, 0.99107516)
+
+[node name="AnimationPlayer" parent="." index="1" unique_id=472485171]
+libraries/Enemy = SubResource("AnimationLibrary_27xp3")
+
+[node name="AnimationTree" type="AnimationTree" parent="." index="2" unique_id=1139987850]
+tree_root = SubResource("AnimationNodeStateMachine_enemy")
+anim_player = NodePath("../AnimationPlayer")
+parameters/conditions/to_attack = false
+parameters/conditions/to_death = false
+parameters/conditions/to_idle = false
+parameters/conditions/to_onhit = false
+parameters/conditions/to_running = false

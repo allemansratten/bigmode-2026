@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://bwhmu68e3ys5k"
-path="res://.godot/imported/Running bis.fbx-da45708884185bd555208a1d5cf9256c.scn"
+uid="uid://boehjvvy3cke"
+path="res://.godot/imported/Zombie Idle.fbx-c9731296a834332f5fa82e7bcfea3ef9.scn"
 
 [deps]
 
-source_file="res://resources/models/fish_dwarf/Running bis.fbx"
-dest_files=["res://.godot/imported/Running bis.fbx-da45708884185bd555208a1d5cf9256c.scn"]
+source_file="res://resources/models/fish_dwarf/Zombie Idle.fbx"
+dest_files=["res://.godot/imported/Zombie Idle.fbx-c9731296a834332f5fa82e7bcfea3ef9.scn"]
 
 [params]
 
@@ -41,9 +41,9 @@ _subresources={
 "animations": {
 "mixamo_com": {
 "save_to_file/enabled": true,
-"save_to_file/fallback_path": "res://resources/models/fish_dwarf/Running.res",
+"save_to_file/fallback_path": "res://resources/models/fish_dwarf/Idle.res",
 "save_to_file/keep_custom_tracks": "",
-"save_to_file/path": "uid://dcppcmkx2jrw1",
+"save_to_file/path": "uid://co48bfhmhl8",
 "settings/loop_mode": 0,
 "slice_1/end_frame": 0,
 "slice_1/loop_mode": 0,

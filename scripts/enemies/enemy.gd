@@ -6,6 +6,11 @@ class_name Enemy
 
 signal died(enemy: Enemy)
 signal health_changed(current: float, maximum: float)
+signal started_moving()
+signal stopped_moving()
+signal started_attacking()
+signal took_damage(amount: float)
+signal started_dying()
 
 @export var enemy_name: String = "" # Unique identifier for this enemy type
 @export var max_health: float = 100.0
@@ -28,6 +33,12 @@ var target: Node3D = null
 
 # State
 var is_dead: bool = false
+var is_attacking: bool = false
+var is_stunned: bool = false
+
+# Timers
+var _attack_timer: Timer
+var _stun_timer: Timer
 
 
 func _ready():
@@ -51,6 +62,17 @@ func _ready():
 
 	# Ensure health is set
 	current_health = max_health
+
+	# Setup timers
+	_attack_timer = Timer.new()
+	_attack_timer.one_shot = true
+	_attack_timer.timeout.connect(_on_attack_finished)
+	add_child(_attack_timer)
+	
+	_stun_timer = Timer.new()
+	_stun_timer.one_shot = true
+	_stun_timer.timeout.connect(_on_stun_finished)
+	add_child(_stun_timer)
 
 	# Wait for nav mesh to be ready
 	call_deferred("_setup_navigation")
@@ -77,7 +99,7 @@ func _physics_process(delta: float):
 
 	# Get desired velocity from movement behavior (horizontal only)
 	var target_velocity := Vector3.ZERO
-	if movement_behaviour:
+	if movement_behaviour and not is_attacking and not is_stunned:
 		target_velocity = movement_behaviour.update_movement(delta, self , target.global_position)
 
 	# Use movement behavior's XZ but preserve accumulated Y velocity
@@ -86,8 +108,8 @@ func _physics_process(delta: float):
 
 	move_and_slide()
 
-	# Check and execute attack
-	if attack_behaviour and attack_behaviour.can_attack(self , target):
+	# Check and execute attack (only if not stunned or already attacking)
+	if attack_behaviour and not is_attacking and not is_stunned and attack_behaviour.can_attack(self , target):
 		attack_behaviour.execute_attack(self , target)
 
 
@@ -102,8 +124,17 @@ func take_damage(amount: float, source: Node3D = null) -> void:
 	current_health -= amount
 	health_changed.emit(current_health, max_health)
 
+	# Always emit damage signal for other systems
+	took_damage.emit(amount)
+
+	# Check if enemy will die
 	if current_health <= 0:
+		# Die immediately but without hit stun to go straight to death animation
 		die()
+	else:
+		# Apply normal hit stun for non-fatal damage
+		is_stunned = true
+		_stun_timer.start(0.4)
 
 
 func die() -> void:
@@ -111,6 +142,10 @@ func die() -> void:
 		return
 
 	is_dead = true
+
+	# Emit death signal for animations
+	started_dying.emit()
+	
 	died.emit(self)
 
 	# Emit global event for upgrade system
@@ -124,8 +159,8 @@ func die() -> void:
 			get_parent().add_child(drop_instance)
 			drop_instance.global_position = global_position + Vector3.UP * 0.5
 
-	# Remove enemy
-	queue_free()
+	# Remove enemy after death animation (2 seconds)
+	get_tree().create_timer(2.0).timeout.connect(queue_free)
 
 
 func get_distance_to_target() -> float:
@@ -137,3 +172,31 @@ func get_distance_to_target() -> float:
 ## Get the enemy type name for registry
 func get_enemy_name() -> String:
 	return enemy_name
+
+
+## Signal helpers for behaviors to use
+func signal_start_moving() -> void:
+	started_moving.emit()
+
+
+func signal_stop_moving() -> void:
+	stopped_moving.emit()
+
+
+func signal_start_attacking() -> void:
+	is_attacking = true
+	started_attacking.emit()
+
+
+## Set attack duration (called by attack behaviors)
+func set_attack_duration(duration: float) -> void:
+	_attack_timer.start(duration)
+
+
+## Timer callbacks
+func _on_attack_finished() -> void:
+	is_attacking = false
+
+
+func _on_stun_finished() -> void:
+	is_stunned = false
