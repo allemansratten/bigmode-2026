@@ -5,7 +5,9 @@
 [ext_resource type="Script" uid="uid://gq8jkdjg8anv" path="res://scripts/items/throwable_behaviour.gd" id="3_0ou0u"]
 [ext_resource type="Script" uid="uid://6ngjp570ak3h" path="res://scripts/items/spawnable_behaviour.gd" id="4_v4h7p"]
 [ext_resource type="Script" uid="uid://beyljglh35ds6" path="res://scripts/items/ranged_weapon_behaviour.gd" id="5_hnpu2"]
-[ext_resource type="PackedScene" path="res://scenes/items/PlayerArrowProjectile.tscn" id="6_tiadc"]
+[ext_resource type="PackedScene" uid="uid://bkg6g3wr03ipu" path="res://scenes/items/PlayerArrowProjectile.tscn" id="6_tiadc"]
+[ext_resource type="PackedScene" path="res://scenes/effects/audio/PlaySoundOnThrowLandedEffect.tscn" id="7_0ou0u"]
+[ext_resource type="AudioStream" uid="uid://cu5dn0idjnbok" path="res://resources/sounds/shaky-fall-sound.mp3" id="8_v4h7p"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_qofw2"]
 size = Vector3(0.09, 0.9, 0.22)
@@ -16,6 +18,9 @@ size = Vector3(0.17327881, 1.0105591, 0.28424072)
 [node name="Bow" type="RigidBody3D" unique_id=183633123]
 collision_layer = 20
 collision_mask = 25
+
+[node name="PlaySoundOnThrowLandedEffect" parent="." unique_id=91483252 instance=ExtResource("7_0ou0u")]
+sound = ExtResource("8_v4h7p")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2040031631]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.002493918, 0.061077654, -0.024536133)

@@ -6,7 +6,9 @@
 [ext_resource type="Script" uid="uid://cjqf3ba7ehoaf" path="res://scripts/items/weapon_behaviour.gd" id="4_weapon"]
 [ext_resource type="PackedScene" path="res://scenes/effects/SpawnSurfaceEffect.tscn" id="5_effect"]
 [ext_resource type="PackedScene" path="res://scenes/effects/audio/PlaySoundOnDestroyEffect.tscn" id="6_audio_destroy"]
+[ext_resource type="PackedScene" path="res://scenes/effects/audio/PlaySoundOnThrowLandedEffect.tscn" id="6_uyudk"]
 [ext_resource type="AudioStream" uid="uid://cy6reeja7npy3" path="res://resources/sounds/glass-breaking-386153.mp3" id="7_glass_sound"]
+[ext_resource type="AudioStream" uid="uid://badopug7wkfnx" path="res://resources/sounds/brick-hit-2.mp3" id="7_nq2bp"]
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_flask"]
 radius = 0.3
@@ -62,6 +64,9 @@ damage = 5.0
 [node name="SpawnSurfaceEffect" parent="." unique_id=351748846 instance=ExtResource("5_effect")]
 
 [node name="AudioEffects" type="Node" parent="." unique_id=1179257583]
+
+[node name="PlaySoundOnThrowLandedEffect" parent="AudioEffects" unique_id=626122198 instance=ExtResource("6_uyudk")]
+sound = ExtResource("7_nq2bp")
 
 [node name="PlaySoundOnDestroyEffect" parent="AudioEffects" unique_id=713449680 instance=ExtResource("6_audio_destroy")]
 sound = ExtResource("7_glass_sound")

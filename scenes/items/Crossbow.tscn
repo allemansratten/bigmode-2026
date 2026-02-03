@@ -5,7 +5,9 @@
 [ext_resource type="Script" uid="uid://gq8jkdjg8anv" path="res://scripts/items/throwable_behaviour.gd" id="3_5big4"]
 [ext_resource type="Script" uid="uid://6ngjp570ak3h" path="res://scripts/items/spawnable_behaviour.gd" id="4_s6wgo"]
 [ext_resource type="Script" uid="uid://beyljglh35ds6" path="res://scripts/items/ranged_weapon_behaviour.gd" id="5_86tfp"]
-[ext_resource type="PackedScene" path="res://scenes/items/PlayerArrowProjectile.tscn" id="6_urg8l"]
+[ext_resource type="PackedScene" uid="uid://bkg6g3wr03ipu" path="res://scenes/items/PlayerArrowProjectile.tscn" id="6_urg8l"]
+[ext_resource type="Script" uid="uid://c402h5pwrip2c" path="res://scripts/items/effects/audio/play_sound_on_throw_landed_effect.gd" id="7_5big4"]
+[ext_resource type="AudioStream" uid="uid://bi5wmk1s7a7q2" path="res://resources/sounds/sword-pack/170698__mooseranger__union-sword-clash-11.mp3" id="8_s6wgo"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_qofw2"]
 size = Vector3(0.6215601, 0.13752441, 0.7686914)
@@ -47,3 +49,9 @@ ammo_count = 4
 max_ammo = 4
 damage = 100.0
 attack_cooldown = 1.5
+
+[node name="PlaySoundOnThrowLandedEffect" type="Node" parent="." unique_id=1887773262]
+script = ExtResource("7_5big4")
+sound = ExtResource("8_s6wgo")
+volume_scale = 0.3
+metadata/_custom_type_script = "uid://c402h5pwrip2c"

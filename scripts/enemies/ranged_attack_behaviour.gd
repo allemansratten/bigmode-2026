@@ -9,6 +9,8 @@ class_name RangedAttackBehaviour
 @export var attack_cooldown: float = 2.0  # Seconds between attacks
 @export var projectile_speed: float = 15.0
 @export var projectile_scene: PackedScene = preload("res://scenes/items/Projectile.tscn")
+@export var attack_sound: AudioStream  # Sound to play when attack starts
+@export var attack_sound_delay: float = 0.0  # Delay before playing attack sound
 
 var _cooldown_timer: Timer
 
@@ -62,8 +64,12 @@ func execute_attack(enemy: Node3D, target: Node3D) -> void:
 	projectile.initialize(direction, enemy, damage)
 	projectile.speed = projectile_speed
 
-	# TODO: Play attack animation
-	# TODO: Trigger attack sound effect
+	# Play attack sound
+	if attack_sound:
+		if attack_sound_delay > 0.0:
+			get_tree().create_timer(attack_sound_delay).timeout.connect(func(): Audio.play_sound(attack_sound, Audio.Channels.SFX))
+		else:
+			Audio.play_sound(attack_sound, Audio.Channels.SFX)
 
 
 func get_attack_range() -> float:

@@ -39,6 +39,11 @@ func _ready() -> void:
 	# Store item reference
 	_item = get_parent() as RigidBody3D
 	if _item:
+		# Ensure contact monitoring is enabled for body_entered signal
+		if not _item.contact_monitor:
+			_item.contact_monitor = true
+		if _item.max_contacts_reported < 1:
+			_item.max_contacts_reported = 4
 		_item.body_entered.connect(_on_body_entered)
 		# Look for WeaponBehaviour (including subclasses)
 		for child in _item.get_children():

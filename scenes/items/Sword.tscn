@@ -5,6 +5,8 @@
 [ext_resource type="Script" uid="uid://gq8jkdjg8anv" path="res://scripts/items/throwable_behaviour.gd" id="2_rs3j6"]
 [ext_resource type="Script" uid="uid://6ngjp570ak3h" path="res://scripts/items/spawnable_behaviour.gd" id="3_2n8v8"]
 [ext_resource type="Script" uid="uid://dg2m87we0c6c8" path="res://scripts/items/melee_weapon_behaviour.gd" id="4_dpbjg"]
+[ext_resource type="Script" uid="uid://c402h5pwrip2c" path="res://scripts/items/effects/audio/play_sound_on_throw_landed_effect.gd" id="6_dpbjg"]
+[ext_resource type="AudioStream" uid="uid://v7lu512fh0ao" path="res://resources/sounds/sword-pack/170703__mooseranger__union-sword-clash-4.mp3" id="7_785hp"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2n8v8"]
 radius = 0.1
@@ -53,3 +55,8 @@ knockback_force = 8.0
 max_durability = 6
 damage = 66.0
 attack_cooldown = 1.0
+
+[node name="PlaySoundOnThrowLandedEffect" type="Node" parent="." unique_id=2133852078]
+script = ExtResource("6_dpbjg")
+sound = ExtResource("7_785hp")
+metadata/_custom_type_script = "uid://c402h5pwrip2c"
