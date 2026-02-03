@@ -20,6 +20,8 @@ var slot_panels: Array[Panel] = []
 var currently_hovered_slot: int = -1
 var background_rect: TextureRect
 var highlight_control: Control
+var selection_circle: TextureRect
+var selection_arrow: TextureRect
 
 ## Item icon textures - you may want to replace these with actual item icons
 var default_item_texture: Texture2D
@@ -70,7 +72,8 @@ func hide_wheel() -> void:
 func _process(_delta: float) -> void:
 	if not visible:
 		return
-		
+
+	_update_arrow_rotation()
 	_update_selection_hover()
 
 
@@ -97,13 +100,42 @@ func _setup_wheel_layout() -> void:
 		background_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		add_child(background_rect)
 	
+	# Add selection circle in the center
+	var circle_texture = load("res://resources/ui/selection_circle.png") as Texture2D
+	if circle_texture:
+		selection_circle = TextureRect.new()
+		selection_circle.texture = circle_texture
+		selection_circle.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		selection_circle.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		selection_circle.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		# Size the circle to fit within the wheel radius
+		var circle_size = wheel_radius * 0.5
+		selection_circle.size = Vector2(circle_size, circle_size)
+		selection_circle.position = (size - selection_circle.size) / 2
+		add_child(selection_circle)
+
+	# Add selection arrow in the center
+	var arrow_texture = load("res://resources/ui/selection_arrow.png") as Texture2D
+	if arrow_texture:
+		selection_arrow = TextureRect.new()
+		selection_arrow.texture = arrow_texture
+		selection_arrow.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+		selection_arrow.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		selection_arrow.mouse_filter = Control.MOUSE_FILTER_IGNORE
+		# Arrow size
+		var arrow_size = Vector2(32, 32)
+		selection_arrow.size = arrow_size
+		selection_arrow.pivot_offset = arrow_size / 2
+		selection_arrow.position = (size - arrow_size) / 2
+		add_child(selection_arrow)
+
 	# Add highlight control for quarter circle highlights
 	highlight_control = Control.new()
 	highlight_control.size = size
 	highlight_control.position = Vector2.ZERO
 	highlight_control.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	add_child(highlight_control)
-	
+
 	# Create 4 slots positioned in a circle
 	for i in range(4):
 		var angle = (i * PI / 2.0)  # Start at right, go clockwise: right, bottom, left, top
@@ -171,6 +203,34 @@ func _update_wheel_items() -> void:
 				var style_box = panel.get_theme_stylebox("panel") as StyleBoxFlat
 				if style_box:
 					style_box.bg_color = Color(0.3, 0.3, 0.3, 0.4)
+
+
+## Update arrow rotation to point towards mouse cursor
+func _update_arrow_rotation() -> void:
+	if not selection_arrow:
+		return
+
+	# Get mouse position relative to the center of the wheel
+	var local_mouse_pos = get_local_mouse_position() - size / 2
+
+	# Calculate angle to mouse (atan2 returns angle in radians)
+	var angle_to_mouse = atan2(local_mouse_pos.y, local_mouse_pos.x)
+
+	# Position arrow on the circle's edge
+	var circle_radius = wheel_radius * 0.75 / 2  # Half of circle size
+	var arrow_position_on_circle = Vector2(
+		cos(angle_to_mouse) * circle_radius,
+		sin(angle_to_mouse) * circle_radius
+	)
+
+	# Center of the wheel
+	var wheel_center = size / 2
+
+	# Position arrow on circle edge, offset by arrow size to keep it centered
+	selection_arrow.position = wheel_center + arrow_position_on_circle - selection_arrow.size / 2
+
+	# Rotate arrow to point towards mouse (add 90 degree offset for sprite orientation)
+	selection_arrow.rotation = angle_to_mouse + PI / 2
 
 
 ## Update which slot is being hovered based on mouse position
