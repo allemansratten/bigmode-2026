@@ -6,10 +6,15 @@ extends Control
 
 const PlayerInventoryClass = preload("res://scripts/player/player_inventory.gd")
 
+# Preload UI textures
+const ITEM_FRAME_TEXTURE = preload("res://resources/ui/item_frame.png")
+const SELECTION_CIRCLE_TEXTURE = preload("res://resources/ui/selection_circle.png")
+const SELECTION_ARROW_TEXTURE = preload("res://resources/ui/selection_arrow.png")
+
 signal item_selected(slot: int)
 
 @export var wheel_radius: float = 100.0
-@export var item_icon_size: Vector2 = Vector2(64, 64)
+@export var item_icon_size: Vector2 = Vector2(80, 80)
 @export var selection_threshold: float = 20.0  # Minimum distance from center to select
 @export var background_texture: Texture2D  # Background wheel texture
 @export var fallback_icons: Dictionary = {}  # Category -> Texture2D mapping
@@ -101,10 +106,9 @@ func _setup_wheel_layout() -> void:
 		add_child(background_rect)
 	
 	# Add selection circle in the center
-	var circle_texture = load("res://resources/ui/selection_circle.png") as Texture2D
-	if circle_texture:
+	if SELECTION_CIRCLE_TEXTURE:
 		selection_circle = TextureRect.new()
-		selection_circle.texture = circle_texture
+		selection_circle.texture = SELECTION_CIRCLE_TEXTURE
 		selection_circle.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		selection_circle.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		selection_circle.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -115,10 +119,9 @@ func _setup_wheel_layout() -> void:
 		add_child(selection_circle)
 
 	# Add selection arrow in the center
-	var arrow_texture = load("res://resources/ui/selection_arrow.png") as Texture2D
-	if arrow_texture:
+	if SELECTION_ARROW_TEXTURE:
 		selection_arrow = TextureRect.new()
-		selection_arrow.texture = arrow_texture
+		selection_arrow.texture = SELECTION_ARROW_TEXTURE
 		selection_arrow.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		selection_arrow.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		selection_arrow.mouse_filter = Control.MOUSE_FILTER_IGNORE
@@ -144,65 +147,73 @@ func _setup_wheel_layout() -> void:
 			sin(angle) * wheel_radius
 		)
 		slot_positions.append(pos)
-		
-		# Create panel for this slot
+
+		# Create container panel for this slot
 		var panel = Panel.new()
 		panel.size = item_icon_size
 		# Position relative to center of the control (size/2), not top-left
 		var wheel_center = Vector2(wheel_size, wheel_size) / 2
 		panel.position = wheel_center + pos - item_icon_size / 2
-		
-		# Style the panel
+
+		# Make panel transparent (just a container)
 		var style_box = StyleBoxFlat.new()
-		style_box.bg_color = Color(0.3, 0.3, 0.3, 0.8)
-		style_box.border_width_left = 2
-		style_box.border_width_right = 2
-		style_box.border_width_top = 2
-		style_box.border_width_bottom = 2
-		style_box.border_color = Color(0.6, 0.6, 0.6)
-		style_box.corner_radius_bottom_left = 8
-		style_box.corner_radius_bottom_right = 8
-		style_box.corner_radius_top_left = 8
-		style_box.corner_radius_top_right = 8
+		style_box.bg_color = Color(0, 0, 0, 0)
+		style_box.border_width_left = 0
+		style_box.border_width_right = 0
+		style_box.border_width_top = 0
+		style_box.border_width_bottom = 0
 		panel.add_theme_stylebox_override("panel", style_box)
-		
+
 		add_child(panel)
 		slot_panels.append(panel)
-		
-		# Add item icon as TextureRect
+
+		# Add item icon as TextureRect (below frame)
 		var texture_rect = TextureRect.new()
-		texture_rect.size = item_icon_size
+		var icon_size = Vector2(64, 64)
+		var icon_offset = (item_icon_size - icon_size) / 2  # Center within panel
+		texture_rect.position = icon_offset
+		texture_rect.size = icon_size
 		texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
 		texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		panel.add_child(texture_rect)
+
+		# Add frame sprite on top of item icon
+		if ITEM_FRAME_TEXTURE:
+			var frame_rect = TextureRect.new()
+			frame_rect.texture = ITEM_FRAME_TEXTURE
+			frame_rect.set_anchors_preset(Control.PRESET_FULL_RECT)
+			frame_rect.set_offsets_preset(Control.PRESET_FULL_RECT)
+			frame_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
+			frame_rect.stretch_mode = TextureRect.STRETCH_SCALE
+			frame_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
+			panel.add_child(frame_rect)
 
 
 ## Update wheel to show current inventory items
 func _update_wheel_items() -> void:
 	if not inventory:
 		return
-		
+
 	for i in range(4):
 		if i < slot_panels.size():
 			var panel = slot_panels[i]
-			var texture_rect = panel.get_child(0) as TextureRect
+			# Get item icon TextureRect (first child, frame is on top)
+			var texture_rect: TextureRect = null
+			if panel.get_child_count() > 0:
+				texture_rect = panel.get_child(0) as TextureRect
+
+			if not texture_rect:
+				continue
+
 			var item = inventory.get_item(i)
-			
+
 			if item:
 				# Get item icon from item or use fallback
 				var item_icon = _get_item_icon(item)
 				texture_rect.texture = item_icon
-				# Update panel color to show it has an item
-				var style_box = panel.get_theme_stylebox("panel") as StyleBoxFlat
-				if style_box:
-					style_box.bg_color = Color(0.4, 0.4, 0.6, 0.8)
 			else:
 				texture_rect.texture = null
-				# Update panel color to show it's empty
-				var style_box = panel.get_theme_stylebox("panel") as StyleBoxFlat
-				if style_box:
-					style_box.bg_color = Color(0.3, 0.3, 0.3, 0.4)
 
 
 ## Update arrow rotation to point towards mouse cursor
@@ -240,44 +251,35 @@ func _update_selection_hover() -> void:
 		
 	var local_mouse_pos = get_local_mouse_position() - size / 2
 	var distance_from_center = local_mouse_pos.length()
-	
-	# Reset all slot highlights and clear quarter circle highlight
-	for i in range(slot_panels.size()):
-		var style_box = slot_panels[i].get_theme_stylebox("panel") as StyleBoxFlat
-		if style_box:
-			style_box.border_color = Color(0.6, 0.6, 0.6)
-	
+
 	# Clear previous highlight
 	if highlight_control:
 		for child in highlight_control.get_children():
 			child.queue_free()
-	
+
 	currently_hovered_slot = -1
-	
+
 	# Only select if far enough from center
 	if distance_from_center < selection_threshold:
 		return
-	
+
 	# Find closest slot to mouse
 	var closest_slot = -1
 	var closest_distance = INF
-	
+
 	for i in range(slot_positions.size()):
 		var slot_pos = slot_positions[i]
 		var distance = local_mouse_pos.distance_to(slot_pos)
-		
+
 		if distance < closest_distance:
 			closest_distance = distance
 			closest_slot = i
-	
+
 	# Highlight the closest slot if it has an item
 	if closest_slot >= 0 and inventory.get_item(closest_slot):
 		currently_hovered_slot = closest_slot
-		var style_box = slot_panels[closest_slot].get_theme_stylebox("panel") as StyleBoxFlat
-		if style_box:
-			style_box.border_color = Color(1.0, 1.0, 0.0)  # Yellow highlight
-		
-		# Add quarter circle highlight
+
+		# Add quarter circle highlight for visual feedback
 		_add_quarter_highlight(closest_slot)
 
 
