@@ -126,11 +126,9 @@ func _unhandled_input(event: InputEvent) -> void:
 		_try_pick_up()
 	if event.is_action_pressed("throw"):
 		_try_throw()
-	if event.is_action_pressed("attack_melee"):
-		_try_melee_attack()
-	if event.is_action_pressed("attack_ranged"):
-		_try_ranged_attack()
-	
+	if event.is_action_pressed("primary_interact"):
+		_try_primary_interact()
+
 	# Inventory selection wheel
 	if event.is_action_pressed("inventory_select"):
 		_show_selection_wheel()
@@ -234,28 +232,26 @@ func _get_cursor_direction() -> Vector3:
 	return Vector3(ray_direction.x, 0, ray_direction.z).normalized()
 
 
-func _try_melee_attack() -> void:
-	if _inventory:
-		var melee_weapon = _inventory.get_active_melee_weapon()
-		if melee_weapon:
-			melee_weapon.attack()
+func _try_primary_interact() -> void:
+	if not _inventory:
+		return
+
+	var weapon = _inventory.get_active_weapon()
+	if weapon:
+		weapon.attack()
 
 
 func _get_speed_multiplier_from_weapon() -> float:
 	if not _inventory:
 		return 1.0
-	var melee_weapon = _inventory.get_active_melee_weapon()
 
-	if melee_weapon and melee_weapon.is_attacking:
-		return melee_weapon.speed_multiplier_when_attacking
+	var weapon = _inventory.get_active_weapon()
+	if weapon and weapon is MeleeWeaponBehaviour:
+		var melee_weapon = weapon as MeleeWeaponBehaviour
+		if melee_weapon.is_attacking:
+			return melee_weapon.speed_multiplier_when_attacking
+
 	return 1.0
-
-
-func _try_ranged_attack() -> void:
-	if _inventory:
-		var ranged_weapon = _inventory.get_active_ranged_weapon()
-		if ranged_weapon:
-			ranged_weapon.attack()
 
 func _setup_inventory_system() -> void:
 	# Create selection wheel UI only

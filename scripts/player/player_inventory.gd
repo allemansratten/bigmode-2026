@@ -17,9 +17,8 @@ var active_item_index: int = -1
 ## Reference to player
 var player: Node3D
 
-## Cached weapon behaviours for active item
-var _active_melee_weapon: MeleeWeaponBehaviour = null
-var _active_ranged_weapon: RangedWeaponBehaviour = null
+## Cached weapon behaviour for active item
+var _active_weapon: WeaponBehaviour = null
 
 
 func _ready() -> void:
@@ -83,9 +82,8 @@ func set_active_item(slot: int) -> void:
 		_deactivate_current_item()
 	
 	active_item_index = slot
-	_active_melee_weapon = null
-	_active_ranged_weapon = null
-	
+	_active_weapon = null
+
 	if slot >= 0 and slot < MAX_INVENTORY_SIZE and items[slot]:
 		_activate_current_item()
 		active_item_changed.emit(items[slot], slot)
@@ -126,13 +124,9 @@ func get_item_count() -> int:
 	return count
 
 
-## Get active weapon behaviours
-func get_active_melee_weapon() -> MeleeWeaponBehaviour:
-	return _active_melee_weapon
-
-
-func get_active_ranged_weapon() -> RangedWeaponBehaviour:
-	return _active_ranged_weapon
+## Get active weapon behaviour
+func get_active_weapon() -> WeaponBehaviour:
+	return _active_weapon
 
 
 ## Private: Activate current item (attach to player, cache weapon behaviours)
@@ -172,16 +166,14 @@ func _deactivate_current_item() -> void:
 	_store_item_inactive(item)
 
 
-## Private: Cache weapon behaviours from item
+## Private: Cache weapon behaviour from item
 func _cache_weapon_behaviours(item: Node3D) -> void:
-	_active_melee_weapon = null
-	_active_ranged_weapon = null
-	
+	_active_weapon = null
+
 	for child in item.get_children():
-		if child is MeleeWeaponBehaviour:
-			_active_melee_weapon = child as MeleeWeaponBehaviour
-		elif child is RangedWeaponBehaviour:
-			_active_ranged_weapon = child as RangedWeaponBehaviour
+		if child is WeaponBehaviour:
+			_active_weapon = child as WeaponBehaviour
+			break # Only one weapon per item
 
 
 ## Drop active item into the world
