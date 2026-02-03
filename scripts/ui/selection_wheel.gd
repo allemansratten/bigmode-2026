@@ -140,8 +140,9 @@ func _setup_wheel_layout() -> void:
 		# Add item icon as TextureRect
 		var texture_rect = TextureRect.new()
 		texture_rect.size = item_icon_size
-		texture_rect.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
+		texture_rect.expand_mode = TextureRect.EXPAND_IGNORE_SIZE
 		texture_rect.stretch_mode = TextureRect.STRETCH_KEEP_ASPECT_CENTERED
+		texture_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		panel.add_child(texture_rect)
 
 
@@ -242,14 +243,18 @@ func _get_item_icon(item: Node3D) -> Texture2D:
 		var custom_icon = spawnable.get_icon()
 		if custom_icon:
 			return custom_icon
-	
+		else:
+			# Icon should exist but doesn't - show error
+			push_error("SelectionWheel: Item %s has no icon! Run ItemIconGenerator tool to generate screenshots." % item.name)
+			return default_item_texture
+
 	# Fallback to category-based icon
 	if spawnable:
 		var categories = spawnable.categories
 		for category in categories:
 			if fallback_icons.has(category):
 				return fallback_icons[category]
-	
+
 	# Final fallback to default texture
 	return default_item_texture
 
