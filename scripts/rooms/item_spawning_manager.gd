@@ -37,6 +37,9 @@ func _ready() -> void:
 	_cache_spawn_nodes()
 	_cache_valid_items()
 
+	# Connect to crowd throw requests from upgrade effects
+	EventBus.crowd_throw_requested.connect(_on_crowd_throw_requested)
+
 
 ## Cache all ItemSpawnPoint and ItemThrowTarget children
 func _cache_spawn_nodes() -> void:
@@ -141,3 +144,54 @@ func _throw_item(item: Node3D, from: Vector3, to: Vector3) -> void:
 
 	# Apply impulse
 	rigid_body.apply_central_impulse(throw_vector)
+
+
+## Handle crowd throw requests from upgrade effects
+func _on_crowd_throw_requested(categories: Array) -> void:
+	if spawn_points.is_empty() or throw_targets.is_empty():
+		push_warning("ItemSpawningManager: cannot handle crowd throw, no spawn points or targets")
+		return
+
+	spawn_item_with_categories(categories)
+
+
+## Spawn an item matching specific categories (for crowd throws from upgrades)
+func spawn_item_with_categories(categories: Array) -> Node3D:
+	# Get items matching the requested categories
+	var matching_items: Array[PackedScene] = []
+
+	if categories.is_empty():
+		# Use room's default categories
+		matching_items = valid_items
+	else:
+		# Convert to typed array and query registry
+		var typed_categories: Array[Categories.Category] = []
+		for cat in categories:
+			typed_categories.append(cat as Categories.Category)
+		matching_items = ItemRegistry.get_items_matching_any(typed_categories)
+
+	if matching_items.is_empty():
+		push_warning("ItemSpawningManager: no items match requested categories %s" % [categories])
+		return null
+
+	# Pick random item, spawn point, and target
+	var item_scene = matching_items.pick_random()
+	var spawn_point = spawn_points.pick_random()
+	var throw_target = _pick_weighted_target()
+
+	# Instantiate item
+	var item = item_scene.instantiate() as Node3D
+	if not item:
+		push_error("ItemSpawningManager: failed to instantiate item")
+		return null
+
+	room.add_child(item)
+	item.global_position = spawn_point.global_position
+
+	# Emit global event for upgrade system (weapon modifiers applied here)
+	EventBus.weapon_spawned.emit(item)
+
+	_throw_item(item, spawn_point.global_position, throw_target.global_position)
+
+	print("ItemSpawningManager: crowd threw %s" % item.name)
+	return item

@@ -173,6 +173,7 @@ func _on_weapon_thrown(weapon: Node3D, direction: Vector3, from_crowd: bool) -> 
 func _on_weapon_broken(weapon: Node3D) -> void:
 	var context = {
 		"weapon": weapon,
+		"item_name": weapon.name,
 		"position": weapon.global_position if weapon else Vector3.ZERO,
 		"player": get_tree().get_first_node_in_group("player")
 	}

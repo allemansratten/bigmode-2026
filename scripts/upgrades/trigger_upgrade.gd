@@ -14,6 +14,14 @@ class_name TriggerUpgrade
 ## Minimum time between activations (0 = no cooldown)
 @export var cooldown: float = 0.0
 
+## Only trigger for items/enemies with this name (empty = any)
+## Checked against context["item_name"] or context["weapon"].name
+@export var item_name_filter: String = ""
+
+## Only trigger every Nth occurrence (0 = every time)
+## Useful for "every 10th kill" type upgrades
+@export var trigger_every_n: int = 0
+
 ## Reference to parent BaseUpgrade
 var base_upgrade: BaseUpgrade
 
@@ -22,6 +30,9 @@ var _cooldown_timer: Timer
 
 ## Whether currently on cooldown
 var _on_cooldown: bool = false
+
+## Counter for trigger_every_n
+var _trigger_counter: int = 0
 
 
 func _ready() -> void:
@@ -46,6 +57,17 @@ func try_activate(context: Dictionary, stacks: int = 1) -> bool:
 	if _on_cooldown:
 		return false
 
+	# Check item name filter
+	if not _passes_item_filter(context):
+		return false
+
+	# Check every-N counter
+	if trigger_every_n > 0:
+		_trigger_counter += 1
+		if _trigger_counter < trigger_every_n:
+			return false
+		_trigger_counter = 0  # Reset counter when we hit the milestone
+
 	# Roll chance (stacking can increase chance if desired)
 	var effective_chance = chance * stacks
 	effective_chance = minf(effective_chance, 1.0)  # Cap at 100%
@@ -62,6 +84,26 @@ func try_activate(context: Dictionary, stacks: int = 1) -> bool:
 		_cooldown_timer.start(cooldown)
 
 	return true
+
+
+## Check if the context matches the item name filter
+func _passes_item_filter(context: Dictionary) -> bool:
+	if item_name_filter.is_empty():
+		return true
+
+	# Check item_name in context (set by UpgradeManager)
+	if context.has("item_name"):
+		return context["item_name"] == item_name_filter
+
+	# Check weapon node name
+	if context.has("weapon") and context["weapon"]:
+		return context["weapon"].name == item_name_filter
+
+	# Check item node name
+	if context.has("item") and context["item"]:
+		return context["item"].name == item_name_filter
+
+	return true  # No item to filter on
 
 
 ## Execute all UpgradeEffect children
