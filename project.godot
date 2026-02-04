@@ -48,6 +48,10 @@ enabled=PackedStringArray("res://addons/people_spawner_gizmo/plugin.cfg")
 
 import/blender/enabled=false
 
+[gui]
+
+theme/custom="uid://b770578sn4tl8"
+
 [input]
 
 move_forward={
