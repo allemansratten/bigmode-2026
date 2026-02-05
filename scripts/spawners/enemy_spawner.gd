@@ -17,16 +17,19 @@ signal room_cleared()
 ## Wave configuration
 @export var total_waves: int = 3
 @export var auto_start_waves: bool = true # Start spawning on room transition
-@export var wave_configs: Array[Dictionary] = [
-	{"melee": 2, "ranged": 0},  # Wave 1: 2 melee
-	{"melee": 1, "ranged": 2},  # Wave 2: 1 melee, 2 ranged
-	{"melee": 2, "ranged": 2},  # Wave 3: 2 melee, 2 ranged
-]
+
+## Threat-based wave generation
+@export_group("Difficulty Scaling")
+@export var base_threat_per_wave: float = 15.0  # Starting threat budget for wave 1
+@export var threat_increase_per_wave: float = 10.0  # Additional threat each wave
+@export var threat_increase_per_room: float = 5.0  # Additional base threat for each room cleared
+@export var threat_variance: float = 0.2  # Random variance (±20%)
 
 var spawn_points: Array[Marker3D] = []
 var _alive_enemies: int = 0
 var _current_wave: int = 0  # 0 = not started, 1-3 = active wave
 var _waves_active: bool = false
+var _rooms_completed: int = 0  # Track difficulty progression
 
 
 func _ready():
@@ -104,23 +107,97 @@ func _spawn_next_wave() -> void:
 
 	_current_wave += 1
 	wave_started.emit(_current_wave)
-	print("EnemySpawner: Starting wave %d of %d" % [_current_wave, total_waves])
 
-	# Get wave config (use default if not configured)
-	var config: Dictionary = {}
-	if _current_wave - 1 < wave_configs.size():
-		config = wave_configs[_current_wave - 1]
-	else:
-		# Default escalating difficulty
-		config = {"melee": _current_wave, "ranged": _current_wave - 1}
+	# Calculate threat budget for this wave
+	var threat_budget = _calculate_wave_threat(_current_wave)
+	print("EnemySpawner: Starting wave %d of %d (threat budget: %.1f)" % [_current_wave, total_waves, threat_budget])
 
-	# Spawn enemies based on config
-	for enemy_type in config.keys():
-		var count: int = config[enemy_type]
-		for i in range(count):
-			# Alternate spawn methods for variety
-			var method = "dropped" if i % 2 == 0 else "random"
-			spawn_enemy_by_name(enemy_type, method)
+	# Generate and spawn enemies based on threat budget
+	var enemies_to_spawn = _generate_wave_enemies(threat_budget)
+	for i in range(enemies_to_spawn.size()):
+		var enemy_name = enemies_to_spawn[i]
+		# Alternate spawn methods for variety
+		var method = "dropped" if i % 2 == 0 else "random"
+		spawn_enemy_by_name(enemy_name, method)
+
+
+## Calculate the threat budget for a specific wave
+func _calculate_wave_threat(wave_number: int) -> float:
+	# Base threat + wave scaling + room scaling
+	var base = base_threat_per_wave + (_rooms_completed * threat_increase_per_room)
+	var wave_bonus = (wave_number - 1) * threat_increase_per_wave
+	var total = base + wave_bonus
+
+	# Apply random variance
+	var variance = total * threat_variance
+	total += randf_range(-variance, variance)
+
+	return max(total, base_threat_per_wave * 0.5)  # Minimum floor
+
+
+## Generate a list of enemies to spawn based on threat budget
+func _generate_wave_enemies(threat_budget: float) -> Array[String]:
+	var enemies_to_spawn: Array[String] = []
+	var remaining_threat = threat_budget
+	var available_enemies = EnemyRegistry.get_all_enemy_names()
+
+	if available_enemies.is_empty():
+		push_error("EnemySpawner: No enemies registered!")
+		return enemies_to_spawn
+
+	# Keep adding enemies until we've spent the threat budget
+	var iterations = 0
+	var max_iterations = 50  # Safety limit
+
+	while remaining_threat > 0 and iterations < max_iterations:
+		iterations += 1
+
+		# Find enemies that fit within remaining budget
+		var valid_enemies: Array[String] = []
+		var min_threat = INF
+
+		for enemy_name in available_enemies:
+			var threat = EnemyRegistry.get_threat_level(enemy_name)
+			min_threat = min(min_threat, threat)
+			if threat <= remaining_threat:
+				valid_enemies.append(enemy_name)
+
+		# If no enemies fit, check if we should force spawn the cheapest
+		if valid_enemies.is_empty():
+			# Only force spawn if we have significant budget left (>50% of min enemy)
+			if remaining_threat >= min_threat * 0.5 and enemies_to_spawn.is_empty():
+				# Force at least one enemy
+				var cheapest = _get_cheapest_enemy(available_enemies)
+				enemies_to_spawn.append(cheapest)
+			break
+
+		# Pick a random valid enemy
+		var chosen_enemy = valid_enemies.pick_random()
+		enemies_to_spawn.append(chosen_enemy)
+		remaining_threat -= EnemyRegistry.get_threat_level(chosen_enemy)
+
+	print("EnemySpawner: Generated %d enemies for wave" % enemies_to_spawn.size())
+	return enemies_to_spawn
+
+
+## Get the enemy with lowest threat level
+func _get_cheapest_enemy(enemy_names: Array[String]) -> String:
+	var cheapest = enemy_names[0]
+	var lowest_threat = EnemyRegistry.get_threat_level(cheapest)
+
+	for enemy_name in enemy_names:
+		var threat = EnemyRegistry.get_threat_level(enemy_name)
+		if threat < lowest_threat:
+			lowest_threat = threat
+			cheapest = enemy_name
+
+	return cheapest
+
+
+## Set the rooms completed count (for difficulty scaling)
+func set_rooms_completed(count: int) -> void:
+	_rooms_completed = count
+	print("EnemySpawner: Difficulty set to %d rooms completed" % count)
 
 
 func _on_enemy_died(_enemy: Enemy) -> void:

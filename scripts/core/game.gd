@@ -144,26 +144,32 @@ func _test_spawn_item() -> void:
 
 
 func _on_room_loaded(room: Node3D) -> void:
-	print("=== RoomTest: _on_room_loaded() called ===")
-	print("RoomTest: room = ", room)
+	print("=== Game: _on_room_loaded() called ===")
+	print("Game: room = ", room)
 
 	if not room:
-		push_error("RoomTest: room is null!")
+		push_error("Game: room is null!")
 		return
+
+	# Set difficulty scaling on the enemy spawner
+	var enemy_spawner = room.find_child("EnemySpawner", true, false) as EnemySpawner
+	if enemy_spawner:
+		enemy_spawner.set_rooms_completed(rooms_completed)
+		print("Game: Set spawner difficulty to %d rooms completed" % rooms_completed)
 
 	# Find a connector to spawn the player at (if available)
 	var connectors = room.find_children("Connector*", "RoomConnector", false, false)
-	print("RoomTest: found ", connectors.size(), " connector(s)")
+	print("Game: found ", connectors.size(), " connector(s)")
 
 	if connectors.size() > 0:
 		var spawn_connector = connectors[0] as RoomConnector
 		player.global_position = spawn_connector.get_spawn_position()
 		player.rotation = spawn_connector.get_spawn_rotation()
-		print("RoomTest: spawned player at connector '", spawn_connector.connector_id, "' pos=", player.global_position)
+		print("Game: spawned player at connector '", spawn_connector.connector_id, "' pos=", player.global_position)
 	else:
 		# Default spawn at room center
 		player.global_position = Vector3(0, 0.5, 0)
-		print("RoomTest: spawned player at room center pos=", player.global_position)
+		print("Game: spawned player at room center pos=", player.global_position)
 
 	if room.name == "ExampleRoom":
 		_test_spawn_item()
