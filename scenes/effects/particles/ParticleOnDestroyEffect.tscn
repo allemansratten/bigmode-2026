@@ -1,0 +1,10 @@
+[gd_scene load_steps=3 format=3 uid="uid://particle_on_destroy_effect_001"]
+
+[ext_resource type="Script" path="res://scripts/items/effects/particle_on_destroy_effect.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://destruction_particles_001" path="res://scenes/particles/DestructionParticles.tscn" id="2_particles"]
+
+[node name="ParticleOnDestroyEffect" type="Node"]
+script = ExtResource("1_script")
+particle_scene = ExtResource("2_particles")
+particle_color = Color(1, 1, 1, 1)
+scale_multiplier = 1.0
