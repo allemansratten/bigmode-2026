@@ -3,15 +3,30 @@ class_name EnemySpawner
 
 ## Manages enemy spawning at designated points or dropped from above
 ## Add Marker3D children to define spawn points
+## Supports wave-based combat with room clear detection
 
 signal enemy_spawned(enemy: Enemy)
+signal wave_started(wave_number: int)
+signal wave_completed(wave_number: int)
+signal room_cleared()
 
 @export var drop_height: float = 5.0 # How high above the spawner to drop enemies from
 @export var spawn_area_size: Vector2 = Vector2(10, 10) # Area for random drop spawning
 @export var min_distance_from_player: float = 3.0 # Minimum distance from player for spawning
 
+## Wave configuration
+@export var total_waves: int = 3
+@export var auto_start_waves: bool = true # Start spawning on room transition
+@export var wave_configs: Array[Dictionary] = [
+	{"melee": 2, "ranged": 0},  # Wave 1: 2 melee
+	{"melee": 1, "ranged": 2},  # Wave 2: 1 melee, 2 ranged
+	{"melee": 2, "ranged": 2},  # Wave 3: 2 melee, 2 ranged
+]
+
 var spawn_points: Array[Marker3D] = []
 var _alive_enemies: int = 0
+var _current_wave: int = 0  # 0 = not started, 1-3 = active wave
+var _waves_active: bool = false
 
 
 func _ready():
@@ -48,24 +63,89 @@ func _on_navigation_ready() -> void:
 	print("EnemySpawner: Navigation ready, can spawn enemies now")
 
 
-func _on_room_transition_completed(room: Node3D) -> void:
-	if room.name == "ExampleRoom":
-		_spawn_wave()
+func _on_room_transition_completed(_room: Node3D) -> void:
+	if auto_start_waves:
+		start_waves()
 
 
-func _spawn_wave() -> void:
-	# TODO more sophisticated wave spawning logic
-	spawn_enemy_by_name("melee", "dropped")
-	spawn_enemy_by_name("ranged", "random")
+## Start the wave-based combat sequence
+func start_waves() -> void:
+	if _waves_active:
+		push_warning("Waves already active, ignoring start_waves call")
+		return
+
+	_waves_active = true
+	_current_wave = 0
+	_spawn_next_wave()
+
+
+## Reset spawner state (for reuse or new room)
+func reset() -> void:
+	_waves_active = false
+	_current_wave = 0
+	_alive_enemies = 0
+
+
+## Get current wave number (1-based, 0 = not started)
+func get_current_wave() -> int:
+	return _current_wave
+
+
+## Check if all waves are complete
+func is_room_cleared() -> bool:
+	return _current_wave > total_waves or (_current_wave == total_waves and _alive_enemies == 0)
+
+
+func _spawn_next_wave() -> void:
+	if _current_wave >= total_waves:
+		# All waves complete - room cleared!
+		_on_room_complete()
+		return
+
+	_current_wave += 1
+	wave_started.emit(_current_wave)
+	print("EnemySpawner: Starting wave %d of %d" % [_current_wave, total_waves])
+
+	# Get wave config (use default if not configured)
+	var config: Dictionary = {}
+	if _current_wave - 1 < wave_configs.size():
+		config = wave_configs[_current_wave - 1]
+	else:
+		# Default escalating difficulty
+		config = {"melee": _current_wave, "ranged": _current_wave - 1}
+
+	# Spawn enemies based on config
+	for enemy_type in config.keys():
+		var count: int = config[enemy_type]
+		for i in range(count):
+			# Alternate spawn methods for variety
+			var method = "dropped" if i % 2 == 0 else "random"
+			spawn_enemy_by_name(enemy_type, method)
 
 
 func _on_enemy_died(_enemy: Enemy) -> void:
 	_alive_enemies -= 1
 	if _alive_enemies <= 0:
-		# Wave completed! We can make a signal here if needed
-		# TODO spawn wave only after player moves through door
 		_alive_enemies = 0
-		_spawn_wave()
+		wave_completed.emit(_current_wave)
+		print("EnemySpawner: Wave %d completed" % _current_wave)
+
+		if _waves_active:
+			# Small delay before next wave for player breathing room
+			await get_tree().create_timer(1.5).timeout
+			_spawn_next_wave()
+
+
+func _on_room_complete() -> void:
+	_waves_active = false
+	print("EnemySpawner: Room cleared! All %d waves complete." % total_waves)
+
+	# Emit local signal
+	room_cleared.emit()
+
+	# Emit global EventBus signal for upgrade system and game manager
+	var room = _find_room()
+	EventBus.room_cleared.emit(room)
 
 
 ## Register debug console commands

@@ -4,6 +4,16 @@ var time_passed = 0
 @onready var timestamp_label: Label = get_node("GUI/BasicOverlay/TimestampLabel")
 
 @onready var player: CharacterBody3D = $Player
+@onready var upgrade_panel: UpgradeSelectionPanel = $GUI/UpgradeSelectionPanel
+
+## Track rooms completed for difficulty/progression
+var rooms_completed: int = 0
+
+## Available rooms to pick from (add more as needed)
+var available_rooms: Array[SceneManager.Room] = [
+	SceneManager.Room.EXAMPLE_ROOM,
+	SceneManager.Room.EXAMPLE_ROOM_2,
+]
 
 
 # Called when the node enters the scene tree for the first time.
@@ -11,20 +21,33 @@ func _ready() -> void:
 	EventBus.game_paused.connect(_on_game_paused)
 	EventBus.game_resumed.connect(_on_game_resumed)
 
+	# Listen for room cleared to show upgrade selection
+	EventBus.room_cleared.connect(_on_room_cleared)
+
+	# Connect upgrade panel signals
+	if upgrade_panel:
+		upgrade_panel.upgrade_selected.connect(_on_upgrade_selected)
+		upgrade_panel.panel_closed.connect(_on_upgrade_panel_closed)
+
 	# Register debug commands
 	DebugConsole.register_command("timescale", "Set time scale: /timescale <multiplier>")
 	DebugConsole.register_command("rebakenav", "Manually rebake navigation mesh: /rebakenav")
+	DebugConsole.register_command("clearroom", "Simulate room clear: /clearroom")
+	DebugConsole.register_command("nextroom", "Skip to next room: /nextroom")
 	DebugConsole.command_entered.connect(_on_debug_command)
 
-	print("=== RoomTest _ready() started ===")
+	print("=== Game _ready() started ===")
 
 	# Listen for room transitions to reposition player
 	SceneManager.room_transition_completed.connect(_on_room_loaded)
 
 	# Initialize SceneManager with this node as the room container
-	SceneManager.setup(self )
+	SceneManager.setup(self)
 
-	# Load the initial room (ExampleRoom) - defer to next frame to ensure scene tree is ready
+	# Reset upgrades for new run
+	UpgradeManager.reset_upgrades()
+
+	# Load the initial room - defer to next frame to ensure scene tree is ready
 	_load_initial_room.call_deferred()
 
 
@@ -43,6 +66,70 @@ func _on_game_resumed() -> void:
 
 func _load_initial_room() -> void:
 	SceneManager.transition_to_room(SceneManager.Room.EXAMPLE_ROOM)
+
+
+## Called when all waves in a room are cleared
+func _on_room_cleared(_room: Node3D) -> void:
+	print("Game: Room cleared! Showing upgrade selection...")
+	rooms_completed += 1
+
+	# Pause the game
+	get_tree().paused = true
+
+	# Show upgrade selection panel
+	if upgrade_panel:
+		upgrade_panel.show_upgrades()
+	else:
+		push_error("Game: UpgradeSelectionPanel not found!")
+		_transition_to_next_room()
+
+
+## Called when player selects an upgrade
+func _on_upgrade_selected(upgrade_id: String) -> void:
+	print("Game: Player selected upgrade: %s" % upgrade_id)
+
+	# Grant the upgrade
+	UpgradeManager.grant_upgrade(upgrade_id)
+
+	# Transition to next room
+	_transition_to_next_room()
+
+
+## Called when upgrade panel is closed (with or without selection)
+func _on_upgrade_panel_closed() -> void:
+	# Resume game
+	get_tree().paused = false
+
+
+## Transition to a random next room
+func _transition_to_next_room() -> void:
+	# Resume game first
+	get_tree().paused = false
+
+	# Pick a random room (excluding current if possible)
+	var current_room_id = _get_current_room_id()
+	var room_choices = available_rooms.duplicate()
+
+	# Remove current room from choices if we have alternatives
+	if room_choices.size() > 1 and current_room_id >= 0:
+		room_choices.erase(current_room_id)
+
+	var next_room = room_choices.pick_random()
+	print("Game: Transitioning to next room (ID: %d)" % next_room)
+
+	SceneManager.transition_to_room(next_room)
+
+
+## Get the enum ID of the current room (or -1 if unknown)
+func _get_current_room_id() -> int:
+	if not SceneManager.current_room:
+		return -1
+
+	var room_path = SceneManager.current_room.scene_file_path
+	for room_id in SceneManager.ROOM_SCENES:
+		if SceneManager.ROOM_SCENES[room_id] == room_path:
+			return room_id
+	return -1
 
 
 func _input(event: InputEvent) -> void:
@@ -113,3 +200,11 @@ func _on_debug_command(cmd: String, args: PackedStringArray) -> void:
 
 		"rebakenav":
 			_rebake_navigation()
+
+		"clearroom":
+			DebugConsole.debug_log("Simulating room clear...")
+			_on_room_cleared(SceneManager.current_room)
+
+		"nextroom":
+			DebugConsole.debug_log("Skipping to next room...")
+			_transition_to_next_room()
