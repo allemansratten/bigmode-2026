@@ -18,7 +18,6 @@ enum State {
 @export var retreat_distance: float = 7.0    # When retreating: stop at this distance
 
 @export var move_speed: float = 3.0
-@export var rotation_speed: float = 8.0
 
 # Repositioning when cornered
 @export var reposition_check_distance: float = 2.0  # How far ahead to check for obstacles
@@ -63,27 +62,9 @@ func update_movement(delta: float, enemy: CharacterBody3D, target_position: Vect
 	var next_path_position := nav_agent.get_next_path_position()
 	var direction := (next_path_position - enemy.global_position).normalized()
 
-	# Rotate to face movement direction
-	if direction.length() > 0.01:
-		# Check if direction is nearly vertical to avoid colinear warning
-		var up_dot = abs(direction.dot(Vector3.UP))
-		if up_dot < 0.99:  # Not pointing straight up/down
-			var target_transform := enemy.global_transform.looking_at(
-				enemy.global_position + direction,
-				Vector3.UP
-			)
-			enemy.global_transform = enemy.global_transform.interpolate_with(
-				target_transform,
-				rotation_speed * delta
-		)
+	apply_rotation(delta, enemy, direction)
 
-	# Apply surface effect to movement speed
-	var effective_speed = move_speed
-	var surface_detector = enemy.get_node_or_null("SurfaceDetector") as SurfaceDetector
-	if surface_detector:
-		effective_speed *= surface_detector.get_speed_multiplier()
-
-	return direction * effective_speed
+	return direction * get_effective_speed(enemy, move_speed)
 
 
 ## Update state machine based on distance to target

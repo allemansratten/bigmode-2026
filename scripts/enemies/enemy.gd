@@ -39,6 +39,9 @@ var is_dead: bool = false
 var is_attacking: bool = false
 var is_stunned: bool = false
 
+# Movement signal tracking
+var _was_moving: bool = false
+
 # Timers
 var _attack_timer: Timer
 var _stun_timer: Timer
@@ -54,8 +57,7 @@ func _ready():
 
 	# Pass attack range to movement behavior if both exist
 	if movement_behaviour and attack_behaviour:
-		if movement_behaviour is ChaseMovementBehaviour:
-			movement_behaviour.attack_range = attack_behaviour.get_attack_range()
+		movement_behaviour.set_attack_range(attack_behaviour.get_attack_range())
 
 	# Find player
 	target = get_tree().get_first_node_in_group("player")
@@ -104,6 +106,14 @@ func _physics_process(delta: float):
 	var target_velocity := Vector3.ZERO
 	if movement_behaviour and not is_attacking and not is_stunned:
 		target_velocity = movement_behaviour.update_movement(delta, self , target.global_position)
+
+	# Emit movement signals on state change (works for all movement behaviors)
+	var is_moving := target_velocity.length() > 0.01
+	if is_moving and not _was_moving:
+		started_moving.emit()
+	elif not is_moving and _was_moving:
+		stopped_moving.emit()
+	_was_moving = is_moving
 
 	# Use movement behavior's XZ but preserve accumulated Y velocity
 	velocity.x = target_velocity.x
@@ -183,14 +193,6 @@ func get_enemy_name() -> String:
 
 
 ## Signal helpers for behaviors to use
-func signal_start_moving() -> void:
-	started_moving.emit()
-
-
-func signal_stop_moving() -> void:
-	stopped_moving.emit()
-
-
 func signal_start_attacking() -> void:
 	is_attacking = true
 	started_attacking.emit()
