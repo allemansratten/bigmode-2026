@@ -3,3 +3,6 @@
 /android/
 .vscode/
 .github/copilot-instructions.md
+
+.mcp.json
+voicetree-5-2/
