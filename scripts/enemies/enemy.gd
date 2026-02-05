@@ -39,8 +39,8 @@ var is_dead: bool = false
 var is_attacking: bool = false
 var is_stunned: bool = false
 
-# Movement signal tracking
-var _was_moving: bool = false
+# Movement state (public so attack behaviors can check it)
+var is_moving: bool = false
 
 # Timers
 var _attack_timer: Timer
@@ -108,12 +108,12 @@ func _physics_process(delta: float):
 		target_velocity = movement_behaviour.update_movement(delta, self , target.global_position)
 
 	# Emit movement signals on state change (works for all movement behaviors)
-	var is_moving := target_velocity.length() > 0.01
-	if is_moving and not _was_moving:
+	var moving := target_velocity.length() > 0.01
+	if moving and not is_moving:
 		started_moving.emit()
-	elif not is_moving and _was_moving:
+	elif not moving and is_moving:
 		stopped_moving.emit()
-	_was_moving = is_moving
+	is_moving = moving
 
 	# Use movement behavior's XZ but preserve accumulated Y velocity
 	velocity.x = target_velocity.x

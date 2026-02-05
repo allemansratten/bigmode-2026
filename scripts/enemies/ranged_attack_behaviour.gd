@@ -25,6 +25,10 @@ func can_attack(enemy: Node3D, target: Node3D) -> bool:
 	if not target:
 		return false
 
+	# Only attack when standing still (not repositioning or retreating)
+	if "is_moving" in enemy and enemy.is_moving:
+		return false
+
 	# Check cooldown
 	if not _cooldown_timer.is_stopped():
 		return false
