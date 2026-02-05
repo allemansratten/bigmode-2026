@@ -14,6 +14,12 @@ const SelectionWheelClass = preload("res://scripts/ui/selection_wheel.gd")
 @export var facing_turn_speed: float = 30.0
 ## Player health
 @export var max_health: float = 100.0
+## Sound played when player takes damage
+@export var hit_sound: AudioStream
+## Material to use when flashing from damage
+@export var hit_flash_material: Material
+## Duration of the damage flash in seconds
+@export var hit_flash_duration: float = 0.15
 
 signal health_changed(current: float, maximum: float)
 signal died()
@@ -28,17 +34,22 @@ var _original_time_scale: float = 1.0
 
 # Get inventory from scene instead of creating it
 @onready var _inventory: PlayerInventoryClass = $PlayerInventory
+@onready var _mesh: MeshInstance3D = $MeshInstance3D
 
 # Movement components
 var _dash_component: DashComponent = null
 var _movement_components: Array[MovementComponent] = []
 var _surface_detector: SurfaceDetector = null
 
+# Damage flash
+var _flash_timer: Timer = null
+
 func _ready() -> void:
 	add_to_group("player")
 	current_health = max_health
 	_cache_movement_components()
 	_setup_inventory_system()
+	_setup_damage_flash()
 
 
 func _cache_movement_components() -> void:
@@ -253,6 +264,24 @@ func _get_speed_multiplier_from_weapon() -> float:
 
 	return 1.0
 
+func _setup_damage_flash() -> void:
+	_flash_timer = Timer.new()
+	_flash_timer.one_shot = true
+	_flash_timer.timeout.connect(_on_flash_timer_timeout)
+	add_child(_flash_timer)
+
+
+func _trigger_damage_flash() -> void:
+	if _mesh and hit_flash_material:
+		_mesh.material_override = hit_flash_material
+		_flash_timer.start(hit_flash_duration)
+
+
+func _on_flash_timer_timeout() -> void:
+	if _mesh:
+		_mesh.material_override = null
+
+
 func _setup_inventory_system() -> void:
 	# Create selection wheel UI only
 	var selection_wheel_scene = preload("res://scenes/ui/SelectionWheel.tscn")
@@ -295,6 +324,11 @@ func take_damage(amount: float, _source: Node3D = null) -> void:
 
 	current_health -= amount
 	health_changed.emit(current_health, max_health)
+
+	if hit_sound:
+		Audio.play_sound(hit_sound, Audio.Channels.SFX)
+
+	_trigger_damage_flash()
 
 	print("Player took %s damage. Health: %s/%s" % [amount, current_health, max_health])
 

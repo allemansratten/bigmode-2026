@@ -56,7 +56,7 @@ func _on_room_transition_completed(room: Node3D) -> void:
 func _spawn_wave() -> void:
 	# TODO more sophisticated wave spawning logic
 	spawn_enemy_by_name("melee", "dropped")
-	spawn_enemy_by_name("melee", "random")
+	spawn_enemy_by_name("ranged", "random")
 
 
 func _on_enemy_died(_enemy: Enemy) -> void:
@@ -127,7 +127,7 @@ func _get_player() -> Node3D:
 func _is_position_far_from_player(pos: Vector3) -> bool:
 	var player = _get_player()
 	if not player:
-		return true  # No player found, allow spawning anywhere
+		return true # No player found, allow spawning anywhere
 
 	# Use XZ distance (ignore height difference)
 	var player_pos_xz = Vector2(player.global_position.x, player.global_position.z)

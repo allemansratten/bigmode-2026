@@ -1,10 +1,17 @@
 [gd_scene format=3 uid="uid://cplayer001"]
 
 [ext_resource type="Script" uid="uid://d34iv2yt542bf" path="res://scripts/player/player.gd" id="1_player"]
+[ext_resource type="AudioStream" uid="uid://djtgj1mlwdg3m" path="res://resources/sounds/hitHurt.wav" id="2_70d11"]
 [ext_resource type="Script" uid="uid://ccvi13rbwbn8w" path="res://scripts/camera/game_camera_3d.gd" id="2_cam"]
 [ext_resource type="Script" uid="uid://bty3o72oloqn0" path="res://scripts/player/dash_component.gd" id="3_dash"]
 [ext_resource type="PackedScene" path="res://scenes/components/SurfaceDetector.tscn" id="4_mdl7e"]
-[ext_resource type="Script" path="res://scripts/player/player_inventory.gd" id="5_qu4a1"]
+[ext_resource type="Script" uid="uid://bspu27pxuoww3" path="res://scripts/player/player_inventory.gd" id="5_qu4a1"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_flash"]
+albedo_color = Color(1, 0.2, 0.2, 1)
+emission_enabled = true
+emission = Color(1, 0.2, 0.2, 1)
+emission_energy_multiplier = 2.0
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_floor"]
 radius = 0.4
@@ -21,6 +28,13 @@ height = 1.9
 [node name="Player" type="CharacterBody3D" unique_id=276495145 groups=["player"]]
 collision_layer = 2
 script = ExtResource("1_player")
+move_speed = null
+gravity = null
+pickup_range = null
+facing_turn_speed = null
+max_health = null
+hit_sound = ExtResource("2_70d11")
+hit_flash_material = SubResource("StandardMaterial3D_flash")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1919314831]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
