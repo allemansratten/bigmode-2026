@@ -32,6 +32,7 @@ SceneManager="*res://scripts/autoloads/scene_manager.gd"
 TimeScaleManager="*res://scripts/autoloads/time_scale_manager.gd"
 UpgradeRegistry="*res://scripts/autoloads/upgrade_registry.gd"
 UpgradeManager="*res://scripts/autoloads/upgrade_manager.gd"
+ShaderWarmup="*res://scripts/autoloads/shader_warmup.gd"
 
 [display]
 

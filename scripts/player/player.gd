@@ -25,6 +25,8 @@ signal health_changed(current: float, maximum: float)
 signal died()
 
 var current_health: float = max_health
+## When true, player cannot take damage (used by teleport, power-ups, etc.)
+var is_invincible: bool = false
 ## Facing direction on XZ plane (x, z). Normalized when used for rotation.
 var _facing_direction: Vector2 = Vector2(0.0, -1.0) # Start facing -Z (forward)
 
@@ -321,6 +323,9 @@ func _on_item_dropped_from_world() -> void:
 func take_damage(amount: float, source: Node3D = null) -> void:
 	if current_health <= 0:
 		return # Already dead
+
+	if is_invincible:
+		return # Invincible - ignore damage
 
 	current_health -= amount
 	health_changed.emit(current_health, max_health)
