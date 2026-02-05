@@ -31,6 +31,9 @@ signal item_dropped(item: Node3D)
 signal room_entered(room: Node3D)
 signal room_cleared(room: Node3D)
 
+# Wave signals (for UI)
+signal wave_started(wave_number: int)
+
 # Crowd signals (for upgrade effects)
 signal crowd_throw_requested(categories: Array)
 

@@ -107,6 +107,7 @@ func _spawn_next_wave() -> void:
 
 	_current_wave += 1
 	wave_started.emit(_current_wave)
+	EventBus.wave_started.emit(_current_wave)
 
 	# Calculate threat budget for this wave
 	var threat_budget = _calculate_wave_threat(_current_wave)

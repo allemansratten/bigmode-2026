@@ -2,6 +2,7 @@ extends CanvasLayer
 
 @onready var pause_menu = $PauseMenu
 @onready var basic_obverlay = $BasicOverlay
+@onready var wave_label: Label = $BasicOverlay/WaveLabel
 
 ## Set the initial settings UI values based on the real values
 func _ready() -> void:
@@ -9,6 +10,25 @@ func _ready() -> void:
 	music_volume_slider.set_value(round(Audio.channel_volumes[Audio.Channels.Music] * 100))
 	var mute_button = get_node("PauseMenu/MenuButtonsContainer/MuteButton")
 	mute_button.text = "Unmute" if Audio.is_muted else "Mute"
+
+	# Connect wave signals
+	EventBus.wave_started.connect(_on_wave_started)
+	EventBus.room_cleared.connect(_on_room_cleared)
+
+	# Hide wave label initially
+	if wave_label:
+		wave_label.hide()
+
+
+func _on_wave_started(wave_number: int) -> void:
+	if wave_label:
+		wave_label.text = str(wave_number)
+		wave_label.show()
+
+
+func _on_room_cleared(_room: Node3D) -> void:
+	if wave_label:
+		wave_label.hide()
 
 
 func toggle_pause() -> void:
