@@ -318,12 +318,20 @@ func _on_item_dropped_from_world() -> void:
 
 
 ## Takes damage from an enemy or other source
-func take_damage(amount: float, _source: Node3D = null) -> void:
+func take_damage(amount: float, source: Node3D = null) -> void:
 	if current_health <= 0:
 		return # Already dead
 
 	current_health -= amount
 	health_changed.emit(current_health, max_health)
+
+	# Emit to EventBus for upgrade triggers
+	EventBus.damage_taken.emit(self, amount, source)
+
+	# Increase crowd excitement when player takes damage (scales with damage)
+	var crowd_manager = get_tree().get_first_node_in_group("crowd_manager")
+	if crowd_manager and crowd_manager.has_method("increase_excitement"):
+		crowd_manager.increase_excitement(amount * 0.5)
 
 	if hit_sound:
 		Audio.play_sound(hit_sound, Audio.Channels.SFX)

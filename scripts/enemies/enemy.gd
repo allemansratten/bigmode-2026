@@ -21,6 +21,9 @@ signal started_dying()
 @export var drop_items: Array[PackedScene] = []
 @export var drop_chance: float = 0.5 # 50% chance to drop an item
 
+# Crowd excitement
+@export var threat_level: float = 10.0 ## Excitement added to crowd when killed
+
 # Behavior references (assigned via get_node or added as children)
 var movement_behaviour: EnemyMovementBehaviour
 var attack_behaviour: EnemyAttackBehaviour
@@ -150,6 +153,11 @@ func die() -> void:
 
 	# Emit global event for upgrade system
 	EventBus.enemy_killed.emit(self, _last_damage_source)
+
+	# Increase crowd excitement based on threat level
+	var crowd_manager = get_tree().get_first_node_in_group("crowd_manager")
+	if crowd_manager and crowd_manager.has_method("increase_excitement"):
+		crowd_manager.increase_excitement(threat_level)
 
 	# Spawn item drops
 	if drop_items.size() > 0 and randf() < drop_chance:

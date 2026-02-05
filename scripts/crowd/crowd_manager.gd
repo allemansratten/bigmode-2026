@@ -11,6 +11,13 @@ signal excitement_changed(new_level: float)
 ## Rate at which excitement decays per second
 @export var decay_rate: float = 5.0
 
+## Item throw timer settings
+@export var throw_interval: float = 3.0 ## Seconds between throw attempts
+@export var min_throw_chance: float = 0.05 ## Chance at 0 excitement (5%)
+@export var max_throw_chance: float = 0.8 ## Chance at 100 excitement (80%)
+
+var _throw_timer: Timer
+
 ## Current excitement level (0-100)
 var excitement_level: float = 0.0:
 	set(value):
@@ -36,6 +43,15 @@ func _ready() -> void:
 	# Connect to spawn zone signals if needed
 	for zone in spawn_zones:
 		zone.crowd_spawned.connect(_on_zone_spawned)
+
+	# Setup item throw timer
+	_throw_timer = Timer.new()
+	_throw_timer.name = "ThrowTimer"
+	_throw_timer.wait_time = throw_interval
+	_throw_timer.one_shot = false
+	_throw_timer.timeout.connect(_on_throw_timer_timeout)
+	add_child(_throw_timer)
+	_throw_timer.start()
 
 
 func _process(delta: float) -> void:
@@ -92,3 +108,15 @@ func increase_excitement(amount: float) -> void:
 func set_excitement(value: float) -> void:
 	"""Sets excitement level to a specific value"""
 	excitement_level = value
+
+
+func _on_throw_timer_timeout() -> void:
+	"""Attempts to throw an item based on excitement level"""
+	# Calculate throw chance based on excitement (linear interpolation)
+	var normalized_excitement := excitement_level / 100.0
+	var throw_chance := lerpf(min_throw_chance, max_throw_chance, normalized_excitement)
+
+	# Roll for throw
+	if randf() < throw_chance:
+		# Request crowd throw via EventBus (empty array = use room defaults)
+		EventBus.crowd_throw_requested.emit([])
