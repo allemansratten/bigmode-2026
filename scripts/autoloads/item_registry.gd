@@ -100,6 +100,43 @@ func get_items_matching_all(categories: Array[Categories.Category]) -> Array[Pac
 	return matching_items
 
 
+## Group a list of items by their rarity tag
+## Returns Dictionary: {Category.COMMON: [PackedScene], Category.UNCOMMON: [...], ...}
+## Items without a rarity tag are placed in COMMON by default
+func group_items_by_rarity(items: Array[PackedScene]) -> Dictionary:
+	var grouped: Dictionary = {
+		Categories.Category.COMMON: [],
+		Categories.Category.UNCOMMON: [],
+		Categories.Category.RARE: [],
+		Categories.Category.EPIC: [],
+	}
+
+	for item_scene in items:
+		var spawnable = _get_spawnable_behaviour(item_scene)
+		if not spawnable:
+			continue
+
+		var rarity_tags = Categories.get_rarity_tags(spawnable.categories)
+		if rarity_tags.is_empty():
+			# Default to COMMON if no rarity specified
+			grouped[Categories.Category.COMMON].append(item_scene)
+		else:
+			# Use the highest rarity tag if multiple exist
+			var highest_rarity = rarity_tags.max()
+			grouped[highest_rarity].append(item_scene)
+
+	return grouped
+
+
+## Filter out rarity tags from a category array, returning only type/specific tags
+func filter_non_rarity_categories(categories: Array[Categories.Category]) -> Array[Categories.Category]:
+	var filtered: Array[Categories.Category] = []
+	for cat in categories:
+		if cat > Categories.Category.EPIC:  # Rarity tags are 0-3
+			filtered.append(cat)
+	return filtered
+
+
 ## Helper: Check if item scene has SpawnableBehaviour
 func _has_spawnable_behaviour(item_scene: PackedScene) -> bool:
 	var temp_item = item_scene.instantiate()
