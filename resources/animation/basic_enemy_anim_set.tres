@@ -1,0 +1,18 @@
+[gd_resource type="Resource" script_class="AnimSet" load_steps=2 format=3]
+
+[ext_resource type="Script" path="res://scripts/animation/anim_set.gd" id="1_1"]
+
+[resource]
+script = ExtResource("1_1")
+animation_tree_path = NodePath("FishDwarf/AnimationTree")
+idle_to_walk_speed = 0.5
+walk_to_run_speed = 2.0
+max_movement_speed = 3.5
+locomotion_blend_path = ""
+state_machine_path = "parameters/playback"
+use_condition_based_locomotion = true
+state_locomotion = &"Idle"
+state_attack = &"Attack"
+state_hit = &"OnHit"
+state_dash = &"Running"
+state_death = &"Death"

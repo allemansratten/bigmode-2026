@@ -210,3 +210,8 @@ func _on_attack_finished() -> void:
 
 func _on_stun_finished() -> void:
 	is_stunned = false
+
+
+## Get current movement speed for animation blending
+func get_movement_speed() -> float:
+	return Vector2(velocity.x, velocity.z).length()

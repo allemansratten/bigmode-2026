@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="AnimSet" format=3 uid="uid://gimykpxwn5ed"]
+
+[ext_resource type="Script" uid="uid://cfxegvmyw54dl" path="res://scripts/animation/anim_set.gd" id="1_1"]
+
+[resource]
+script = ExtResource("1_1")
+animation_tree_path = NodePath("PlayerCharacter/AnimationTree")
+idle_to_walk_speed = 0.8
+walk_to_run_speed = 4.0

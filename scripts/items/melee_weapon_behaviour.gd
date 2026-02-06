@@ -39,10 +39,51 @@ var _hitbox_sphere: Area3D = null
 var _hitbox_shape: SphereShape3D = null
 ## Whether an attack is currently in progress
 var is_attacking: bool = false
+## Whether to use animation-driven hit frames instead of tween timing
+var use_animation_hit_frames: bool = false
+## Hit frame has been triggered by animation controller
+var hit_frame_ready: bool = false
 
 
-func _exit_tree() -> void:
-	_cleanup_hitbox_sphere()
+## Helper method to get holder through PickupableBehaviour
+func _get_holder() -> Node3D:
+	var pickupable_behaviour = item.get_children().filter(func(child): return child is PickupableBehaviour)
+	if pickupable_behaviour.is_empty():
+		return null
+	
+	return (pickupable_behaviour[0] as PickupableBehaviour).get_holder()
+
+
+func _ready() -> void:
+	super._ready()
+	
+	# Try to connect to animation controller for hit frame timing
+	_try_connect_to_animation_controller()
+
+func _try_connect_to_animation_controller() -> void:
+	"""Connect to animation controller for precise hit frame timing"""
+	var holder = _get_holder()
+	if not holder:
+		return
+		
+	var anim_controller = holder.get_node_or_null("AnimationController")
+	if anim_controller and anim_controller.has_signal("hit_frame"):
+		if not anim_controller.hit_frame.is_connected(_on_animation_hit_frame):
+			anim_controller.hit_frame.connect(_on_animation_hit_frame)
+			use_animation_hit_frames = true
+			print("MeleeWeaponBehaviour: Connected to animation hit frames")
+	_disconnect_from_animation_controller()
+
+func _disconnect_from_animation_controller() -> void:
+	"""Clean up animation controller connections"""
+	var holder = _get_holder()
+	if not holder:
+		return
+		
+	var anim_controller = holder.get_node_or_null("AnimationController")
+	if anim_controller and anim_controller.has_signal("hit_frame"):
+		if anim_controller.hit_frame.is_connected(_on_animation_hit_frame):
+			anim_controller.hit_frame.disconnect(_on_animation_hit_frame)
 
 
 func _cleanup_hitbox_sphere() -> void:
@@ -59,6 +100,7 @@ func _attack() -> void:
 	print("MeleeWeaponBehaviour: attacking with ", item.name)
 
 	is_attacking = true
+	hit_frame_ready = false
 
 	# Get attack origin (weapon position or holder position)
 	_stab_origin = item.global_position
@@ -69,6 +111,27 @@ func _attack() -> void:
 	# Reset hit tracking for new attack
 	_hit_entities.clear()
 
+	if use_animation_hit_frames:
+		# Use animation-driven timing
+		_start_animation_driven_attack()
+	else:
+		# Use legacy tween-based timing
+		_start_tween_driven_attack()
+
+func _start_animation_driven_attack() -> void:
+	"""Start attack that waits for animation hit frame"""
+	# Create hitbox immediately but don't activate until hit frame
+	_create_hitbox_sphere()
+	_hitbox_sphere.monitoring = false  # Disable until hit frame
+	
+	# Position hitbox at attack start
+	var start_position = _stab_origin + _stab_direction * stab_start_distance
+	_hitbox_sphere.global_position = start_position
+	
+	print("MeleeWeaponBehaviour: Waiting for animation hit frame")
+
+func _start_tween_driven_attack() -> void:
+	"""Legacy tween-based attack timing"""
 	# Create tween for animated stab
 	var tween = create_tween()
 
@@ -119,7 +182,35 @@ func _stab_tick(progress: float) -> void:
 func _stab_finished() -> void:
 	print("MeleeWeaponBehaviour: hit %d targets" % _hit_entities.size())
 	is_attacking = false
+	hit_frame_ready = false
 	_cleanup_hitbox_sphere()
+
+## Animation controller hit frame callback
+func _on_animation_hit_frame() -> void:
+	"""Called when animation controller triggers hit frame"""
+	if not is_attacking or hit_frame_ready:
+		return  # Not attacking or already triggered
+		
+	hit_frame_ready = true
+	print("MeleeWeaponBehaviour: Animation hit frame triggered!")
+	
+	# Activate hitbox and perform attack
+	if _hitbox_sphere:
+		_hitbox_sphere.monitoring = true
+		
+		# Animate stab from start to end position over short duration
+		var stab_duration = stab_end_time - stab_start_time
+		var tween = create_tween()
+		tween.tween_method(_stab_tick, 0.0, 1.0, stab_duration)
+		tween.tween_callback(_stab_finished)
+
+func trigger_hit_frame() -> void:
+	"""External method for triggering hit frame (backwards compatibility)"""
+	_on_animation_hit_frame()
+
+func apply_hit_frame_damage() -> void:
+	"""Alternative method name for hit frame damage application"""
+	_on_animation_hit_frame()
 
 
 ## Apply damage and knockback to hit entity
