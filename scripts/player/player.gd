@@ -24,11 +24,21 @@ const SelectionWheelClass = preload("res://scripts/ui/selection_wheel.gd")
 signal health_changed(current: float, maximum: float)
 signal died()
 
+# Animation signals (for AnimationController)
+signal started_attacking()
+signal took_damage(amount: float)
+signal started_dying()
+signal started_dashing(direction: Vector3)
+
 var current_health: float = max_health
 ## When true, player cannot take damage (used by teleport, power-ups, etc.)
 var is_invincible: bool = false
 ## Facing direction on XZ plane (x, z). Normalized when used for rotation.
 var _facing_direction: Vector2 = Vector2(0.0, -1.0) # Start facing -Z (forward)
+
+# Animation state tracking
+var _was_moving: bool = false
+var _movement_speed_threshold: float = 0.1
 
 # Selection wheel variables
 var _selection_wheel: SelectionWheelClass = null
@@ -84,6 +94,8 @@ func _physics_process(delta: float) -> void:
 
 	# Handle movement ability inputs
 	if Input.is_action_just_pressed("dash") and _dash_component and _dash_component.can_activate():
+		var dash_direction = _get_dash_direction()
+		started_dashing.emit(dash_direction)
 		_dash_component.activate(velocity)
 		return # Skip normal movement this frame
 
@@ -132,6 +144,7 @@ func _physics_process(delta: float) -> void:
 		velocity.z = move_toward(velocity.z, 0, move_speed)
 
 	move_and_slide()
+	_update_movement_animation_state()
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -251,7 +264,8 @@ func _try_primary_interact() -> void:
 
 	var weapon = _inventory.get_active_weapon()
 	if weapon:
-		weapon.attack()
+		if weapon.attack():
+			started_attacking.emit()
 
 
 func _get_speed_multiplier_from_weapon() -> float:
@@ -342,6 +356,7 @@ func take_damage(amount: float, source: Node3D = null) -> void:
 		Audio.play_sound(hit_sound, Audio.Channels.SFX)
 
 	_trigger_damage_flash()
+	took_damage.emit(amount)
 
 	print("Player took %s damage. Health: %s/%s" % [amount, current_health, max_health])
 
@@ -352,6 +367,7 @@ func take_damage(amount: float, source: Node3D = null) -> void:
 
 func die() -> void:
 	print("Player died!")
+	started_dying.emit()
 	died.emit()
 	# TODO: Death animation, respawn, game over screen, etc.
 
@@ -362,3 +378,31 @@ func get_facing_direction() -> Vector3:
 	if _facing_direction.length_squared() < 0.01:
 		return -global_transform.basis.z
 	return Vector3(_facing_direction.x, 0.0, _facing_direction.y).normalized()
+
+
+## Get current movement speed for animation blending
+func get_movement_speed() -> float:
+	return Vector2(velocity.x, velocity.z).length()
+
+
+## Get dash direction for animation controller
+func _get_dash_direction() -> Vector3:
+	var horizontal := Vector3(velocity.x, 0.0, velocity.z)
+	if horizontal.length_squared() > 0.01:
+		return horizontal.normalized()
+	else:
+		# Fallback to player's facing direction
+		return get_facing_direction()
+
+
+## Update movement animation state tracking (for legacy signal compatibility)
+func _update_movement_animation_state() -> void:
+	var current_speed = get_movement_speed()
+	var is_moving = current_speed >= _movement_speed_threshold
+	
+	# Note: The new AnimationController uses continuous speed blending
+	# This method is kept for any legacy systems that might need discrete state changes
+	if is_moving and not _was_moving:
+		_was_moving = true
+	elif not is_moving and _was_moving:
+		_was_moving = false

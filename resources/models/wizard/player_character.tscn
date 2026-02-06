@@ -1,0 +1,184 @@
+[gd_scene format=3 uid="uid://bl5pxq4u27dl2"]
+
+[ext_resource type="PackedScene" uid="uid://bi8bpaireeand" path="res://resources/models/wizard/Breathing Idle.fbx" id="1_6ityr"]
+[ext_resource type="Texture2D" uid="uid://b6diyro2ghrqg" path="res://resources/models/wizard/wizard_robe_id.png" id="2_2lyil"]
+[ext_resource type="Animation" uid="uid://c6oln6gqsurh8" path="res://resources/models/wizard/DanceRumba.res" id="2_gjuex"]
+[ext_resource type="Animation" uid="uid://dje6bfe1e804r" path="res://resources/models/wizard/DanceSilly.res" id="3_2lyil"]
+[ext_resource type="Animation" uid="uid://cg24ksj6dfjj7" path="res://resources/models/wizard/DodgeFlip.res" id="4_kouh2"]
+[ext_resource type="Animation" uid="uid://m6s1a0tofblk" path="res://resources/models/wizard/DodgeJump.res" id="5_lgefo"]
+[ext_resource type="Animation" uid="uid://djry5s7on410d" path="res://resources/models/wizard/Idle.res" id="6_gvn66"]
+[ext_resource type="Animation" uid="uid://cetvb0g81ijhs" path="res://resources/models/wizard/MeleeAttackKick.res" id="7_bawtw"]
+[ext_resource type="Animation" uid="uid://cau1kypbwir0n" path="res://resources/models/wizard/MeleeAttackKick2.res" id="8_xrv51"]
+[ext_resource type="Animation" uid="uid://c8jmm8sfv2s6c" path="res://resources/models/wizard/MeleeAttackPunches.res" id="9_dltdn"]
+[ext_resource type="Animation" uid="uid://bfsi6ftkacdj5" path="res://resources/models/wizard/OnHit.res" id="10_klfx5"]
+[ext_resource type="Animation" uid="uid://cgrrv5pcoa7am" path="res://resources/models/wizard/RangedAttackRifle.res" id="11_i2pkn"]
+[ext_resource type="Animation" uid="uid://dwlpgav87b14n" path="res://resources/models/wizard/ReloadBow.res" id="12_fmlck"]
+[ext_resource type="Animation" uid="uid://4wxo1vk705e" path="res://resources/models/wizard/Running.res" id="13_vwfpq"]
+[ext_resource type="Animation" uid="uid://cuswcl4fs2g6c" path="res://resources/models/wizard/Throw.res" id="14_sy7f0"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kouh2"]
+albedo_texture = ExtResource("2_2lyil")
+
+[sub_resource type="Animation" id="Animation_6ityr"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Skeleton3D/hat:surface_material_override/0")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [null]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_gjuex"]
+_data = {
+&"RESET": SubResource("Animation_6ityr")
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_ql1ki"]
+_data = {
+&"DanceRumba": ExtResource("2_gjuex"),
+&"DanceSilly": ExtResource("3_2lyil"),
+&"DodgeFlip": ExtResource("4_kouh2"),
+&"DodgeJump": ExtResource("5_lgefo"),
+&"Idle": ExtResource("6_gvn66"),
+&"MeleeAttackKick": ExtResource("7_bawtw"),
+&"MeleeAttackKick2": ExtResource("8_xrv51"),
+&"MeleeAttackPunches": ExtResource("9_dltdn"),
+&"OnHit": ExtResource("10_klfx5"),
+&"RangedAttackRifle": ExtResource("11_i2pkn"),
+&"ReloadBow": ExtResource("12_fmlck"),
+&"Running": ExtResource("13_vwfpq"),
+&"Throw": ExtResource("14_sy7f0")
+}
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_2lyil"]
+animation = &"Player/MeleeAttackKick"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_gvn66"]
+animation = &"Player/DodgeJump"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_kouh2"]
+animation = &"Player/OnHit"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_6ityr"]
+animation = &"Player/Idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_gjuex"]
+animation = &"Player/Running"
+
+[sub_resource type="AnimationNodeBlendSpace1D" id="AnimationNodeBlendSpace1D_2lyil"]
+blend_point_0/node = SubResource("AnimationNodeAnimation_6ityr")
+blend_point_0/pos = 0.0
+blend_point_1/node = SubResource("AnimationNodeAnimation_gjuex")
+blend_point_1/pos = 1.0
+value_label = "speed"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_lgefo"]
+animation = &"Player/Throw"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_kouh2"]
+advance_mode = 2
+
+[sub_resource type="Curve" id="Curve_gvn66"]
+_data = [Vector2(0, 0), 0.0, 0.0, 0, 0, Vector2(1, 1), 0.0, 0.0, 0, 0]
+point_count = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_bawtw"]
+xfade_time = 0.2
+xfade_curve = SubResource("Curve_gvn66")
+advance_mode = 2
+advance_condition = &"to_onhit"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_xrv51"]
+xfade_time = 0.2
+xfade_curve = SubResource("Curve_gvn66")
+advance_mode = 2
+advance_condition = &"to_attack"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_dltdn"]
+xfade_time = 0.2
+xfade_curve = SubResource("Curve_gvn66")
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_klfx5"]
+xfade_time = 0.2
+xfade_curve = SubResource("Curve_gvn66")
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_i2pkn"]
+advance_mode = 2
+advance_condition = &"to_dash"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_fmlck"]
+advance_mode = 2
+advance_condition = &"to_throw"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_vwfpq"]
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_sy7f0"]
+switch_mode = 2
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_lgefo"]
+states/Attack/node = SubResource("AnimationNodeAnimation_2lyil")
+states/Attack/position = Vector2(353, 281)
+states/Dash/node = SubResource("AnimationNodeAnimation_gvn66")
+states/Dash/position = Vector2(565, 145)
+states/Hit/node = SubResource("AnimationNodeAnimation_kouh2")
+states/Hit/position = Vector2(503, 249)
+states/Locomotion/node = SubResource("AnimationNodeBlendSpace1D_2lyil")
+states/Locomotion/position = Vector2(359, 91)
+states/Throw/node = SubResource("AnimationNodeAnimation_lgefo")
+states/Throw/position = Vector2(261, 232)
+transitions = ["Start", "Locomotion", SubResource("AnimationNodeStateMachineTransition_kouh2"), "Locomotion", "Hit", SubResource("AnimationNodeStateMachineTransition_bawtw"), "Locomotion", "Attack", SubResource("AnimationNodeStateMachineTransition_xrv51"), "Attack", "Locomotion", SubResource("AnimationNodeStateMachineTransition_dltdn"), "Hit", "Locomotion", SubResource("AnimationNodeStateMachineTransition_klfx5"), "Locomotion", "Dash", SubResource("AnimationNodeStateMachineTransition_i2pkn"), "Locomotion", "Throw", SubResource("AnimationNodeStateMachineTransition_fmlck"), "Dash", "Locomotion", SubResource("AnimationNodeStateMachineTransition_vwfpq"), "Throw", "Locomotion", SubResource("AnimationNodeStateMachineTransition_sy7f0")]
+graph_offset = Vector2(102, -14)
+
+[node name="PlayerCharacter" unique_id=1409728293 instance=ExtResource("1_6ityr")]
+
+[node name="Skeleton3D" parent="." index="0" unique_id=386664355]
+bones/0/position = Vector3(-0.1166025, 1.0311992, 0.04672246)
+bones/0/rotation = Quaternion(-0.019503325, 0.018835694, 0.007097898, 0.9996072)
+bones/1/rotation = Quaternion(0.007507953, -0.0048678634, 0.016067833, 0.9998309)
+bones/2/rotation = Quaternion(0.008699187, -0.03189688, 0.015416166, 0.9993345)
+bones/3/rotation = Quaternion(0.008001174, -0.03163486, 0.015830101, 0.99934214)
+bones/4/rotation = Quaternion(-0.010384689, 0.013169572, -0.025393954, 0.9995369)
+bones/5/rotation = Quaternion(0.05702044, -0.021218397, 0.021246267, 0.99792147)
+bones/7/rotation = Quaternion(-0.5167649, -0.46871665, 0.5862967, -0.41172215)
+bones/8/rotation = Quaternion(0.45205143, 0.19589302, 0.20094426, 0.8466977)
+bones/9/rotation = Quaternion(-0.010608464, -0.023947326, 0.2590105, 0.96551937)
+bones/11/rotation = Quaternion(0.53230876, -0.47633883, 0.5015102, 0.4880946)
+bones/12/rotation = Quaternion(0.47830817, -0.14621837, -0.20059831, 0.8423786)
+bones/13/rotation = Quaternion(-0.005037883, 0.020749848, -0.22662215, 0.97374874)
+bones/15/rotation = Quaternion(0.044238493, 0.11282706, 0.98831934, -0.09240098)
+bones/16/rotation = Quaternion(-0.33199444, -0.08762408, 0.021382544, 0.9389593)
+bones/17/rotation = Quaternion(0.6152552, -0.04604897, -0.065493375, 0.784252)
+bones/18/rotation = Quaternion(0.20899244, -0.008672783, 0.0017646535, 0.9778773)
+bones/20/rotation = Quaternion(-0.087405026, 0.07094785, 0.9934689, -0.018615693)
+bones/21/rotation = Quaternion(-0.25781563, 0.055356503, -0.023392288, 0.96432346)
+bones/22/rotation = Quaternion(0.49216706, 0.17921588, -0.041275106, 0.8508524)
+bones/23/rotation = Quaternion(0.34131122, -0.081108935, 0.029571624, 0.9359774)
+
+[node name="cape" parent="Skeleton3D" index="2" unique_id=1385663335]
+surface_material_override/0 = SubResource("StandardMaterial3D_kouh2")
+
+[node name="AnimationPlayer" parent="." index="1" unique_id=719685431]
+libraries/ = SubResource("AnimationLibrary_gjuex")
+libraries/Player = SubResource("AnimationLibrary_ql1ki")
+
+[node name="AnimationTree" type="AnimationTree" parent="." index="2" unique_id=1769417752]
+tree_root = SubResource("AnimationNodeStateMachine_lgefo")
+anim_player = NodePath("../AnimationPlayer")
+parameters/conditions/to_attack = false
+parameters/conditions/to_dash = false
+parameters/conditions/to_onhit = false
+parameters/conditions/to_throw = false
+parameters/Locomotion/blend_position = 0.0

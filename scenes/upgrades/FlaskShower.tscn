@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3]
+
+[ext_resource type="Script" path="res://scripts/upgrades/base_upgrade.gd" id="1_base"]
+[ext_resource type="Script" path="res://scripts/upgrades/effects/modify_crowd_flask_effect.gd" id="3_effect"]
+
+[node name="FlaskShower" type="Node"]
+script = ExtResource("1_base")
+upgrade_name = "Flask Rain"
+description = "The crowd throws more flasks that break when thrown"
+categories = Array[int]([2, 10])
+max_stacks = 1
+
+[node name="ModifyCrowdFlaskEffect" type="Node" parent="."]
+script = ExtResource("3_effect")
+flask_weight_multiplier = 3.0
