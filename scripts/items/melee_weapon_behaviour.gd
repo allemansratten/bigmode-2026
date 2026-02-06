@@ -43,6 +43,8 @@ var is_attacking: bool = false
 var use_animation_hit_frames: bool = false
 ## Hit frame has been triggered by animation controller
 var hit_frame_ready: bool = false
+## Reference to connected animation controller (for cleanup on drop)
+var _anim_controller: AnimationController = null
 
 
 ## Helper method to get holder through PickupableBehaviour
@@ -56,34 +58,36 @@ func _get_holder() -> Node3D:
 
 func _ready() -> void:
 	super._ready()
-	
-	# Try to connect to animation controller for hit frame timing
-	_try_connect_to_animation_controller()
 
-func _try_connect_to_animation_controller() -> void:
-	"""Connect to animation controller for precise hit frame timing"""
-	var holder = _get_holder()
+
+func _on_pickup(picker: Node3D) -> void:
+	_try_connect_to_animation_controller(picker)
+
+
+func _handle_drop() -> void:
+	_disconnect_from_animation_controller()
+	super._handle_drop()
+
+
+func _try_connect_to_animation_controller(holder: Node3D) -> void:
+	_disconnect_from_animation_controller()
 	if not holder:
 		return
-		
+
 	var anim_controller = holder.get_node_or_null("AnimationController")
 	if anim_controller and anim_controller.has_signal("hit_frame"):
 		if not anim_controller.hit_frame.is_connected(_on_animation_hit_frame):
 			anim_controller.hit_frame.connect(_on_animation_hit_frame)
+			_anim_controller = anim_controller
 			use_animation_hit_frames = true
-			print("MeleeWeaponBehaviour: Connected to animation hit frames")
-	_disconnect_from_animation_controller()
+
 
 func _disconnect_from_animation_controller() -> void:
-	"""Clean up animation controller connections"""
-	var holder = _get_holder()
-	if not holder:
-		return
-		
-	var anim_controller = holder.get_node_or_null("AnimationController")
-	if anim_controller and anim_controller.has_signal("hit_frame"):
-		if anim_controller.hit_frame.is_connected(_on_animation_hit_frame):
-			anim_controller.hit_frame.disconnect(_on_animation_hit_frame)
+	if _anim_controller and is_instance_valid(_anim_controller):
+		if _anim_controller.hit_frame.is_connected(_on_animation_hit_frame):
+			_anim_controller.hit_frame.disconnect(_on_animation_hit_frame)
+	_anim_controller = null
+	use_animation_hit_frames = false
 
 
 func _cleanup_hitbox_sphere() -> void:

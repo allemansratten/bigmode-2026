@@ -40,13 +40,10 @@ func _ready() -> void:
 	_setup_animation_tree()
 	_connect_character_signals()
 	
-	# Connect to TimeScaleManager for bullet time integration  
+	# Connect to TimeScaleManager for bullet time integration
 	if TimeScaleManager.time_scale_changed.is_connected(_on_time_scale_changed):
 		TimeScaleManager.time_scale_changed.disconnect(_on_time_scale_changed)
 	TimeScaleManager.time_scale_changed.connect(_on_time_scale_changed)
-	
-	# Register debug commands
-	_register_debug_commands()
 
 func _setup_animation_tree() -> void:
 	if not anim_set:
@@ -114,13 +111,11 @@ func _update_locomotion_blending() -> void:
 
 func _update_condition_based_locomotion(speed: float) -> void:
 	var is_moving = anim_set.is_moving_speed(speed)
-	
-	# Set conditions based on movement state - only if they exist
-	if is_moving:
-		_set_condition("to_running", true)
-	else:
-		_set_condition("to_idle", true)
-	
+
+	# Set both conditions explicitly each frame so transitions consume the correct one
+	_set_condition("to_running", is_moving)
+	_set_condition("to_idle", not is_moving)
+
 	if debug_logging and not is_equal_approx(_current_speed, speed):
 		print("AnimationController: Speed=", speed, " Moving=", is_moving)
 
@@ -152,13 +147,6 @@ func _set_condition(condition_name: String, value: bool) -> void:
 		return
 	
 	_animation_tree.set(condition_path, value)
-	
-	if value:
-		# Reset condition after brief moment to allow retriggering
-		get_tree().create_timer(0.1).timeout.connect(func(): 
-			if _animation_tree and _has_parameter(condition_path):
-				_animation_tree.set(condition_path, false)
-		)
 
 func _get_character_speed() -> float:
 	# First try the dedicated method if available
@@ -361,49 +349,3 @@ func _state_has_node(node_name: StringName) -> bool:
 	var current_node = _state_machine.get_current_node()
 	return current_node != null  # Basic check - improve if needed
 
-func _register_debug_commands() -> void:
-	"""Register debug console commands for animation testing"""
-	if not DebugConsole:
-		return
-		
-	DebugConsole.register_command("anim_state", "Show current animation state")
-	DebugConsole.register_command("anim_travel", "Travel to animation state: /anim_travel <state>")
-	DebugConsole.register_command("anim_event", "Trigger animation event: /anim_event <event>")
-	DebugConsole.register_command("anim_info", "Show detailed animation info")
-	DebugConsole.register_command("anim_speed", "Set animation speed: /anim_speed <multiplier>")
-	
-	if not DebugConsole.command_entered.is_connected(_on_debug_command):
-		DebugConsole.command_entered.connect(_on_debug_command)
-
-func _on_debug_command(cmd: String, args: PackedStringArray) -> void:
-	"""Handle debug console commands"""
-	match cmd:
-		"anim_state":
-			var state = get_current_state()
-			DebugConsole.debug_log("Animation State: " + state)
-		"anim_travel":
-			if args.size() > 0:
-				var state_name = StringName(args[0])
-				force_travel_to_state(state_name)
-				DebugConsole.debug_log("Traveling to state: " + String(state_name))
-			else:
-				DebugConsole.debug_log("Usage: anim_travel <state_name>")
-		"anim_event":
-			if args.size() > 0:
-				var event_name = args[0]
-				force_trigger_event(event_name)
-				DebugConsole.debug_log("Triggered event: " + event_name)
-			else:
-				DebugConsole.debug_log("Usage: anim_event <event_name>")
-		"anim_info":
-			var info = get_animation_info()
-			for key in info:
-				DebugConsole.debug_log(key + ": " + str(info[key]))
-		"anim_speed":
-			if args.size() > 0:
-				var multiplier = float(args[0])
-				if _animation_tree:
-					_animation_tree.speed_scale = multiplier
-					DebugConsole.debug_log("Animation speed set to: " + str(multiplier))
-			else:
-				DebugConsole.debug_log("Usage: anim_speed <multiplier>")
