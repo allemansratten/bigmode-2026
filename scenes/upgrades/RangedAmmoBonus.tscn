@@ -1,0 +1,22 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/upgrades/base_upgrade.gd" id="1_base"]
+[ext_resource type="Script" path="res://scripts/upgrades/trigger_upgrade.gd" id="2_trigger"]
+[ext_resource type="Script" path="res://scripts/upgrades/effects/ranged_add_ammo_effect.gd" id="3_effect"]
+
+[node name="RangedAmmoBonus" type="Node"]
+script = ExtResource("1_base")
+upgrade_name = "Reloaded"
+description = "When you throw a ranged weapon, it gains +1 ammo"
+categories = Array[int]([1, 10, 22, 31])
+max_stacks = 5
+
+[node name="TriggerUpgrade" type="Node" parent="."]
+script = ExtResource("2_trigger")
+trigger = 4
+chance = 1.0
+cooldown = 0.0
+
+[node name="RangedAddAmmoEffect" type="Node" parent="TriggerUpgrade"]
+script = ExtResource("3_effect")
+ammo_amount = 1

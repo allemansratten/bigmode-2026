@@ -1,0 +1,21 @@
+[gd_scene load_steps=4 format=3]
+
+[ext_resource type="Script" path="res://scripts/upgrades/base_upgrade.gd" id="1_base"]
+[ext_resource type="Script" path="res://scripts/upgrades/trigger_upgrade.gd" id="2_trigger"]
+[ext_resource type="Script" path="res://scripts/upgrades/effects/spawn_brick_in_hand_effect.gd" id="3_effect"]
+
+[node name="BrickMaker" type="Node"]
+script = ExtResource("1_base")
+upgrade_name = "Brick Factory"
+description = "When you throw a non-brick item, spawn a 1-durability brick in your hand"
+categories = Array[int]([1, 10, 22])
+max_stacks = 1
+
+[node name="TriggerUpgrade" type="Node" parent="."]
+script = ExtResource("2_trigger")
+trigger = 4
+chance = 1.0
+cooldown = 0.0
+
+[node name="SpawnBrickInHandEffect" type="Node" parent="TriggerUpgrade"]
+script = ExtResource("3_effect")
