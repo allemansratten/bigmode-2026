@@ -208,14 +208,6 @@ func _on_animation_hit_frame() -> void:
 		tween.tween_method(_stab_tick, 0.0, 1.0, stab_duration)
 		tween.tween_callback(_stab_finished)
 
-func trigger_hit_frame() -> void:
-	"""External method for triggering hit frame (backwards compatibility)"""
-	_on_animation_hit_frame()
-
-func apply_hit_frame_damage() -> void:
-	"""Alternative method name for hit frame damage application"""
-	_on_animation_hit_frame()
-
 
 ## Apply damage and knockback to hit entity
 func _apply_hit(target: Node3D, direction: Vector3) -> void:

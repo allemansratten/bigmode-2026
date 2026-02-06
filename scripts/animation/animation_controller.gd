@@ -181,16 +181,11 @@ func request_action(action: StringName) -> void:
 			push_warning("AnimationController: Unknown action: ", action)
 			return
 			
-	# Check if the target state exists before traveling
-	if _state_has_node(target_state):
-		_last_action_state = target_state
-		_state_machine.travel(target_state)
-		
-		if debug_logging:
-			print("AnimationController: Requested action: ", action, " -> ", target_state)
-	else:
-		if debug_logging:
-			print("AnimationController: State '", target_state, "' not found in StateMachine")
+	_last_action_state = target_state
+	_state_machine.travel(target_state)
+
+	if debug_logging:
+		print("AnimationController: Requested action: ", action, " -> ", target_state)
 
 ## Signal handlers for character events
 func _on_start_attacking() -> void:
@@ -211,33 +206,27 @@ func _on_start_dashing() -> void:
 	request_action(&"dash")
 
 ## Handle animation completion from AnimationPlayer
-func _on_animation_finished(animation_name: StringName) -> void:
-	# Emit completion signals based on animation name
-	match animation_name:
-		"Attack", "Enemy/Attack", "Player/Attack":
-			_emit_completion_signal("attack_animation_finished")
-			_close_attack_window()  # Ensure attack window is closed
-		"Hit", "Enemy/OnHit", "Player/Hit": 
-			_emit_completion_signal("hit_animation_finished")
-		"Death", "Enemy/Death", "Player/Death":
-			_emit_completion_signal("death_animation_finished")
-		"Dash", "Player/Dash":
-			_emit_completion_signal("dash_animation_finished")
-			
-	# Auto-return to locomotion for non-death animations
-	if not animation_name.contains("Death"):
-		if _state_machine:
-			_state_machine.travel(anim_set.state_locomotion)
+func _on_animation_finished(_animation_name: StringName) -> void:
+	if not _state_machine or _last_action_state == &"":
+		return
+
+	# Only handle completion if we're still in the action state
+	if _state_machine.get_current_node() != _last_action_state:
+		return
+
+	_close_attack_window()
+
+	var finished_action = _last_action_state
+	_last_action_state = &""
+
+	# Stay in death state, return to locomotion for everything else
+	if finished_action != anim_set.state_death:
+		_state_machine.travel(anim_set.state_locomotion)
 
 func _close_attack_window() -> void:
-	"""Ensure attack window is properly closed after attack animation"""
 	if _active_attack_window:
 		_active_attack_window = false
 		attack_window.emit(false)
-
-func _emit_completion_signal(signal_name: StringName) -> void:
-	if _character.has_signal(signal_name):
-		_character.emit_signal(signal_name)
 
 ## Handle TimeScaleManager for bullet time compatibility
 func _on_time_scale_changed(new_scale: float) -> void:
@@ -251,9 +240,6 @@ func _anim_hit_frame() -> void:
 		_hit_frame_triggered = true
 		hit_frame.emit()
 		animation_event.emit("hit_frame", {"attack_state": _last_action_state})
-		
-		# Apply weapon damage if character has active weapon
-		_trigger_weapon_hit()
 
 func _anim_footstep() -> void:
 	footstep.emit()
@@ -270,26 +256,6 @@ func _anim_attack_window_close() -> void:
 		_active_attack_window = false
 		attack_window.emit(false)
 		animation_event.emit("attack_window_close", {})
-
-## Trigger weapon damage during hit frame
-func _trigger_weapon_hit() -> void:
-	# Try to find and trigger weapon damage
-	if _character.has_method("get_active_weapon"):
-		var weapon = _character.get_active_weapon()
-		if weapon and weapon.has_method("apply_hit_frame_damage"):
-			weapon.apply_hit_frame_damage()
-			return
-	
-	# Fallback: look for inventory system
-	var inventory = _character.get_node_or_null("PlayerInventory")
-	if inventory and inventory.has_method("get_active_weapon"):
-		var weapon = inventory.get_active_weapon()
-		if weapon and weapon.has_method("trigger_hit_frame"):
-			weapon.trigger_hit_frame()
-		else:
-			# For backwards compatibility with existing weapons
-			if weapon and weapon.has_method("_process_hit_detection"):
-				weapon._process_hit_detection(0.0)  # Manual hit detection trigger
 
 ## Debug methods (for DebugConsole integration)
 func get_current_state() -> String:
@@ -339,13 +305,4 @@ func _has_parameter(param_path: String) -> bool:
 	var value = _animation_tree.get(param_path)
 	return value != null
 
-func _state_has_node(node_name: StringName) -> bool:
-	if not _state_machine:
-		return false
-	
-	# Check if the state machine has this node
-	# This is a simple check - in a real implementation you might want to 
-	# inspect the StateMachine's states more thoroughly
-	var current_node = _state_machine.get_current_node()
-	return current_node != null  # Basic check - improve if needed
 
