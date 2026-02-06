@@ -12,7 +12,14 @@ locomotion_blend_path = ""
 state_machine_path = "parameters/playback"
 use_condition_based_locomotion = true
 state_locomotion = &"Idle"
-state_attack = &"Attack"
-state_hit = &"OnHit"
-state_dash = &"Running"
-state_death = &"Death"
+action_states = {
+"attack": "Attack",
+"hit": "OnHit",
+"death": "Death"
+}
+terminal_actions = PackedStringArray("death")
+signal_actions = {
+"started_attacking": "attack",
+"took_damage": "hit",
+"started_dying": "death"
+}
