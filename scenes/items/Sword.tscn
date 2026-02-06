@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://c7sw72207goqx"]
 
 [ext_resource type="ArrayMesh" uid="uid://beh8bljspd4kt" path="res://resources/models/weapons/SM_Prop_SwordOrnate_01.obj" id="1_rs3j6"]
+[ext_resource type="PackedScene" uid="uid://particle_on_destroy_effect_001" path="res://scenes/effects/particles/ParticleOnDestroyEffect.tscn" id="8_particles"]
 [ext_resource type="Script" uid="uid://d3ujs8125ule" path="res://scripts/items/pickupable_behaviour.gd" id="1_uitic"]
 [ext_resource type="Script" uid="uid://gq8jkdjg8anv" path="res://scripts/items/throwable_behaviour.gd" id="2_rs3j6"]
 [ext_resource type="Script" uid="uid://6ngjp570ak3h" path="res://scripts/items/spawnable_behaviour.gd" id="3_2n8v8"]
@@ -60,3 +61,6 @@ attack_cooldown = 1.0
 script = ExtResource("6_dpbjg")
 sound = ExtResource("7_785hp")
 metadata/_custom_type_script = "uid://c402h5pwrip2c"
+
+[node name="ParticleOnDestroyEffect" parent="." instance=ExtResource("8_particles")]
+particle_color = Color(0.7, 0.7, 0.75, 1)

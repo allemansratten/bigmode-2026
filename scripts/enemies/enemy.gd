@@ -21,6 +21,9 @@ signal started_dying()
 @export var drop_items: Array[PackedScene] = []
 @export var drop_chance: float = 0.5 # 50% chance to drop an item
 
+# Crowd excitement
+@export var threat_level: float = 10.0 ## Excitement added to crowd when killed
+
 # Behavior references (assigned via get_node or added as children)
 var movement_behaviour: EnemyMovementBehaviour
 var attack_behaviour: EnemyAttackBehaviour
@@ -35,6 +38,9 @@ var target: Node3D = null
 var is_dead: bool = false
 var is_attacking: bool = false
 var is_stunned: bool = false
+
+# Movement state (public so attack behaviors can check it)
+var is_moving: bool = false
 
 # Timers
 var _attack_timer: Timer
@@ -51,8 +57,7 @@ func _ready():
 
 	# Pass attack range to movement behavior if both exist
 	if movement_behaviour and attack_behaviour:
-		if movement_behaviour is ChaseMovementBehaviour:
-			movement_behaviour.attack_range = attack_behaviour.get_attack_range()
+		movement_behaviour.set_attack_range(attack_behaviour.get_attack_range())
 
 	# Find player
 	target = get_tree().get_first_node_in_group("player")
@@ -101,6 +106,14 @@ func _physics_process(delta: float):
 	var target_velocity := Vector3.ZERO
 	if movement_behaviour and not is_attacking and not is_stunned:
 		target_velocity = movement_behaviour.update_movement(delta, self , target.global_position)
+
+	# Emit movement signals on state change (works for all movement behaviors)
+	var moving := target_velocity.length() > 0.01
+	if moving and not is_moving:
+		started_moving.emit()
+	elif not moving and is_moving:
+		stopped_moving.emit()
+	is_moving = moving
 
 	# Use movement behavior's XZ but preserve accumulated Y velocity
 	velocity.x = target_velocity.x
@@ -151,6 +164,11 @@ func die() -> void:
 	# Emit global event for upgrade system
 	EventBus.enemy_killed.emit(self, _last_damage_source)
 
+	# Increase crowd excitement based on threat level
+	var crowd_manager = get_tree().get_first_node_in_group("crowd_manager")
+	if crowd_manager and crowd_manager.has_method("increase_excitement"):
+		crowd_manager.increase_excitement(threat_level)
+
 	# Spawn item drops
 	if drop_items.size() > 0 and randf() < drop_chance:
 		var drop_scene = drop_items.pick_random()
@@ -175,14 +193,6 @@ func get_enemy_name() -> String:
 
 
 ## Signal helpers for behaviors to use
-func signal_start_moving() -> void:
-	started_moving.emit()
-
-
-func signal_stop_moving() -> void:
-	stopped_moving.emit()
-
-
 func signal_start_attacking() -> void:
 	is_attacking = true
 	started_attacking.emit()

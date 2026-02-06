@@ -3,15 +3,33 @@ class_name EnemySpawner
 
 ## Manages enemy spawning at designated points or dropped from above
 ## Add Marker3D children to define spawn points
+## Supports wave-based combat with room clear detection
 
 signal enemy_spawned(enemy: Enemy)
+signal wave_started(wave_number: int)
+signal wave_completed(wave_number: int)
+signal room_cleared()
 
 @export var drop_height: float = 5.0 # How high above the spawner to drop enemies from
 @export var spawn_area_size: Vector2 = Vector2(10, 10) # Area for random drop spawning
 @export var min_distance_from_player: float = 3.0 # Minimum distance from player for spawning
 
+## Wave configuration
+@export var total_waves: int = 3
+@export var auto_start_waves: bool = true # Start spawning on room transition
+
+## Threat-based wave generation
+@export_group("Difficulty Scaling")
+@export var base_threat_per_wave: float = 15.0  # Starting threat budget for wave 1
+@export var threat_increase_per_wave: float = 10.0  # Additional threat each wave
+@export var threat_increase_per_room: float = 5.0  # Additional base threat for each room cleared
+@export var threat_variance: float = 0.2  # Random variance (±20%)
+
 var spawn_points: Array[Marker3D] = []
 var _alive_enemies: int = 0
+var _current_wave: int = 0  # 0 = not started, 1-3 = active wave
+var _waves_active: bool = false
+var _rooms_completed: int = 0  # Track difficulty progression
 
 
 func _ready():
@@ -48,24 +66,163 @@ func _on_navigation_ready() -> void:
 	print("EnemySpawner: Navigation ready, can spawn enemies now")
 
 
-func _on_room_transition_completed(room: Node3D) -> void:
-	if room.name == "ExampleRoom":
-		_spawn_wave()
+func _on_room_transition_completed(_room: Node3D) -> void:
+	if auto_start_waves:
+		start_waves()
 
 
-func _spawn_wave() -> void:
-	# TODO more sophisticated wave spawning logic
-	spawn_enemy_by_name("melee", "dropped")
-	spawn_enemy_by_name("ranged", "random")
+## Start the wave-based combat sequence
+func start_waves() -> void:
+	if _waves_active:
+		push_warning("Waves already active, ignoring start_waves call")
+		return
+
+	_waves_active = true
+	_current_wave = 0
+	_spawn_next_wave()
+
+
+## Reset spawner state (for reuse or new room)
+func reset() -> void:
+	_waves_active = false
+	_current_wave = 0
+	_alive_enemies = 0
+
+
+## Get current wave number (1-based, 0 = not started)
+func get_current_wave() -> int:
+	return _current_wave
+
+
+## Check if all waves are complete
+func is_room_cleared() -> bool:
+	return _current_wave > total_waves or (_current_wave == total_waves and _alive_enemies == 0)
+
+
+func _spawn_next_wave() -> void:
+	if _current_wave >= total_waves:
+		# All waves complete - room cleared!
+		_on_room_complete()
+		return
+
+	_current_wave += 1
+	wave_started.emit(_current_wave)
+
+	# Calculate threat budget for this wave
+	var threat_budget = _calculate_wave_threat(_current_wave)
+	print("EnemySpawner: Starting wave %d of %d (threat budget: %.1f)" % [_current_wave, total_waves, threat_budget])
+
+	# Generate and spawn enemies based on threat budget
+	var enemies_to_spawn = _generate_wave_enemies(threat_budget)
+	for i in range(enemies_to_spawn.size()):
+		var enemy_name = enemies_to_spawn[i]
+		# Alternate spawn methods for variety
+		var method = "dropped" if i % 2 == 0 else "random"
+		spawn_enemy_by_name(enemy_name, method)
+
+
+## Calculate the threat budget for a specific wave
+func _calculate_wave_threat(wave_number: int) -> float:
+	# Base threat + wave scaling + room scaling
+	var base = base_threat_per_wave + (_rooms_completed * threat_increase_per_room)
+	var wave_bonus = (wave_number - 1) * threat_increase_per_wave
+	var total = base + wave_bonus
+
+	# Apply random variance
+	var variance = total * threat_variance
+	total += randf_range(-variance, variance)
+
+	return max(total, base_threat_per_wave * 0.5)  # Minimum floor
+
+
+## Generate a list of enemies to spawn based on threat budget
+func _generate_wave_enemies(threat_budget: float) -> Array[String]:
+	var enemies_to_spawn: Array[String] = []
+	var remaining_threat = threat_budget
+	var available_enemies = EnemyRegistry.get_all_enemy_names()
+
+	if available_enemies.is_empty():
+		push_error("EnemySpawner: No enemies registered!")
+		return enemies_to_spawn
+
+	# Keep adding enemies until we've spent the threat budget
+	var iterations = 0
+	var max_iterations = 50  # Safety limit
+
+	while remaining_threat > 0 and iterations < max_iterations:
+		iterations += 1
+
+		# Find enemies that fit within remaining budget
+		var valid_enemies: Array[String] = []
+		var min_threat = INF
+
+		for enemy_name in available_enemies:
+			var threat = EnemyRegistry.get_threat_level(enemy_name)
+			min_threat = min(min_threat, threat)
+			if threat <= remaining_threat:
+				valid_enemies.append(enemy_name)
+
+		# If no enemies fit, check if we should force spawn the cheapest
+		if valid_enemies.is_empty():
+			# Only force spawn if we have significant budget left (>50% of min enemy)
+			if remaining_threat >= min_threat * 0.5 and enemies_to_spawn.is_empty():
+				# Force at least one enemy
+				var cheapest = _get_cheapest_enemy(available_enemies)
+				enemies_to_spawn.append(cheapest)
+			break
+
+		# Pick a random valid enemy
+		var chosen_enemy = valid_enemies.pick_random()
+		enemies_to_spawn.append(chosen_enemy)
+		remaining_threat -= EnemyRegistry.get_threat_level(chosen_enemy)
+
+	print("EnemySpawner: Generated %d enemies for wave" % enemies_to_spawn.size())
+	return enemies_to_spawn
+
+
+## Get the enemy with lowest threat level
+func _get_cheapest_enemy(enemy_names: Array[String]) -> String:
+	var cheapest = enemy_names[0]
+	var lowest_threat = EnemyRegistry.get_threat_level(cheapest)
+
+	for enemy_name in enemy_names:
+		var threat = EnemyRegistry.get_threat_level(enemy_name)
+		if threat < lowest_threat:
+			lowest_threat = threat
+			cheapest = enemy_name
+
+	return cheapest
+
+
+## Set the rooms completed count (for difficulty scaling)
+func set_rooms_completed(count: int) -> void:
+	_rooms_completed = count
+	print("EnemySpawner: Difficulty set to %d rooms completed" % count)
 
 
 func _on_enemy_died(_enemy: Enemy) -> void:
 	_alive_enemies -= 1
 	if _alive_enemies <= 0:
-		# Wave completed! We can make a signal here if needed
-		# TODO spawn wave only after player moves through door
 		_alive_enemies = 0
-		_spawn_wave()
+		wave_completed.emit(_current_wave)
+		print("EnemySpawner: Wave %d completed" % _current_wave)
+
+		if _waves_active:
+			# Small delay before next wave for player breathing room
+			await get_tree().create_timer(1.5).timeout
+			_spawn_next_wave()
+
+
+func _on_room_complete() -> void:
+	_waves_active = false
+	print("EnemySpawner: Room cleared! All %d waves complete." % total_waves)
+
+	# Emit local signal
+	room_cleared.emit()
+
+	# Emit global EventBus signal for upgrade system and game manager
+	var room = _find_room()
+	EventBus.room_cleared.emit(room)
 
 
 ## Register debug console commands

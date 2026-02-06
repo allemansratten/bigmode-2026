@@ -26,9 +26,6 @@ var current_room: Node3D = null
 ## Parent node where rooms are instantiated (set by game scene)
 var room_container: Node3D = null
 
-## Dictionary of loaded rooms by scene path
-var loaded_rooms: Dictionary = {}
-
 ## Cooldown duration in seconds between room transitions
 const TRANSITION_COOLDOWN: float = 1.0
 
@@ -66,35 +63,26 @@ func transition_to_room(room_id: SceneManager.Room) -> void:
 	var room_path = ROOM_SCENES[room_id]
 	var old_room = current_room
 
-	# Check if room is already loaded
-	var new_room: Node3D = null
-	if loaded_rooms.has(room_path):
-		new_room = loaded_rooms[room_path]
-		new_room.visible = true
-		new_room.process_mode = Node.PROCESS_MODE_INHERIT
-		print("SceneManager: reusing existing room ", new_room.name)
-	else:
-		# Load and instantiate new room
-		var room_scene = load(room_path) as PackedScene
-		if not room_scene:
-			push_error("SceneManager: failed to load room scene at ", room_path)
-			return
+	# Always instantiate a fresh room (no caching - rooms are one-way)
+	var room_scene = load(room_path) as PackedScene
+	if not room_scene:
+		push_error("SceneManager: failed to load room scene at ", room_path)
+		return
 
-		new_room = room_scene.instantiate() as Node3D
-		if not new_room:
-			push_error("SceneManager: failed to instantiate room scene")
-			return
+	var new_room = room_scene.instantiate() as Node3D
+	if not new_room:
+		push_error("SceneManager: failed to instantiate room scene")
+		return
 
-		room_container.add_child(new_room)
-		loaded_rooms[room_path] = new_room
-		print("SceneManager: instantiated new room ", new_room.name)
+	room_container.add_child(new_room)
+	print("SceneManager: instantiated new room ", new_room.name)
 
 	room_transition_started.emit(old_room, new_room)
 
-	# Hide/disable old room instead of removing it (must be deferred)
-	if old_room and old_room != new_room:
-		old_room.call_deferred("set", "visible", false)
-		old_room.call_deferred("set", "process_mode", Node.PROCESS_MODE_DISABLED)
+	# Destroy old room - we won't need it anymore (one-way progression)
+	if old_room:
+		print("SceneManager: destroying old room ", old_room.name)
+		old_room.queue_free()
 
 	current_room = new_room
 
@@ -116,11 +104,9 @@ func reload_current_room() -> void:
 		push_error("SceneManager: current room has no scene_file_path")
 		return
 
-	# Find the room ID from the path
+	# Find the room ID from the path and reload
 	for room_id in ROOM_SCENES:
 		if ROOM_SCENES[room_id] == room_scene_path:
-			# Remove from cache and reload
-			loaded_rooms.erase(room_scene_path)
 			transition_to_room(room_id)
 			return
 

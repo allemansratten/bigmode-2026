@@ -30,7 +30,7 @@ The main scene is `scenes/Game.tscn`. For testing specific rooms, use `scenes/Ro
 
 ### Autoload Singletons (Global Managers)
 
-Five key autoloads defined in `project.godot`:
+Key autoloads defined in `project.godot`:
 
 1. **EventBus** (`scripts/autoloads/event_bus.gd`) - Global event system for decoupled communication
 2. **Settings** (`scripts/autoloads/settings_manager.gd`) - Persistent settings via INI file (`user://settings.cfg`)
@@ -38,6 +38,7 @@ Five key autoloads defined in `project.godot`:
 4. **MusicController** (`scripts/autoloads/music_controller.gd`) - Music state management
 5. **SceneManager** (`scripts/autoloads/scene_manager.gd`) - Scene loading/transitions
 6. **ItemRegistry** (`scripts/autoloads/item_registry.gd`) - Auto-discovers and caches spawnable items by category tags
+7. **ShaderWarmup** (`scripts/autoloads/shader_warmup.gd`) - Precompiles particle shaders at startup to prevent frame stutters
 
 Access these from any script:
 ```gdscript
@@ -224,6 +225,23 @@ See `ENEMY_SYSTEM_DESIGN.md` for full setup instructions.
 4. Save to `scenes/items/` directory
 5. ItemRegistry auto-discovers on startup
 
+### Adding New Particle Effects
+
+Particle effects use `GPUParticles3D` with `one_shot = true` for burst effects.
+
+1. Create particle scene in `scenes/particles/` directory
+2. Configure `ParticleProcessMaterial` for desired effect
+3. **Important**: Register in `ShaderWarmup._load_particle_scenes()` to prevent frame stutters
+
+For weapon destruction particles:
+1. Create particle scene
+2. Add `ParticleOnDestroyEffect` node to weapon item
+3. Assign the particle scene to the effect's `particle_scene` property
+
+Example particle scenes:
+- `DestructionParticles.tscn` - Colored spheres for weapon breaking
+- `TeleportParticles.tscn` - Purple spiral for teleportation
+
 ### Adding New Rooms
 
 1. Create scene inheriting from `Room` class or use `scenes/rooms/ExampleRoom.tscn` as template
@@ -270,3 +288,16 @@ See `ROOMS_FEATURE_DESIGN.md` for detailed room system design.
 - Verify RangedWeaponBehaviour has `projectile_scene` assigned
 - Check projectile scene has collision shape and RigidBody3D
 - Ensure projectile uses correct collision layers/masks
+
+### Particle Effects Causing Frame Stutters
+
+When new particle effects are first used, Godot compiles their shaders on-demand, causing frame hitches.
+
+**Solution**: Register particle scenes in `ShaderWarmup` autoload:
+
+```gdscript
+# In scripts/autoloads/shader_warmup.gd, add to _load_particle_scenes():
+_try_load("res://scenes/particles/YourNewParticles.tscn")
+```
+
+The warmup system spawns particles off-screen at startup to force shader compilation before gameplay.

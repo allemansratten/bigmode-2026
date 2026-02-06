@@ -1,8 +1,13 @@
 [gd_scene format=3 uid="uid://e47y6ou2xsfx"]
 
 [ext_resource type="Script" path="res://scripts/components/teleport_component.gd" id="1_teleport"]
+[ext_resource type="PackedScene" uid="uid://teleport_particles_001" path="res://scenes/particles/TeleportParticles.tscn" id="2_particles"]
+[ext_resource type="PackedScene" uid="uid://teleport_charging_particles_001" path="res://scenes/particles/TeleportChargingParticles.tscn" id="3_charging"]
 
 [node name="TeleportComponent" type="Node"]
 script = ExtResource("1_teleport")
 teleport_distance = 10.0
 cooldown = 1.0
+teleport_delay = 0.5
+teleport_particles = ExtResource("2_particles")
+charging_particles = ExtResource("3_charging")

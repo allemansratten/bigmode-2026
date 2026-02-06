@@ -10,8 +10,13 @@ class_name TeleportComponent
 @export var line_dash_length: float = 0.3  ## Length of each dash in the preview line
 @export var line_gap_length: float = 0.2  ## Gap between dashes
 @export var player_radius: float = 0.5  ## Player collision radius for wall detection
+@export var teleport_particles: PackedScene  ## Particle effect for teleport destination burst
+@export var charging_particles: PackedScene  ## Particle effect while aiming (continuous)
+@export var teleport_delay: float = 0.25  ## Time player is invisible before reappearing
 
 var _player: Node3D = null
+var _charging_particles_instance: GPUParticles3D = null
+var _is_teleporting: bool = false
 var _item: Node3D = null
 var _pickupable: PickupableBehaviour = null
 var _weapon: WeaponBehaviour = null
@@ -82,17 +87,23 @@ func _unhandled_input(event: InputEvent) -> void:
 
 ## Start aiming mode
 func _start_aiming() -> void:
-	# Check cooldown
-	if not _cooldown_timer.is_stopped():
+	# Block if already teleporting or on cooldown
+	if _is_teleporting or not _cooldown_timer.is_stopped():
 		return
 	_is_aiming = true
 	_time_scale_effect_id = TimeScaleManager.request_time_scale(aim_time_scale)
+
+	# Start charging particles at player position
+	_start_charging_particles()
 
 
 ## Execute the teleport
 func _execute_teleport() -> void:
 	_is_aiming = false
-	_cancel_time_scale_effect()
+	_is_teleporting = true
+
+	# Stop charging particles (they were at origin)
+	_stop_charging_particles()
 
 	# Clean up previews
 	_clear_previews()
@@ -100,13 +111,48 @@ func _execute_teleport() -> void:
 	# Check if we have a valid player and target
 	if not _player or not is_instance_valid(_player):
 		print("TeleportComponent: no valid player")
+		_cancel_time_scale_effect()
+		_is_teleporting = false
 		return
 
 	# Store start position for event
 	var from_position = _player.global_position
 
-	# Teleport to preview location!
+	# Get player mesh and hold point for visibility toggle
+	var player_mesh = _player.get_node_or_null("MeshInstance3D")
+	var hold_point = _player.get_node_or_null("HoldPoint")
+
+	# Begin teleport - make invincible, hide player and held item, disable inputs
+	_player.is_invincible = true
+	if player_mesh:
+		player_mesh.visible = false
+	if hold_point:
+		hold_point.visible = false
+	_player.set_physics_process(false)
+	_player.set_process_unhandled_input(false)
+
+	# Move player to destination (camera follows)
 	_player.global_position = _target_position
+
+	# Wait for teleport delay (keep slow-mo active during this)
+	await get_tree().create_timer(teleport_delay, true, false, true).timeout
+
+	# End teleport - show player and held item, re-enable inputs, remove invincibility
+	if player_mesh:
+		player_mesh.visible = true
+	if hold_point:
+		hold_point.visible = true
+	_player.set_physics_process(true)
+	_player.set_process_unhandled_input(true)
+	_player.is_invincible = false
+
+	# Now cancel slow-mo after player reappears
+	_cancel_time_scale_effect()
+
+	# Spawn burst particles at destination
+	_spawn_teleport_particles(_target_position)
+
+	# Start cooldown
 	_cooldown_timer.start()
 
 	# Emit global event for upgrade system
@@ -115,6 +161,8 @@ func _execute_teleport() -> void:
 	# Damage the weapon on use
 	if _weapon:
 		_weapon.damage_weapon(1)
+
+	_is_teleporting = false
 
 
 ## Update aim preview (line and player ghost)
@@ -148,6 +196,9 @@ func _update_aim_preview() -> void:
 
 	# Update player preview
 	_update_player_preview(cursor_pos)
+
+	# Update charging particles to follow player
+	_update_charging_particles()
 
 
 ## Create or update the dashed line from player to target
@@ -257,6 +308,8 @@ func _clear_previews() -> void:
 	if _player_preview:
 		_player_preview.queue_free()
 		_player_preview = null
+
+	_stop_charging_particles()
 
 
 ## Check for wall collisions and clamp target position
@@ -377,6 +430,63 @@ func _on_weapon_destroyed() -> void:
 
 	# Remove ourselves since the parent item is being destroyed
 	queue_free()
+
+
+## Start continuous charging particles at player position
+func _start_charging_particles() -> void:
+	if not charging_particles or not _player:
+		return
+
+	_charging_particles_instance = charging_particles.instantiate() as GPUParticles3D
+	if not _charging_particles_instance:
+		return
+
+	# Add to scene root
+	get_tree().root.add_child(_charging_particles_instance)
+	_charging_particles_instance.global_position = _player.global_position
+
+	# Continuous emission (not one_shot)
+	_charging_particles_instance.emitting = true
+
+
+## Update charging particles position to follow player
+func _update_charging_particles() -> void:
+	if _charging_particles_instance and is_instance_valid(_charging_particles_instance) and _player:
+		_charging_particles_instance.global_position = _player.global_position
+
+
+## Stop and cleanup charging particles
+func _stop_charging_particles() -> void:
+	if _charging_particles_instance and is_instance_valid(_charging_particles_instance):
+		_charging_particles_instance.emitting = false
+		# Let existing particles fade out before cleanup
+		var cleanup_time = _charging_particles_instance.lifetime + 0.1
+		get_tree().create_timer(cleanup_time).timeout.connect(func():
+			if is_instance_valid(_charging_particles_instance):
+				_charging_particles_instance.queue_free()
+		)
+		_charging_particles_instance = null
+
+
+## Spawn teleport burst particles at a position
+func _spawn_teleport_particles(position: Vector3) -> void:
+	if not teleport_particles:
+		return
+
+	var particles = teleport_particles.instantiate() as GPUParticles3D
+	if not particles:
+		return
+
+	# Add to scene root so they persist
+	get_tree().root.add_child(particles)
+	particles.global_position = position
+
+	particles.one_shot = true
+	particles.emitting = true
+
+	# Auto-cleanup after particles finish
+	var cleanup_time = particles.lifetime + 0.5
+	get_tree().create_timer(cleanup_time).timeout.connect(particles.queue_free)
 
 
 ## Cancel the active time scale effect if one exists

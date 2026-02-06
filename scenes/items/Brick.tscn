@@ -1,6 +1,7 @@
 [gd_scene format=3 uid="uid://brick001"]
 
 [ext_resource type="PackedScene" path="res://scenes/effects/audio/PlaySoundOnThrowLandedEffect.tscn" id="1_nmjmy"]
+[ext_resource type="PackedScene" uid="uid://particle_on_destroy_effect_001" path="res://scenes/effects/particles/ParticleOnDestroyEffect.tscn" id="5_particles"]
 [ext_resource type="Script" uid="uid://d3ujs8125ule" path="res://scripts/items/pickupable_behaviour.gd" id="1_pickup"]
 [ext_resource type="AudioStream" uid="uid://debxltita8slg" path="res://resources/sounds/brick-drop.mp3" id="2_nmjmy"]
 [ext_resource type="Script" uid="uid://gq8jkdjg8anv" path="res://scripts/items/throwable_behaviour.gd" id="2_throw"]
@@ -56,3 +57,6 @@ knockback_force = 8.0
 max_durability = 4
 damage = 15.0
 attack_cooldown = 0.8
+
+[node name="ParticleOnDestroyEffect" parent="." instance=ExtResource("5_particles")]
+particle_color = Color(0.85, 0.4, 0.15, 1)
