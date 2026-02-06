@@ -25,12 +25,19 @@ Implement a modular enemy system using the Strategy pattern for movement and att
    - `execute_attack(enemy: Node3D, target: Node3D) -> void`
    - `get_attack_range() -> float`
 
-4. **NavigationAgent3D**
+4. **AnimationController** (child node)
+   - Data-driven animation system — assign an `AnimSet` resource, no code changes
+   - Auto-connects to enemy signals (`started_attacking`, `took_damage`, `started_dying`)
+   - Drives AnimationTree state machine for actions (Attack, OnHit, Death)
+   - Handles locomotion blending (condition-based for enemies: `to_running`/`to_idle`)
+   - See `ANIMATION_EVENTS_SETUP.md` for adding hit frame events to animations
+
+5. **NavigationAgent3D**
    - Attached to each enemy
    - Handles pathfinding via NavMesh
    - Built-in avoidance for enemy-enemy collision
 
-5. **EnemySpawner**
+6. **EnemySpawner**
    - Manages spawn points (doors, gates, markers)
    - Handles drop spawning (random positions from above)
    - Configurable spawn waves/timing
@@ -172,6 +179,12 @@ spawner.spawn_at_point(0, enemy_scene)
 spawner.spawn_dropped(enemy_scene)
 ```
 
+### Adding Animations to a New Enemy
+
+1. **Model scene**: Add `AnimationTree` with `AnimationNodeStateMachine`. States: Idle, Running, Attack, OnHit, Death (names are flexible — mapped in AnimSet).
+2. **AnimSet resource**: Duplicate `resources/animation/basic_enemy_anim_set.tres`. Set `animation_tree_path`, `action_states`, `signal_actions`, `terminal_actions`, and speed thresholds. Use `use_condition_based_locomotion = true` for enemies.
+3. **Enemy scene**: Add `AnimationController` child node, assign the AnimSet.
+
 ### Configuring Enemy Stats
 
 Select an Enemy instance in the scene tree and modify in Inspector:
@@ -227,20 +240,33 @@ Select an Enemy instance in the scene tree and modify in Inspector:
 ```
 scenes/
   enemies/
-    Enemy.tscn           # Base enemy scene
-    SimpleEnemy.tscn     # Melee enemy variant
+    Enemy.tscn              # Melee enemy (FishDwarf model + AnimationController)
+    RangedEnemy.tscn        # Ranged enemy (placeholder capsule, no animations yet)
   spawners/
-    EnemySpawner.tscn    # Spawner manager
+    EnemySpawner.tscn       # Spawner manager
 
 scripts/
   enemies/
-    enemy.gd                      # Base enemy logic
+    enemy.gd                      # Base enemy logic (emits animation signals)
     enemy_movement_behaviour.gd   # Abstract base
     enemy_attack_behaviour.gd     # Abstract base
     chase_movement_behaviour.gd   # Implementation
     melee_attack_behaviour.gd     # Implementation
+    ranged_movement_behaviour.gd  # Implementation
+    ranged_attack_behaviour.gd    # Implementation
+  animation/
+    animation_controller.gd       # Universal animation controller
+    anim_set.gd                   # Animation configuration resource
   spawners/
     enemy_spawner.gd              # Spawn management
+
+resources/
+  animation/
+    basic_enemy_anim_set.tres     # FishDwarf animation config
+    player_anim_set.tres          # Player animation config
+  models/
+    fish_dwarf/                   # FishDwarf model + AnimationTree
+    wizard/                       # Player wizard model + AnimationTree
 ```
 
 ## Questions & Assumptions
@@ -255,6 +281,5 @@ scripts/
 
 ### Open Questions:
 1. Should enemies have different sizes/scales?
-2. Do we need enemy-specific animations now or placeholder only?
-3. Should spawner handle waves/timing or just spawn on demand?
-4. Max number of enemies per room?
+2. Should spawner handle waves/timing or just spawn on demand?
+3. Max number of enemies per room?
