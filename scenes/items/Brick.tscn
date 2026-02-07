@@ -2,7 +2,7 @@
 
 [ext_resource type="PackedScene" path="res://scenes/effects/audio/PlaySoundOnThrowLandedEffect.tscn" id="1_nmjmy"]
 [ext_resource type="Script" uid="uid://d3ujs8125ule" path="res://scripts/items/pickupable_behaviour.gd" id="1_pickup"]
-[ext_resource type="AudioStream" uid="uid://debxltita8slg" path="res://resources/sounds/brick-drop.mp3" id="2_nmjmy"]
+[ext_resource type="AudioStream" path="res://resources/sounds/brick-drop.mp3" id="2_nmjmy"]
 [ext_resource type="Script" uid="uid://gq8jkdjg8anv" path="res://scripts/items/throwable_behaviour.gd" id="2_throw"]
 [ext_resource type="Script" uid="uid://6ngjp570ak3h" path="res://scripts/items/spawnable_behaviour.gd" id="3_spawnable"]
 [ext_resource type="Script" uid="uid://dg2m87we0c6c8" path="res://scripts/items/melee_weapon_behaviour.gd" id="4_weapon"]

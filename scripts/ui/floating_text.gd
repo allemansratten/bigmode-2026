@@ -67,11 +67,11 @@ func set_text(text: String) -> void:
 
 
 ## Static helper to spawn floating text at a position
-static func spawn(tree: SceneTree, position: Vector3, text: String, color: Color = Color.WHITE) -> FloatingText:
+static func spawn(tree: SceneTree, target_position: Vector3, text: String, color: Color = Color.WHITE) -> FloatingText:
 	var scene = load("res://scenes/ui/FloatingText.tscn")
 	var instance: FloatingText = scene.instantiate()
 	instance.text_color = color
 	tree.root.add_child(instance)
-	instance.global_position = position
+	instance.global_position = target_position
 	instance.set_text(text)
 	return instance
