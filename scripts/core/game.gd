@@ -11,8 +11,9 @@ var rooms_completed: int = 0
 
 ## Available rooms to pick from (add more as needed)
 var available_rooms: Array[SceneManager.Room] = [
-	SceneManager.Room.EXAMPLE_ROOM,
-	SceneManager.Room.EXAMPLE_ROOM_2,
+	# Only one room for now.
+	# SceneManager.Room.EXAMPLE_ROOM,
+	# SceneManager.Room.EXAMPLE_ROOM_2,
 	SceneManager.Room.EXAMPLE_ROOM_3,
 ]
 

@@ -57,6 +57,8 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, -11)
 target_room_id = 1
 connector_id = "north"
 spawn_facing_degrees = 180.0
+locked_color = Color(0.9, 0.19800001, 0.19800001, 0)
+unlocked_color = Color(0.19800001, 0.9, 0.3032999, 0)
 
 [node name="ItemSpawningManager" type="Node" parent="." unique_id=1081236601]
 script = ExtResource("3_mi5w0")
