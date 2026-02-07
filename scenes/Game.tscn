@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://fjrqjm0d4cgo" path="res://scenes/ui/GUI.tscn" id="2_3x8es"]
 [ext_resource type="PackedScene" uid="uid://cnj5bktqrv8yh" path="res://scenes/globals/DebugConsole.tscn" id="2_78awf"]
 [ext_resource type="PackedScene" uid="uid://cplayer001" path="res://scenes/Player.tscn" id="3_player"]
-[ext_resource type="PackedScene" uid="uid://b8yf0q3n1jkx2" path="res://scenes/ui/UpgradeSelectionPanel.tscn" id="5_upgrade_panel"]
+[ext_resource type="PackedScene" path="res://scenes/ui/UpgradeSelectionPanel.tscn" id="5_upgrade_panel"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 sky_top_color = Color(0.25, 0.45, 0.75, 1)

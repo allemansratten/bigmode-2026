@@ -262,6 +262,16 @@ See `ROOMS_FEATURE_DESIGN.md` for detailed room system design.
 - **SETTINGS_USAGE.md** - SettingsManager API and examples
 - **DEBUG_COMMANDS.md** - Debug console usage and command registration
 
+## Godot Logs
+
+Godot writes runtime logs to `user://logs/godot.log`. On macOS, this resolves to:
+
+```
+~/Library/Application Support/Godot/app_userdata/game-template/logs/godot.log
+```
+
+Check this file for runtime warnings and errors (invalid UIDs, missing resources, script errors, etc.). Logs rotate per session — up to 5 old files are kept alongside `godot.log`.
+
 ## Common Issues
 
 ### Enemies Not Moving

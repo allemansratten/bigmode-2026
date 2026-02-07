@@ -10,8 +10,8 @@ class_name ChaseMovementBehaviour
 var attack_range: float = 0.0
 
 
-func set_attack_range(range: float) -> void:
-	attack_range = range
+func set_attack_range(value: float) -> void:
+	attack_range = value
 
 
 func update_movement(delta: float, enemy: CharacterBody3D, target_position: Vector3) -> Vector3:
