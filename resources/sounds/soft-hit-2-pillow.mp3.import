@@ -13,7 +13,7 @@ dest_files=["res://.godot/imported/soft-hit-2-pillow.mp3-e2e8cef1c6343edf7171ecd
 [params]
 
 loop=false
-loop_offset=0
-bpm=0
+loop_offset=0.0
+bpm=0.0
 beat_count=0
 bar_beats=4

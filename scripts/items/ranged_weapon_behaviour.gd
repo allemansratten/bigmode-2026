@@ -18,6 +18,10 @@ class_name RangedWeaponBehaviour
 @export var projectile_spawn_offset: Vector3 = Vector3(0, 0, -0.5)
 ## Debug projectile spawning
 @export var debug_projectiles: bool = false
+## Sound to play when attack starts
+@export var attack_sound: AudioStream
+## Delay before playing attack sound
+@export var attack_sound_delay: float = 0.0
 
 
 ## Override attack to spawn projectile
@@ -32,18 +36,17 @@ func _attack() -> void:
 
     # Check ammo
     if ammo_count == 0:
-        print("RangedWeaponBehaviour: out of ammo!")
+        FloatingText.spawn(item.get_tree(), item.global_position + Vector3.UP, "No ammo!", Color.WHITE)
         return
 
     if not projectile_scene:
         push_warning("RangedWeaponBehaviour: no projectile_scene set for ", item.name)
         return
 
-    # Get attack direction towards mouse cursor
-    var attack_origin = item.global_position
+    # Get attack direction towards mouse cursor from player's center (with height offset)
+    var player = item.get_tree().get_first_node_in_group("player")
+    var attack_origin = player.global_position + Vector3.UP * 1.0 if player else item.global_position
     var attack_direction = _get_mouse_direction(attack_origin)
-    
-    # Get spawn position using attack direction
     var spawn_position = attack_origin + attack_direction.normalized() * projectile_spawn_offset.length()
 
     if debug_projectiles:
@@ -75,6 +78,13 @@ func _attack() -> void:
         print("WARNING: Immediate collision detected at spawn point!")
         print("WARNING: Colliding with: ", immediate_collision.get("collider", "unknown"))
         print("WARNING: Collision point: ", immediate_collision.get("position", "unknown"))
+
+    # Play attack sound
+    if attack_sound:
+        if attack_sound_delay > 0.0:
+            get_tree().create_timer(attack_sound_delay).timeout.connect(func(): Audio.play_sound(attack_sound, Audio.Channels.SFX))
+        else:
+            Audio.play_sound(attack_sound, Audio.Channels.SFX)
 
     # Spawn projectile
     var projectile = projectile_scene.instantiate()
@@ -165,7 +175,7 @@ func debug_spawn_position() -> void:
     var timer = Timer.new()
     timer.wait_time = 2.0
     timer.one_shot = true
-    timer.timeout.connect(func(): 
+    timer.timeout.connect(func():
         if marker and is_instance_valid(marker):
             marker.queue_free()
         if timer and is_instance_valid(timer):

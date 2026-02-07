@@ -12,14 +12,14 @@ func _ready() -> void:
 	SceneManager.room_transition_completed.connect(_on_room_loaded)
 
 	# Initialize SceneManager with this node as the room container
-	SceneManager.setup(self)
+	SceneManager.setup(self )
 
 	# Load the initial room (ExampleRoom) - defer to next frame to ensure scene tree is ready
 	_load_initial_room.call_deferred()
 
 
 func _load_initial_room() -> void:
-	SceneManager.transition_to_room(SceneManager.Room.EXAMPLE_ROOM)
+	SceneManager.transition_to_room(SceneManager.Room.EXAMPLE_ROOM_3)
 
 
 func _input(event: InputEvent) -> void:

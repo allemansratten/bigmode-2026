@@ -1,0 +1,9 @@
+[gd_resource type="AudioStreamRandomizer" format=3 uid="uid://c6y7i8kak0l1m"]
+
+[ext_resource type="AudioStream" uid="uid://vgqk6wjkf1lm" path="res://resources/sounds/whoosh-1.mp3" id="1_whoosh"]
+
+[resource]
+random_pitch = 1.15
+streams_count = 1
+stream_0/stream = ExtResource("1_whoosh")
+stream_0/weight = 1.0

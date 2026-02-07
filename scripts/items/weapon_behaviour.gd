@@ -26,6 +26,8 @@ signal durability_changed(current: int, max: int)
 @export var can_be_thrown: bool = true
 ## Whether weapon breaks when durability reaches zero
 @export var breaks_on_zero_durability: bool = true
+## Sound to play when weapon is destroyed
+@export var destroy_sound: AudioStream = preload("res://resources/sounds/breaking-1.mp3")
 
 ## Current durability
 var current_durability: int
@@ -113,7 +115,10 @@ func destroy() -> void:
 	EventBus.weapon_broken.emit(item)
 
 	# TODO: Spawn break particles (wood splinters, metal shards, etc.)
-	# TODO: Play break sound effect (crack, shatter, clang, etc.)
+
+	# Play destruction sound
+	if destroy_sound:
+		Audio.play_sound(destroy_sound, Audio.Channels.SFX)
 
 	_on_destroyed()
 	weapon_destroyed.emit()

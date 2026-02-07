@@ -7,6 +7,7 @@
 [ext_resource type="Script" uid="uid://beyljglh35ds6" path="res://scripts/items/ranged_weapon_behaviour.gd" id="5_86tfp"]
 [ext_resource type="PackedScene" path="res://scenes/items/PlayerArrowProjectile.tscn" id="6_urg8l"]
 [ext_resource type="Script" uid="uid://c402h5pwrip2c" path="res://scripts/items/effects/audio/play_sound_on_throw_landed_effect.gd" id="7_5big4"]
+[ext_resource type="AudioStream" uid="uid://hikvhd4ib5yo" path="res://resources/sounds/bow-shot.mp3" id="7_s6wgo"]
 [ext_resource type="AudioStream" uid="uid://bi5wmk1s7a7q2" path="res://resources/sounds/sword-pack/170698__mooseranger__union-sword-clash-11.mp3" id="8_s6wgo"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_qofw2"]
@@ -36,7 +37,6 @@ shape = SubResource("BoxShape3D_0ou0u")
 
 [node name="ThrowableBehaviour" type="Node" parent="." unique_id=1666972087]
 script = ExtResource("3_5big4")
-throw_force = 8.0
 
 [node name="SpawnableBehaviour" type="Node" parent="." unique_id=1230224406]
 script = ExtResource("4_s6wgo")
@@ -47,6 +47,7 @@ script = ExtResource("5_86tfp")
 projectile_scene = ExtResource("6_urg8l")
 ammo_count = 4
 max_ammo = 4
+attack_sound = ExtResource("7_s6wgo")
 damage = 100.0
 attack_cooldown = 1.5
 

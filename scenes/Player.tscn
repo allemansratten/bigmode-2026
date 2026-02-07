@@ -49,12 +49,13 @@ mesh = SubResource("CapsuleMesh_player")
 transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0.6, 0.8, 0)
 
 [node name="Camera3D" type="Camera3D" parent="." unique_id=1134331709]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.467898, 13.732714, 8)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 13.468, 16, 8)
 projection = 1
-size = 18.0
-near = 0.01
+size = 14.0
+near = 1.0
 far = 1000.0
 script = ExtResource("2_cam")
+offset = Vector3(16, 30, 16)
 
 [node name="InteractionBody" type="RigidBody3D" parent="." unique_id=560739276]
 collision_layer = 16

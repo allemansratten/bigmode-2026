@@ -32,23 +32,26 @@ func _ready() -> void:
 func add_item(item: Node3D) -> int:
 	if not item:
 		return -1
-	
+
 	# Find first empty slot
 	for i in range(MAX_INVENTORY_SIZE):
 		if not items[i]:
 			items[i] = item
 			item_added.emit(item, i)
 			print("PlayerInventory: Added %s to slot %d" % [item.name, i])
-			
+
+			# Listen for item destruction to auto-remove from inventory
+			item.tree_exiting.connect(_on_item_tree_exiting.bind(item))
+
 			# If no active item, make this the active one
 			if active_item_index == -1:
 				set_active_item(i)
 			else:
 				# Store item in inactive state (detached from player)
 				_store_item_inactive(item)
-			
+
 			return i
-	
+
 	print("PlayerInventory: Inventory full, cannot add %s" % item.name)
 	return -1
 
@@ -229,13 +232,39 @@ func _store_item_inactive(item: Node3D) -> void:
 		storage_node = Node3D.new()
 		storage_node.name = "InventoryStorage"
 		player.add_child(storage_node)
-	
+
 	# Move item to storage and make it invisible
 	item.reparent(storage_node)
 	item.visible = false
 	item.position = Vector3.ZERO
-	
+
 	# Ensure it's frozen
 	if item is RigidBody3D:
 		var rb = item as RigidBody3D
 		rb.freeze = true
+
+
+## Called when an item is about to be freed (destroyed)
+func _on_item_tree_exiting(item: Node3D) -> void:
+	# Only handle actual deletion, not reparenting
+	if not item.is_queued_for_deletion():
+		return
+
+	# Find which slot this item is in
+	for i in range(MAX_INVENTORY_SIZE):
+		if items[i] == item:
+			items[i] = null
+			item_removed.emit(item, i)
+
+			# If this was the active item, switch to another
+			if active_item_index == i:
+				_active_weapon = null
+				active_item_index = -1
+				# Find next available item
+				for j in range(MAX_INVENTORY_SIZE):
+					if items[j] and is_instance_valid(items[j]):
+						set_active_item(j)
+						break
+				if active_item_index == -1:
+					active_item_changed.emit(null, -1)
+			return

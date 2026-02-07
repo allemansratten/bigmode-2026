@@ -6,6 +6,7 @@
 [ext_resource type="Script" uid="uid://6ngjp570ak3h" path="res://scripts/items/spawnable_behaviour.gd" id="4_eoyvg"]
 [ext_resource type="Script" uid="uid://dg2m87we0c6c8" path="res://scripts/items/melee_weapon_behaviour.gd" id="5_464bp"]
 [ext_resource type="PackedScene" path="res://scenes/effects/audio/PlaySoundOnThrowLandedEffect.tscn" id="6_qrkd0"]
+[ext_resource type="AudioStream" uid="uid://c6y7i8j9k0l1m" path="res://resources/sounds/melee_whoosh.tres" id="7_whoosh"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_lkva1"]
 radius = 0.2
@@ -50,6 +51,7 @@ stab_radius = 0.6
 stab_end_time = 0.7
 knockback_force = 15.0
 speed_multiplier_when_attacking = 0.1
+attack_sound = ExtResource("7_whoosh")
 max_durability = 4
 damage = 100.0
 attack_cooldown = 1.5

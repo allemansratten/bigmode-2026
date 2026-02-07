@@ -24,7 +24,7 @@ radius = 0.45
 
 [node name="TeleportBook" type="RigidBody3D" unique_id=1030056103 groups=["pickupable"]]
 collision_layer = 8
-collision_mask = 17
+collision_mask = 25
 contact_monitor = true
 max_contacts_reported = 4
 
@@ -43,10 +43,9 @@ shape = SubResource("SphereShape3D_pickup_area")
 
 [node name="ThrowableBehaviour" type="Node" parent="." unique_id=1848755040]
 script = ExtResource("2_throw")
-throw_force = 6.0
 throw_up_bias = 0.25
 throw_durability_cost = 0.0
-throw_collision_damage = 0.0
+throw_collision_damage = 5.0
 
 [node name="SpawnableBehaviour" type="Node" parent="." unique_id=1130486583]
 script = ExtResource("3_spawnable")

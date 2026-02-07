@@ -8,6 +8,7 @@
 [ext_resource type="PackedScene" path="res://scenes/items/PlayerArrowProjectile.tscn" id="6_tiadc"]
 [ext_resource type="PackedScene" path="res://scenes/effects/audio/PlaySoundOnThrowLandedEffect.tscn" id="7_0ou0u"]
 [ext_resource type="AudioStream" uid="uid://cu5dn0idjnbok" path="res://resources/sounds/shaky-fall-sound.mp3" id="8_v4h7p"]
+[ext_resource type="AudioStream" uid="uid://hikvhd4ib5yo" path="res://resources/sounds/bow-shot.mp3" id="9_v4h7p"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_qofw2"]
 size = Vector3(0.09, 0.9, 0.22)
@@ -39,7 +40,6 @@ shape = SubResource("BoxShape3D_0ou0u")
 
 [node name="ThrowableBehaviour" type="Node" parent="." unique_id=1666972087]
 script = ExtResource("3_0ou0u")
-throw_force = 8.0
 
 [node name="SpawnableBehaviour" type="Node" parent="." unique_id=1230224406]
 script = ExtResource("4_v4h7p")
@@ -50,5 +50,6 @@ script = ExtResource("5_hnpu2")
 projectile_scene = ExtResource("6_tiadc")
 ammo_count = 6
 max_ammo = 6
+attack_sound = ExtResource("9_v4h7p")
 damage = 66.0
 attack_cooldown = 1.0

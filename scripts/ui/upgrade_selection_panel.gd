@@ -88,10 +88,14 @@ func _create_upgrade_card(upgrade_id: String, index: int) -> Control:
 	var card = PanelContainer.new()
 	card.name = "Card_%d" % index
 	card.custom_minimum_size = Vector2(200, 280)
+	card.pivot_offset = card.custom_minimum_size / 2.0
+	card.mouse_filter = Control.MOUSE_FILTER_STOP
+	card.mouse_default_cursor_shape = Control.CURSOR_POINTING_HAND
 
 	# Add content
 	var vbox = VBoxContainer.new()
 	vbox.add_theme_constant_override("separation", 8)
+	vbox.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	card.add_child(vbox)
 
 	# Icon
@@ -101,6 +105,7 @@ func _create_upgrade_card(upgrade_id: String, index: int) -> Control:
 		icon_rect.expand_mode = TextureRect.EXPAND_FIT_WIDTH_PROPORTIONAL
 		icon_rect.custom_minimum_size = Vector2(64, 64)
 		icon_rect.size_flags_horizontal = Control.SIZE_SHRINK_CENTER
+		icon_rect.mouse_filter = Control.MOUSE_FILTER_IGNORE
 		vbox.add_child(icon_rect)
 
 	# Name
@@ -108,6 +113,7 @@ func _create_upgrade_card(upgrade_id: String, index: int) -> Control:
 	name_label.text = upgrade.upgrade_name
 	name_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	name_label.add_theme_font_size_override("font_size", 20)
+	name_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(name_label)
 
 	# Description
@@ -117,6 +123,7 @@ func _create_upgrade_card(upgrade_id: String, index: int) -> Control:
 	desc_label.fit_content = true
 	desc_label.custom_minimum_size = Vector2(180, 100)
 	desc_label.scroll_active = false
+	desc_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(desc_label)
 
 	# Stack info
@@ -127,6 +134,7 @@ func _create_upgrade_card(upgrade_id: String, index: int) -> Control:
 	stack_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_CENTER
 	stack_label.add_theme_font_size_override("font_size", 12)
 	stack_label.modulate = Color(0.7, 0.7, 0.7)
+	stack_label.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	vbox.add_child(stack_label)
 
 	# Store reference to upgrade_id in card metadata

@@ -2,7 +2,8 @@ extends Node
 
 # Playlist of music tracks
 @onready var music_playlist: Array[AudioStream] = [
-	preload("res://resources/music/gamejam_LD48.ogg"),
+	# preload("res://resources/music/gamejam_LD48.ogg"),
+	preload("res://resources/sounds/ambient-noise-loop.mp3"),
 ]
 var current_track_index: int = 0
 
