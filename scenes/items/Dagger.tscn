@@ -47,7 +47,9 @@ categories = Array[int]([0, 10, 20, 24])
 
 [node name="MeleeWeaponBehaviour" type="Node" parent="." unique_id=502907629]
 script = ExtResource("5_vpvlp")
-stab_end_distance = 1.0
+stab_end_distance = 2.0
+stab_radius = 0.4
+stab_start_time = 0.05
 stab_end_time = 0.2
 knockback_force = 8.0
 speed_multiplier_when_attacking = 0.7

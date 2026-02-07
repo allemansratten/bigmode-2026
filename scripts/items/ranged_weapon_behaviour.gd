@@ -32,7 +32,7 @@ func _attack() -> void:
 
     # Check ammo
     if ammo_count == 0:
-        print("RangedWeaponBehaviour: out of ammo!")
+        FloatingText.spawn(item.get_tree(), item.global_position + Vector3.UP, "No ammo!", Color.WHITE)
         return
 
     if not projectile_scene:
@@ -165,7 +165,7 @@ func debug_spawn_position() -> void:
     var timer = Timer.new()
     timer.wait_time = 2.0
     timer.one_shot = true
-    timer.timeout.connect(func(): 
+    timer.timeout.connect(func():
         if marker and is_instance_valid(marker):
             marker.queue_free()
         if timer and is_instance_valid(timer):
