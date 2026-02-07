@@ -379,6 +379,7 @@ func take_damage(amount: float, source: Node3D = null) -> void:
 
 
 func die() -> void:
+	FloatingText.spawn(get_tree(), global_transform.origin + Vector3.UP, "YOU DIED. PLEASE RESTART", Color.WHITE, 30)
 	print("Player died!")
 	started_dying.emit()
 	died.emit()

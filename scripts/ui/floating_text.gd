@@ -4,7 +4,7 @@ class_name FloatingText
 ## Floating text that rises and fades out
 ## Usage: FloatingText.spawn(get_tree(), global_position, "No ammo!")
 
-## How fast the text rises (units per second)
+## How fast the text rises (absolute distance)
 @export var rise_speed: float = 2.5
 ## How long before the text disappears
 @export var lifetime: float = 2.0
@@ -42,7 +42,7 @@ func _start_animation() -> void:
 	_tween.set_parallel(true)
 
 	# Rise upward
-	var target_y = global_position.y + rise_speed * lifetime
+	var target_y = global_position.y + rise_speed
 	_tween.tween_property(self , "global_position:y", target_y, lifetime)
 
 	# Fade out
@@ -67,10 +67,11 @@ func set_text(text: String) -> void:
 
 
 ## Static helper to spawn floating text at a position
-static func spawn(tree: SceneTree, target_position: Vector3, text: String, color: Color = Color.WHITE) -> FloatingText:
+static func spawn(tree: SceneTree, target_position: Vector3, text: String, color: Color = Color.WHITE, lifetime: float = 2.0) -> FloatingText:
 	var scene = load("res://scenes/ui/FloatingText.tscn")
 	var instance: FloatingText = scene.instantiate()
 	instance.text_color = color
+	instance.lifetime = lifetime
 	tree.root.add_child(instance)
 	instance.global_position = target_position
 	instance.set_text(text)
