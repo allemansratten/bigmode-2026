@@ -271,6 +271,10 @@ func _throw_item(item: Node3D, from: Vector3, to: Vector3) -> void:
 		push_warning("ItemSpawningManager: item is not RigidBody3D, cannot throw")
 		return
 
+	# Unfreeze and set inertia for proper physics response
+	rigid_body.freeze = false
+	rigid_body.inertia = Vector3(1, 1, 1)
+
 	# Mark as crowd throw if item has ThrowableBehaviour (prevents durability damage)
 	var throwable = item.get_node_or_null("ThrowableBehaviour") as ThrowableBehaviour
 	if throwable:
@@ -286,6 +290,11 @@ func _throw_item(item: Node3D, from: Vector3, to: Vector3) -> void:
 
 	# Apply impulse
 	rigid_body.apply_central_impulse(throw_vector)
+
+	# Apply spin for visual rotation
+	var spin_axis = direction.cross(Vector3.DOWN).normalized()
+	if spin_axis.length_squared() > 0.01:
+		rigid_body.apply_torque_impulse(spin_axis * 15.0)
 
 
 ## Handle crowd throw requests from upgrade effects
