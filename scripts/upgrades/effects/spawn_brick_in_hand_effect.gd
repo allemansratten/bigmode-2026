@@ -16,10 +16,15 @@ func execute(context: Dictionary, _stacks: int = 1) -> void:
 	if not player:
 		DebugConsole.debug_warn("SpawnBrickInHandEffect: No player found")
 		return
-	
-	# Don't give brick if player already holding something
-	if player.held_item:
-		DebugConsole.debug_log("SpawnBrickInHandEffect: Player already holding item")
+
+	var inventory: PlayerInventory = player.get_node_or_null("PlayerInventory")
+	if not inventory:
+		DebugConsole.debug_warn("SpawnBrickInHandEffect: No inventory found on player")
+		return
+
+	# Don't give brick if player inventory is full
+	if inventory.is_full():
+		DebugConsole.debug_log("SpawnBrickInHandEffect: Inventory full")
 		return
 	
 	# Spawn brick from ItemRegistry
@@ -44,10 +49,17 @@ func execute(context: Dictionary, _stacks: int = 1) -> void:
 	else:
 		get_tree().current_scene.add_child(brick)
 	
-	# Give to player
+	# Give to player via inventory
 	brick.global_position = player.global_position + Vector3.UP
-	player.pickup_item(brick)
-	
+	var pickupable: PickupableBehaviour = null
+	for child in brick.get_children():
+		if child is PickupableBehaviour:
+			pickupable = child
+			break
+	if pickupable:
+		pickupable.try_pick_up(player)
+	inventory.add_item(brick)
+
 	DebugConsole.debug_log("SpawnBrickInHandEffect: Spawned 1-durability brick")
 
 func _get_player(context: Dictionary) -> Node:
