@@ -6,3 +6,6 @@
 
 .mcp.json
 voicetree-5-2/
+
+# Build artifacts
+dist/
