@@ -3,6 +3,9 @@ extends CanvasLayer
 @onready var pause_menu = $PauseMenu
 @onready var basic_obverlay = $BasicOverlay
 @onready var wave_label: Label = $BasicOverlay/WaveLabel
+@onready var health_container: HBoxContainer = $BasicOverlay/HealthContainer
+
+var _health_circles: Array[Label] = []
 
 ## Set the initial settings UI values based on the real values
 func _ready() -> void:
@@ -18,6 +21,49 @@ func _ready() -> void:
 	# Hide wave label initially
 	if wave_label:
 		wave_label.hide()
+
+	# Connect to player health
+	_connect_to_player()
+
+
+func _connect_to_player() -> void:
+	# Wait a frame for player to be ready
+	await get_tree().process_frame
+	var player = get_tree().get_first_node_in_group("player")
+	if player and player.has_signal("health_changed"):
+		player.health_changed.connect(_on_player_health_changed)
+		# Initialize health display
+		_update_health_display(player.current_health, player.max_health)
+
+
+func _on_player_health_changed(current: float, maximum: float) -> void:
+	_update_health_display(current, maximum)
+
+
+func _update_health_display(current: float, maximum: float) -> void:
+	if not health_container:
+		return
+
+	var health_int := int(current)
+	var max_health_int := int(maximum)
+
+	# Add more circles if needed
+	while _health_circles.size() < max_health_int:
+		var circle := Label.new()
+		circle.text = "●"
+		circle.add_theme_font_size_override("font_size", 40)
+		circle.add_theme_color_override("font_color", Color(0.9, 0.2, 0.2))
+		health_container.add_child(circle)
+		_health_circles.append(circle)
+
+	# Remove excess circles if max health decreased
+	while _health_circles.size() > max_health_int:
+		var circle = _health_circles.pop_back()
+		circle.queue_free()
+
+	# Update visibility based on current health
+	for i in range(_health_circles.size()):
+		_health_circles[i].visible = i < health_int
 
 
 func _on_wave_started(wave_number: int) -> void:
@@ -38,7 +84,7 @@ func toggle_pause() -> void:
 	if get_tree().paused:
 		EventBus.emit_game_resumed()
 	else:
-		EventBus.emit_game_paused() 
+		EventBus.emit_game_paused()
 
 
 func _on_mute_button_pressed() -> void:
