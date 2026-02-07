@@ -7,14 +7,14 @@ class_name ModifyCrowdFlaskEffect
 ## Multiplier for flask weight in crowd throwing (higher = more likely)
 @export var flask_weight_multiplier: float = 3.0
 
-func execute(context: Dictionary, _stacks: int = 1) -> void:
+func execute(_context: Dictionary, _stacks: int = 1) -> void:
 	# This effect modifies global crowd behavior when acquired
 	# Connect to EventBus crowd throw events to modify behavior
 	if not EventBus.crowd_throw_requested.is_connected(_on_crowd_throw_requested):
 		EventBus.crowd_throw_requested.connect(_on_crowd_throw_requested)
 		DebugConsole.debug_log("ModifyCrowdFlaskEffect: Connected to crowd throw events")
 
-func _on_crowd_throw_requested(categories: Array, throw_urgency: float = 1.0) -> void:
+func _on_crowd_throw_requested(categories: Array, _throw_urgency: float = 1.0) -> void:
 	# Modify the category request to prioritize flask items
 	# Add THROWN category if not present (flasks are throwable)
 	if not categories.has(ItemCategories.Category.THROWN):
