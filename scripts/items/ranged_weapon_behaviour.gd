@@ -185,6 +185,39 @@ func debug_spawn_position() -> void:
     timer.start()
 
 
+## Fire a projectile in a specific direction (used by upgrades like Smart Weapons)
+func fire_in_direction(direction: Vector3) -> void:
+    var spawn_position = item.global_position + Vector3.UP * 0.5
+    var attack_direction = direction.normalized()
+
+    # Apply spread
+    if spread > 0.0:
+        var spread_x = randf_range(-spread, spread)
+        var spread_y = randf_range(-spread, spread)
+        attack_direction = attack_direction.rotated(Vector3.UP, deg_to_rad(spread_x))
+        attack_direction = attack_direction.rotated(Vector3.RIGHT, deg_to_rad(spread_y))
+    attack_direction = attack_direction.normalized()
+
+    # Play attack sound
+    if attack_sound:
+        Audio.play_sound(attack_sound, Audio.Channels.SFX)
+
+    # Spawn projectile
+    var projectile = projectile_scene.instantiate()
+    item.get_tree().root.add_child(projectile)
+    projectile.global_position = spawn_position
+
+    # Initialize projectile
+    if projectile.has_method("initialize"):
+        projectile.initialize(attack_direction, item, damage)
+    elif projectile is RigidBody3D:
+        projectile.linear_velocity = attack_direction * projectile_speed
+
+    # Consume ammo
+    if ammo_count > 0:
+        ammo_count -= 1
+
+
 ## Reload ammo
 func reload(amount: int = -1) -> void:
     if amount < 0:

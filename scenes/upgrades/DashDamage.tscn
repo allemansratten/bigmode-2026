@@ -7,7 +7,7 @@
 [node name="DashDamage" type="Node"]
 script = ExtResource("1_base")
 upgrade_name = "Shockwave Dash"
-description = "Deal 5 damage to nearby enemies when you dash"
+description = "Deal damage to nearby enemies when you dash"
 categories = Array[int]([1, 10, 23])
 max_stacks = -1
 
@@ -19,6 +19,6 @@ cooldown = 0.0
 
 [node name="DamageAreaEffect" type="Node" parent="TriggerUpgrade"]
 script = ExtResource("3_effect")
-damage = 5.0
+damage = 1.0
 radius = 2.5
 scales_with_stacks = true

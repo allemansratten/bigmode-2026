@@ -6,10 +6,10 @@
 
 [node name="RangedAutoShoot" type="Node"]
 script = ExtResource("1_base")
-upgrade_name = "Smart Weapons"
-description = "When you throw a ranged weapon, it shoots the nearest enemy when it lands"
+upgrade_name = "Unstable Ammo"
+description = "Thrown ranged weapons have a 20% chance per stack to shoot the nearest enemy when they land"
 categories = Array[int]([2, 10, 22, 31])
-max_stacks = 1
+max_stacks = 5
 
 [node name="TriggerUpgrade" type="Node" parent="."]
 script = ExtResource("2_trigger")

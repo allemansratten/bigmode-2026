@@ -38,7 +38,6 @@ func add_item(item: Node3D) -> int:
 		if not items[i]:
 			items[i] = item
 			item_added.emit(item, i)
-			print("PlayerInventory: Added %s to slot %d" % [item.name, i])
 
 			# Listen for item destruction to auto-remove from inventory
 			item.tree_exiting.connect(_on_item_tree_exiting.bind(item))
@@ -52,7 +51,6 @@ func add_item(item: Node3D) -> int:
 
 			return i
 
-	print("PlayerInventory: Inventory full, cannot add %s" % item.name)
 	return -1
 
 
@@ -66,7 +64,6 @@ func remove_item(slot: int) -> Node3D:
 	if item.tree_exiting.is_connected(_on_item_tree_exiting.bind(item)):
 		item.tree_exiting.disconnect(_on_item_tree_exiting.bind(item))
 	item_removed.emit(item, slot)
-	print("PlayerInventory: Removed %s from slot %d" % [item.name, slot])
 	
 	# If this was the active item, clear active item
 	if active_item_index == slot:
@@ -92,10 +89,8 @@ func set_active_item(slot: int) -> void:
 	if slot >= 0 and slot < MAX_INVENTORY_SIZE and items[slot]:
 		_activate_current_item()
 		active_item_changed.emit(items[slot], slot)
-		print("PlayerInventory: Active item set to %s (slot %d)" % [items[slot].name, slot])
 	else:
 		active_item_changed.emit(null, -1)
-		print("PlayerInventory: No active item")
 
 
 ## Get currently active item
