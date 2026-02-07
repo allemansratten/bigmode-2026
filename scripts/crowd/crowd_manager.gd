@@ -9,7 +9,7 @@ class_name CrowdManager
 signal excitement_changed(new_level: float)
 
 ## Rate at which excitement decays per second
-@export var decay_rate: float = 5.0
+@export var decay_rate: float = 1.0
 
 ## Item throw timer settings
 @export var throw_interval: float = 3.0 ## Seconds between throw attempts
@@ -17,6 +17,7 @@ signal excitement_changed(new_level: float)
 @export var max_throw_chance: float = 0.8 ## Chance at 100 excitement (80%)
 
 var _throw_timer: Timer
+var _decay_timer: Timer
 
 ## Current excitement level (0-100)
 var excitement_level: float = 0.0:
@@ -53,16 +54,25 @@ func _ready() -> void:
 	add_child(_throw_timer)
 	_throw_timer.start()
 
+	# Setup excitement decay timer
+	_decay_timer = Timer.new()
+	_decay_timer.name = "DecayTimer"
+	_decay_timer.wait_time = 1 ## Check decay every 1 second
+	_decay_timer.one_shot = false
+	_decay_timer.timeout.connect(_on_decay_timer_timeout)
+	add_child(_decay_timer)
+	_decay_timer.start()
 
-func _process(delta: float) -> void:
-	# Decay excitement towards 0
-	if excitement_level > 0.0:
-		excitement_level -= decay_rate * delta
 
-	# Handle input for excitement increase
-	if Input.is_action_just_pressed("increase_excitement"):
+func _unhandled_input(event: InputEvent) -> void:
+	# Debug input to increase excitement
+	if event.is_action_pressed("increase_excitement"):
 		increase_excitement(20.0)
 
+## Decay excitement towards 0 over time
+func _on_decay_timer_timeout() -> void:
+	if excitement_level > 0.0:
+		excitement_level -= decay_rate * _decay_timer.wait_time
 
 func _gather_spawn_zones() -> void:
 	"""Collects all PeopleSpawner children"""

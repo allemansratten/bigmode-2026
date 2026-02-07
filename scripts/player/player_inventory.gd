@@ -63,6 +63,8 @@ func remove_item(slot: int) -> Node3D:
 	
 	var item = items[slot]
 	items[slot] = null
+	if item.tree_exiting.is_connected(_on_item_tree_exiting.bind(item)):
+		item.tree_exiting.disconnect(_on_item_tree_exiting.bind(item))
 	item_removed.emit(item, slot)
 	print("PlayerInventory: Removed %s from slot %d" % [item.name, slot])
 	
