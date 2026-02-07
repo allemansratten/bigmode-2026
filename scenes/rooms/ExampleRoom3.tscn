@@ -117,7 +117,6 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0.8, 0)
 
 [node name="arena" parent="ArenaStaticBody3D" unique_id=299302407 instance=ExtResource("9_bvs8u")]
 transform = Transform3D(0.55, 0, 0, 0, 0.55, 0, 0, 0, 0.55, 0.13, 0, 12.36)
-visible = false
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="ArenaStaticBody3D" unique_id=1471077389]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2, 0)
