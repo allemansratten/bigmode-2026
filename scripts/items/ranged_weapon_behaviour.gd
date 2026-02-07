@@ -18,6 +18,10 @@ class_name RangedWeaponBehaviour
 @export var projectile_spawn_offset: Vector3 = Vector3(0, 0, -0.5)
 ## Debug projectile spawning
 @export var debug_projectiles: bool = false
+## Sound to play when attack starts
+@export var attack_sound: AudioStream
+## Delay before playing attack sound
+@export var attack_sound_delay: float = 0.0
 
 
 ## Override attack to spawn projectile
@@ -74,6 +78,13 @@ func _attack() -> void:
         print("WARNING: Immediate collision detected at spawn point!")
         print("WARNING: Colliding with: ", immediate_collision.get("collider", "unknown"))
         print("WARNING: Collision point: ", immediate_collision.get("position", "unknown"))
+
+    # Play attack sound
+    if attack_sound:
+        if attack_sound_delay > 0.0:
+            get_tree().create_timer(attack_sound_delay).timeout.connect(func(): Audio.play_sound(attack_sound, Audio.Channels.SFX))
+        else:
+            Audio.play_sound(attack_sound, Audio.Channels.SFX)
 
     # Spawn projectile
     var projectile = projectile_scene.instantiate()

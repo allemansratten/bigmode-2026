@@ -25,6 +25,10 @@ const DEBUG_SHOW_HITBOX: bool = true
 @export var speed_multiplier_when_attacking: float = 0.5
 ## Collision mask for what can be hit (default: enemies and items)
 @export var hit_collision_mask: int = 12 # Layer 3 (ENEMY) + Layer 4 (ITEM)
+## Sound to play when attack starts
+@export var attack_sound: AudioStream
+## Delay before playing attack sound
+@export var attack_sound_delay: float = 0.0
 
 
 ## Tracks which entities have been hit during current stab (to avoid double hits)
@@ -68,6 +72,13 @@ func _attack() -> void:
 
 	# Reset hit tracking for new attack
 	_hit_entities.clear()
+
+	# Play attack sound
+	if attack_sound:
+		if attack_sound_delay > 0.0:
+			get_tree().create_timer(attack_sound_delay).timeout.connect(func(): Audio.play_sound(attack_sound, Audio.Channels.SFX))
+		else:
+			Audio.play_sound(attack_sound, Audio.Channels.SFX)
 
 	# Create tween for animated stab
 	var tween = create_tween()

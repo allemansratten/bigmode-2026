@@ -27,6 +27,16 @@ signal started_dying()
 # Audio
 ## Sound played when enemy takes damage
 @export var hit_sound: AudioStream = preload("res://resources/sounds/soft-hit-1.wav")
+## Sound played when enemy dies
+@export var death_sound: AudioStream = preload("res://resources/sounds/roblox-death-sound.mp3")
+
+# Damage flash
+## Material to use when flashing from damage
+@export var hit_flash_material: Material
+## Duration of the damage flash in seconds
+@export var hit_flash_duration: float = 0.15
+## Mesh to apply flash effect to (assign in editor)
+@export var flash_mesh: MeshInstance3D
 
 # Behavior references (assigned via get_node or added as children)
 var movement_behaviour: EnemyMovementBehaviour
@@ -49,6 +59,7 @@ var is_moving: bool = false
 # Timers
 var _attack_timer: Timer
 var _stun_timer: Timer
+var _flash_timer: Timer
 
 
 func _ready():
@@ -82,6 +93,11 @@ func _ready():
 	_stun_timer.one_shot = true
 	_stun_timer.timeout.connect(_on_stun_finished)
 	add_child(_stun_timer)
+
+	_flash_timer = Timer.new()
+	_flash_timer.one_shot = true
+	_flash_timer.timeout.connect(_on_flash_timer_timeout)
+	add_child(_flash_timer)
 
 	# Wait for nav mesh to be ready
 	call_deferred("_setup_navigation")
@@ -148,6 +164,8 @@ func take_damage(amount: float, source: Node3D = null) -> void:
 	if hit_sound:
 		Audio.play_sound(hit_sound, Audio.Channels.SFX)
 
+	_trigger_damage_flash()
+
 	# Check if enemy will die
 	if current_health <= 0:
 		# Die immediately but without hit stun to go straight to death animation
@@ -163,6 +181,10 @@ func die() -> void:
 		return
 
 	is_dead = true
+
+	# Play death sound
+	if death_sound:
+		Audio.play_sound(death_sound, Audio.Channels.SFX)
 
 	# Emit death signal for animations
 	started_dying.emit()
@@ -218,3 +240,21 @@ func _on_attack_finished() -> void:
 
 func _on_stun_finished() -> void:
 	is_stunned = false
+
+
+func _trigger_damage_flash() -> void:
+	if not flash_mesh:
+		return
+
+	# Create default red flash material if none assigned
+	if not hit_flash_material:
+		hit_flash_material = StandardMaterial3D.new()
+		hit_flash_material.albedo_color = Color.RED
+
+	flash_mesh.material_override = hit_flash_material
+	_flash_timer.start(hit_flash_duration)
+
+
+func _on_flash_timer_timeout() -> void:
+	if flash_mesh:
+		flash_mesh.material_override = null
