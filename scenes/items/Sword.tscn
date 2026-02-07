@@ -1,13 +1,13 @@
 [gd_scene format=3 uid="uid://c7sw72207goqx"]
 
 [ext_resource type="ArrayMesh" uid="uid://beh8bljspd4kt" path="res://resources/models/weapons/SM_Prop_SwordOrnate_01.obj" id="1_rs3j6"]
-[ext_resource type="PackedScene" uid="uid://particle_on_destroy_effect_001" path="res://scenes/effects/particles/ParticleOnDestroyEffect.tscn" id="8_particles"]
 [ext_resource type="Script" uid="uid://d3ujs8125ule" path="res://scripts/items/pickupable_behaviour.gd" id="1_uitic"]
 [ext_resource type="Script" uid="uid://gq8jkdjg8anv" path="res://scripts/items/throwable_behaviour.gd" id="2_rs3j6"]
 [ext_resource type="Script" uid="uid://6ngjp570ak3h" path="res://scripts/items/spawnable_behaviour.gd" id="3_2n8v8"]
 [ext_resource type="Script" uid="uid://dg2m87we0c6c8" path="res://scripts/items/melee_weapon_behaviour.gd" id="4_dpbjg"]
 [ext_resource type="Script" uid="uid://c402h5pwrip2c" path="res://scripts/items/effects/audio/play_sound_on_throw_landed_effect.gd" id="6_dpbjg"]
 [ext_resource type="AudioStream" uid="uid://v7lu512fh0ao" path="res://resources/sounds/sword-pack/170703__mooseranger__union-sword-clash-4.mp3" id="7_785hp"]
+[ext_resource type="PackedScene" path="res://scenes/effects/particles/ParticleOnDestroyEffect.tscn" id="8_particles"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2n8v8"]
 radius = 0.1
@@ -41,7 +41,7 @@ shape = SubResource("CapsuleShape3D_dpbjg")
 
 [node name="ThrowableBehaviour" type="Node" parent="." unique_id=1666972087]
 script = ExtResource("2_rs3j6")
-throw_force = 8.0
+throw_force = 10.0
 throw_durability_cost = 1.0
 throw_collision_damage = 15.0
 
@@ -62,5 +62,5 @@ script = ExtResource("6_dpbjg")
 sound = ExtResource("7_785hp")
 metadata/_custom_type_script = "uid://c402h5pwrip2c"
 
-[node name="ParticleOnDestroyEffect" parent="." instance=ExtResource("8_particles")]
+[node name="ParticleOnDestroyEffect" parent="." unique_id=581331623 instance=ExtResource("8_particles")]
 particle_color = Color(0.7, 0.7, 0.75, 1)

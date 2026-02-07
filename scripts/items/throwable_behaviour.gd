@@ -19,7 +19,7 @@ const PickupableBehaviourScript := preload("res://scripts/items/pickupable_behav
 signal thrown(direction: Vector3, force: float, from_crowd: bool)
 signal throw_landed(collision: KinematicCollision3D)
 
-var _pickupable: Node  # PickupableBehaviour
+var _pickupable: Node # PickupableBehaviour
 var _has_landed: bool = false
 var _is_from_crowd: bool = false
 var _item: RigidBody3D = null
@@ -82,6 +82,9 @@ func throw(direction: Vector3, world_root: Node, from_crowd: bool = false) -> vo
 		flat = flat.normalized()
 	var throw_dir := (flat * (1.0 - throw_up_bias) + up * throw_up_bias).normalized()
 	rb.apply_central_impulse(throw_dir * throw_force)
+	rb.inertia = Vector3(1, 1, 1) # Reduce inertia for more responsive throwing
+	var spin_axis := throw_dir.cross(Vector3.DOWN).normalized()
+	rb.apply_torque_impulse(spin_axis * 15.0)
 
 	# Execute OnThrowEffect components
 	EffectUtils.execute_effects(item, OnThrowEffect, [throw_dir, throw_force, from_crowd])
@@ -103,7 +106,7 @@ func mark_as_crowd_throw() -> void:
 ## Handle collision when thrown item hits something
 func _on_body_entered(body: Node) -> void:
 	if _has_landed:
-		return  # Only trigger on first collision
+		return # Only trigger on first collision
 
 	_has_landed = true
 

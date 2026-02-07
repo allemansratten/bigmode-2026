@@ -39,6 +39,7 @@ shape = SubResource("CapsuleShape3D_dpbjg")
 [node name="ThrowableBehaviour" type="Node" parent="." unique_id=1666972087]
 script = ExtResource("3_hgrdn")
 throw_force = 15.0
+throw_collision_damage = 20.0
 
 [node name="SpawnableBehaviour" type="Node" parent="." unique_id=1230224406]
 script = ExtResource("4_jymr3")

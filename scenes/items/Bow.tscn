@@ -39,7 +39,6 @@ shape = SubResource("BoxShape3D_0ou0u")
 
 [node name="ThrowableBehaviour" type="Node" parent="." unique_id=1666972087]
 script = ExtResource("3_0ou0u")
-throw_force = 8.0
 
 [node name="SpawnableBehaviour" type="Node" parent="." unique_id=1230224406]
 script = ExtResource("4_v4h7p")
