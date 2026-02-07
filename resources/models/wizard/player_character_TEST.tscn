@@ -1,0 +1,90 @@
+[gd_scene format=3 uid="uid://vyvp41adu0ut"]
+
+[ext_resource type="PackedScene" uid="uid://bi8bpaireeand" path="res://resources/models/wizard/Breathing Idle.fbx" id="1_psa45"]
+[ext_resource type="Texture2D" uid="uid://b6diyro2ghrqg" path="res://resources/models/wizard/wizard_robe_id.png" id="2_6bv5e"]
+[ext_resource type="Animation" uid="uid://c6oln6gqsurh8" path="res://resources/models/wizard/DanceRumba.res" id="3_wlfkr"]
+[ext_resource type="Animation" uid="uid://dje6bfe1e804r" path="res://resources/models/wizard/DanceSilly.res" id="4_ifoe3"]
+[ext_resource type="Animation" uid="uid://cg24ksj6dfjj7" path="res://resources/models/wizard/DodgeFlip.res" id="5_qloxs"]
+[ext_resource type="Animation" uid="uid://m6s1a0tofblk" path="res://resources/models/wizard/DodgeJump.res" id="6_vftji"]
+[ext_resource type="Animation" uid="uid://djry5s7on410d" path="res://resources/models/wizard/Idle.res" id="7_f6y5u"]
+[ext_resource type="Animation" uid="uid://dn05ph7hiq3mb" path="res://resources/models/wizard/MeleeAttackKick.res" id="8_y73eh"]
+[ext_resource type="Animation" uid="uid://cau1kypbwir0n" path="res://resources/models/wizard/MeleeAttackKick2.res" id="9_gwkqd"]
+[ext_resource type="Animation" uid="uid://c8jmm8sfv2s6c" path="res://resources/models/wizard/MeleeAttackPunches.res" id="10_ufvfw"]
+[ext_resource type="Animation" uid="uid://xuvyp6i8wu1d" path="res://resources/models/wizard/MeleeAttackSlash.res" id="11_dd8l0"]
+[ext_resource type="Animation" uid="uid://bfsi6ftkacdj5" path="res://resources/models/wizard/OnHit.res" id="12_jvqot"]
+[ext_resource type="Animation" uid="uid://cgrrv5pcoa7am" path="res://resources/models/wizard/RangedAttackRifle.res" id="13_hnkka"]
+[ext_resource type="Animation" uid="uid://dwlpgav87b14n" path="res://resources/models/wizard/ReloadBow.res" id="14_ik4i2"]
+[ext_resource type="Animation" uid="uid://4wxo1vk705e" path="res://resources/models/wizard/Running.res" id="15_4i10u"]
+[ext_resource type="Animation" uid="uid://cuswcl4fs2g6c" path="res://resources/models/wizard/Throw.res" id="16_y4x28"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_kouh2"]
+albedo_texture = ExtResource("2_6bv5e")
+
+[sub_resource type="Animation" id="Animation_6ityr"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Skeleton3D/hat:surface_material_override/0")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [null]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_gjuex"]
+_data = {
+&"RESET": SubResource("Animation_6ityr")
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_ql1ki"]
+_data = {
+&"DanceRumba": ExtResource("3_wlfkr"),
+&"DanceSilly": ExtResource("4_ifoe3"),
+&"DodgeFlip": ExtResource("5_qloxs"),
+&"DodgeJump": ExtResource("6_vftji"),
+&"Idle": ExtResource("7_f6y5u"),
+&"MeleeAttackKick": ExtResource("8_y73eh"),
+&"MeleeAttackKick2": ExtResource("9_gwkqd"),
+&"MeleeAttackPunches": ExtResource("10_ufvfw"),
+&"MeleeAttackSlash": ExtResource("11_dd8l0"),
+&"OnHit": ExtResource("12_jvqot"),
+&"RangedAttackRifle": ExtResource("13_hnkka"),
+&"ReloadBow": ExtResource("14_ik4i2"),
+&"Running": ExtResource("15_4i10u"),
+&"Throw": ExtResource("16_y4x28")
+}
+
+[node name="PlayerCharacter" unique_id=1409728293 instance=ExtResource("1_psa45")]
+
+[node name="Skeleton3D" parent="." index="0" unique_id=481654702]
+bones/0/position = Vector3(-0.01794217, 0.7910805, 0.0064749084)
+bones/1/rotation = Quaternion(0.084381126, -0.046175808, 0.04335028, 0.9944187)
+bones/2/rotation = Quaternion(0.07968971, -0.049088042, -0.018933257, 0.9954303)
+bones/3/rotation = Quaternion(0.07903635, -0.050099067, -0.018865408, 0.9954334)
+bones/4/rotation = Quaternion(0.043011617, 0.093929574, -0.013589727, 0.9945565)
+bones/5/rotation = Quaternion(-0.19672064, 0.46255052, -0.09300255, 0.85947573)
+bones/7/rotation = Quaternion(-0.5996793, -0.41621062, 0.5178644, -0.4460607)
+bones/8/rotation = Quaternion(0.072908126, 0.018037051, -0.11180092, 0.9908883)
+bones/9/rotation = Quaternion(-0.018538626, -0.0020123553, 0.45261273, 0.8915122)
+bones/11/rotation = Quaternion(0.5079454, -0.4885489, 0.5370024, 0.46361616)
+bones/12/rotation = Quaternion(0.263383, -0.25300795, 0.20629965, 0.90777576)
+bones/13/rotation = Quaternion(-0.01558373, 0.0012556632, -0.70102805, 0.7129624)
+bones/15/rotation = Quaternion(0.0708697, 0.513229, 0.77408427, -0.36382294)
+bones/16/rotation = Quaternion(-0.7001895, -0.07996217, 0.021352485, 0.7091437)
+bones/17/rotation = Quaternion(0.6455727, -0.18716763, -0.15367219, 0.7242852)
+bones/18/rotation = Quaternion(0.20798078, -0.008560747, 0.001756865, 0.978094)
+bones/20/rotation = Quaternion(-0.106969215, 0.40468365, 0.90817785, -0.0013266009)
+bones/21/rotation = Quaternion(-0.685509, -0.048975617, 0.005706133, 0.7263925)
+bones/22/rotation = Quaternion(0.6776707, 0.14037935, 0.073059596, 0.71813536)
+bones/23/rotation = Quaternion(0.34069657, -0.08121635, 0.02955607, 0.93619245)
+
+[node name="cape" parent="Skeleton3D" index="2" unique_id=736083244]
+surface_material_override/0 = SubResource("StandardMaterial3D_kouh2")
+
+[node name="AnimationPlayer" parent="." index="1" unique_id=397819059]
+libraries/ = SubResource("AnimationLibrary_gjuex")
+libraries/Player = SubResource("AnimationLibrary_ql1ki")

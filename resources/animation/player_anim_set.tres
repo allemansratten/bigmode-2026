@@ -7,16 +7,18 @@ script = ExtResource("1_1")
 animation_tree_path = NodePath("PlayerCharacter/AnimationTree")
 idle_to_walk_speed = 0.8
 walk_to_run_speed = 4.0
-action_states = {
-"attack": "Attack",
-"hit": "Hit",
+action_states = Dictionary[String, String]({
+"attack": "MeleeAttack",
 "dash": "Dash",
-"death": "Death"
-}
-terminal_actions = PackedStringArray("death")
-signal_actions = {
+"death": "Death",
+"hit": "Hit",
+"ranged_attack": "RangedAttack",
+"throw": "Throw"
+})
+signal_actions = Dictionary[String, String]({
 "started_attacking": "attack",
-"took_damage": "hit",
+"started_dashing": "dash",
 "started_dying": "death",
-"started_dashing": "dash"
-}
+"started_throwing": "throw",
+"took_damage": "hit"
+})

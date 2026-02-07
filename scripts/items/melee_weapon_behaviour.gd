@@ -75,16 +75,26 @@ func _try_connect_to_animation_controller(holder: Node3D) -> void:
 		return
 
 	var anim_controller = holder.get_node_or_null("AnimationController")
-	if anim_controller and anim_controller.has_signal("hit_frame"):
-		if not anim_controller.hit_frame.is_connected(_on_animation_hit_frame):
-			anim_controller.hit_frame.connect(_on_animation_hit_frame)
-			_anim_controller = anim_controller
-			use_animation_hit_frames = true
+	if anim_controller:
+		# Connect to attack window events for proper timing
+		if anim_controller.has_signal("attack_window"):
+			if not anim_controller.attack_window.is_connected(_on_attack_window):
+				anim_controller.attack_window.connect(_on_attack_window)
+		
+		# Also connect to hit frame for backwards compatibility
+		if anim_controller.has_signal("hit_frame"):
+			if not anim_controller.hit_frame.is_connected(_on_animation_hit_frame):
+				anim_controller.hit_frame.connect(_on_animation_hit_frame)
+		
+		_anim_controller = anim_controller
+		use_animation_hit_frames = true
 
 
 func _disconnect_from_animation_controller() -> void:
 	if _anim_controller and is_instance_valid(_anim_controller):
-		if _anim_controller.hit_frame.is_connected(_on_animation_hit_frame):
+		if _anim_controller.has_signal("attack_window") and _anim_controller.attack_window.is_connected(_on_attack_window):
+			_anim_controller.attack_window.disconnect(_on_attack_window)
+		if _anim_controller.has_signal("hit_frame") and _anim_controller.hit_frame.is_connected(_on_animation_hit_frame):
 			_anim_controller.hit_frame.disconnect(_on_animation_hit_frame)
 	_anim_controller = null
 	use_animation_hit_frames = false
@@ -123,16 +133,9 @@ func _attack() -> void:
 		_start_tween_driven_attack()
 
 func _start_animation_driven_attack() -> void:
-	"""Start attack that waits for animation hit frame"""
-	# Create hitbox immediately but don't activate until hit frame
-	_create_hitbox_sphere()
-	_hitbox_sphere.monitoring = false  # Disable until hit frame
-	
-	# Position hitbox at attack start
-	var start_position = _stab_origin + _stab_direction * stab_start_distance
-	_hitbox_sphere.global_position = start_position
-	
-	print("MeleeWeaponBehaviour: Waiting for animation hit frame")
+	"""Start attack that waits for animation attack window events"""
+	# Don't create hitbox yet - wait for attack window to open
+	print("MeleeWeaponBehaviour: Waiting for animation attack window to open")
 
 func _start_tween_driven_attack() -> void:
 	"""Legacy tween-based attack timing"""
@@ -166,6 +169,10 @@ func _stab_tick(progress: float) -> void:
 	# Update hitbox position
 	_hitbox_sphere.global_position = stab_position
 
+	# Only check for overlapping bodies if monitoring is enabled
+	if not _hitbox_sphere.monitoring:
+		return
+		
 	# Check for overlapping bodies using the Area3D
 	var overlapping_bodies = _hitbox_sphere.get_overlapping_bodies()
 
@@ -207,6 +214,29 @@ func _on_animation_hit_frame() -> void:
 		var tween = create_tween()
 		tween.tween_method(_stab_tick, 0.0, 1.0, stab_duration)
 		tween.tween_callback(_stab_finished)
+
+
+## Animation controller attack window callback
+func _on_attack_window(open: bool) -> void:
+	"""Called when animation controller triggers attack window open/close"""
+	if not is_attacking:
+		return
+		
+	if open:
+		print("MeleeWeaponBehaviour: Attack window opened - starting hitbox")
+		# Create and activate hitbox when attack window opens
+		if not _hitbox_sphere:
+			_create_hitbox_sphere()
+		_hitbox_sphere.monitoring = true
+		
+		# Start the stab animation
+		var stab_duration = stab_end_time - stab_start_time
+		var tween = create_tween()
+		tween.tween_method(_stab_tick, 0.0, 1.0, stab_duration)
+	else:
+		print("MeleeWeaponBehaviour: Attack window closed - ending attack")
+		# End the attack when window closes
+		_stab_finished()
 
 
 ## Apply damage and knockback to hit entity
