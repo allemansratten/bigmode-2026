@@ -4,7 +4,7 @@
 [ext_resource type="PackedScene" uid="uid://fjrqjm0d4cgo" path="res://scenes/ui/GUI.tscn" id="2_3x8es"]
 [ext_resource type="PackedScene" uid="uid://cnj5bktqrv8yh" path="res://scenes/globals/DebugConsole.tscn" id="2_78awf"]
 [ext_resource type="PackedScene" uid="uid://cplayer001" path="res://scenes/Player.tscn" id="3_player"]
-[ext_resource type="PackedScene" uid="uid://b8yf0q3n1jkx2" path="res://scenes/ui/UpgradeSelectionPanel.tscn" id="5_upgrade_panel"]
+[ext_resource type="PackedScene" path="res://scenes/ui/UpgradeSelectionPanel.tscn" id="5_upgrade_panel"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
 sky_top_color = Color(0.25, 0.45, 0.75, 1)
@@ -21,7 +21,7 @@ sky_material = SubResource("ProceduralSkyMaterial_sky")
 [sub_resource type="Environment" id="Environment_main"]
 background_mode = 2
 sky = SubResource("Sky_main")
-ambient_light_energy = 0.7
+ambient_light_energy = 0.3
 
 [node name="Game" type="Node3D" unique_id=999502841]
 script = ExtResource("1_e3hwy")
@@ -33,10 +33,11 @@ environment = SubResource("Environment_main")
 
 [node name="GUI" parent="." unique_id=293961667 instance=ExtResource("2_3x8es")]
 
-[node name="UpgradeSelectionPanel" parent="GUI" instance=ExtResource("5_upgrade_panel")]
+[node name="UpgradeSelectionPanel" parent="GUI" unique_id=892305825 instance=ExtResource("5_upgrade_panel")]
 
 [node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1906586219]
 transform = Transform3D(0.86602503, -0.35299784, 0.35410902, -0.0006801896, 0.70738465, 0.7068285, -0.50000024, -0.612372, 0.61237276, 15.330542, 5.8353186, 0.6168461)
+light_energy = 0.4
 shadow_enabled = true
 
 [node name="Player" parent="." unique_id=276495145 instance=ExtResource("3_player")]
