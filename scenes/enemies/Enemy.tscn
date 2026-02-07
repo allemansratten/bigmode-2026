@@ -4,8 +4,8 @@
 [ext_resource type="Script" uid="uid://gdlmer2evdf1" path="res://scripts/enemies/chase_movement_behaviour.gd" id="2_chase"]
 [ext_resource type="Script" uid="uid://b681gmdscutqr" path="res://scripts/enemies/melee_attack_behaviour.gd" id="3_melee"]
 [ext_resource type="PackedScene" path="res://scenes/components/SurfaceDetector.tscn" id="4_73enu"]
-[ext_resource type="PackedScene" path="res://resources/models/fish_dwarf/fish_dwarf.tscn" id="5_7iym1"]
-[ext_resource type="Script" path="res://scripts/enemies/enemy_animation_controller.gd" id="6_vtlqb"]
+[ext_resource type="PackedScene" uid="uid://cm8vdnysrsclb" path="res://resources/models/fish_dwarf/fish_dwarf.tscn" id="5_7iym1"]
+[ext_resource type="Script" uid="uid://dewuehunkikwa" path="res://scripts/enemies/enemy_animation_controller.gd" id="6_vtlqb"]
 [ext_resource type="AudioStream" uid="uid://vgqk6wjkf1lm" path="res://resources/sounds/whoosh-1.mp3" id="8_tboc4"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_7iym1"]
@@ -23,6 +23,7 @@ collision_layer = 8
 collision_mask = 11
 script = ExtResource("1_enemy")
 enemy_name = "melee"
+max_health = 3.0
 flash_mesh = NodePath("MeshInstance3D")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1811606212]
@@ -49,6 +50,7 @@ max_chase_distance = 30.0
 
 [node name="MeleeAttackBehaviour" type="Node" parent="." unique_id=476167444]
 script = ExtResource("3_melee")
+damage = 1.0
 show_range_indicator = true
 attack_sound = ExtResource("8_tboc4")
 attack_sound_delay = 0.8

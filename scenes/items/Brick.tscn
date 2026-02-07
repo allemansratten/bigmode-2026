@@ -2,12 +2,12 @@
 
 [ext_resource type="PackedScene" path="res://scenes/effects/audio/PlaySoundOnThrowLandedEffect.tscn" id="1_nmjmy"]
 [ext_resource type="Script" uid="uid://d3ujs8125ule" path="res://scripts/items/pickupable_behaviour.gd" id="1_pickup"]
-[ext_resource type="AudioStream" uid="uid://bxmgtgycgla6b" path="res://resources/sounds/brick-drop.mp3" id="2_nmjmy"]
+[ext_resource type="AudioStream" uid="uid://debxltita8slg" path="res://resources/sounds/brick-drop.mp3" id="2_nmjmy"]
 [ext_resource type="Script" uid="uid://gq8jkdjg8anv" path="res://scripts/items/throwable_behaviour.gd" id="2_throw"]
 [ext_resource type="Script" uid="uid://6ngjp570ak3h" path="res://scripts/items/spawnable_behaviour.gd" id="3_spawnable"]
 [ext_resource type="Script" uid="uid://dg2m87we0c6c8" path="res://scripts/items/melee_weapon_behaviour.gd" id="4_weapon"]
 [ext_resource type="PackedScene" path="res://scenes/effects/particles/ParticleOnDestroyEffect.tscn" id="5_particles"]
-[ext_resource type="AudioStream" uid="uid://c6y7i8j9k0l1m" path="res://resources/sounds/melee_whoosh.tres" id="6_whoosh"]
+[ext_resource type="AudioStream" uid="uid://c6y7i8kak0l1m" path="res://resources/sounds/melee_whoosh.tres" id="6_whoosh"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_brick"]
 size = Vector3(0.5, 0.3, 0.2)
@@ -47,7 +47,7 @@ shape = SubResource("BoxShape3D_pickup_area")
 [node name="ThrowableBehaviour" type="Node" parent="." unique_id=120608837]
 script = ExtResource("2_throw")
 throw_force = 20.0
-throw_collision_damage = 20.0
+throw_collision_damage = 2.0
 
 [node name="SpawnableBehaviour" type="Node" parent="." unique_id=1673821538]
 script = ExtResource("3_spawnable")
@@ -58,7 +58,7 @@ script = ExtResource("4_weapon")
 knockback_force = 8.0
 attack_sound = ExtResource("6_whoosh")
 max_durability = 4
-damage = 15.0
+damage = 1.0
 attack_cooldown = 0.8
 
 [node name="ParticleOnDestroyEffect" parent="." unique_id=1031223547 instance=ExtResource("5_particles")]

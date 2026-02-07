@@ -5,7 +5,6 @@
 [ext_resource type="Script" uid="uid://djn3mhmmgdyjr" path="res://scripts/enemies/ranged_attack_behaviour.gd" id="3_ranged_attack"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_enemy"]
-radius = 0.35
 height = 1.6
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_enemy"]
@@ -21,7 +20,7 @@ collision_layer = 8
 collision_mask = 3
 script = ExtResource("1_enemy")
 enemy_name = "ranged"
-max_health = 75.0
+max_health = 2.0
 flash_mesh = NodePath("MeshInstance3D")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1514203427]
@@ -43,6 +42,7 @@ retreat_distance = 6.0
 
 [node name="RangedAttackBehaviour" type="Node" parent="." unique_id=1150316384]
 script = ExtResource("3_ranged_attack")
+damage = 1.0
 attack_range = 12.0
 attack_cooldown = 2.5
 projectile_speed = 12.0

@@ -50,7 +50,7 @@ script = ExtResource("2_throw")
 throw_force = 8.0
 throw_up_bias = 0.3
 throw_durability_cost = 1.0
-throw_collision_damage = 5.0
+throw_collision_damage = 1.0
 
 [node name="SpawnableBehaviour" type="Node" parent="." unique_id=2143683177]
 script = ExtResource("3_spawnable")

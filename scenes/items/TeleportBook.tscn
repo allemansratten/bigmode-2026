@@ -45,7 +45,6 @@ shape = SubResource("SphereShape3D_pickup_area")
 script = ExtResource("2_throw")
 throw_up_bias = 0.25
 throw_durability_cost = 0.0
-throw_collision_damage = 5.0
 
 [node name="SpawnableBehaviour" type="Node" parent="." unique_id=1130486583]
 script = ExtResource("3_spawnable")
