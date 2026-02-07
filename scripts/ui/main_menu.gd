@@ -5,6 +5,14 @@ extends Node3D
 @onready var quit_button: Button = %QuitButton
 @onready var camera: Camera3D = $Camera3D
 
+@onready var menu_container: CenterContainer = $CanvasLayer/CenterContainer
+@onready var settings_panel: CenterContainer = %SettingsPanel
+@onready var mute_button: Button = %MuteButton
+@onready var music_slider = %MusicVolumeSlider
+@onready var sfx_slider = %SFXVolumeSlider
+@onready var ambience_slider = %AmbienceVolumeSlider
+@onready var back_button: Button = %BackButton
+
 ## How often a new item spawns (seconds)
 @export var spawn_interval: float = 0.4
 ## How long items live before being freed
@@ -21,6 +29,17 @@ func _ready() -> void:
 	play_button.pressed.connect(_on_play_pressed)
 	settings_button.pressed.connect(_on_settings_pressed)
 	quit_button.pressed.connect(_on_quit_pressed)
+	back_button.pressed.connect(_on_back_pressed)
+	mute_button.pressed.connect(_on_mute_pressed)
+	music_slider.input_changed.connect(_on_music_volume_changed)
+	sfx_slider.input_changed.connect(_on_sfx_volume_changed)
+	ambience_slider.input_changed.connect(_on_ambience_volume_changed)
+
+	# Initialize settings UI from current values
+	mute_button.text = "Unmute" if Audio.is_muted else "Mute"
+	music_slider.set_value(roundi(Audio.channel_volumes[Audio.Channels.Music] * 100))
+	sfx_slider.set_value(roundi(Audio.channel_volumes[Audio.Channels.SFX] * 100))
+	ambience_slider.set_value(roundi(Audio.channel_volumes[Audio.Channels.Ambience] * 100))
 
 	_spawn_timer = Timer.new()
 	_spawn_timer.wait_time = spawn_interval
@@ -78,7 +97,30 @@ func _on_play_pressed() -> void:
 
 
 func _on_settings_pressed() -> void:
-	print("Settings menu not yet implemented.")
+	menu_container.hide()
+	settings_panel.show()
+
+
+func _on_back_pressed() -> void:
+	settings_panel.hide()
+	menu_container.show()
+
+
+func _on_mute_pressed() -> void:
+	Audio.toggle_mute()
+	mute_button.text = "Unmute" if Audio.is_muted else "Mute"
+
+
+func _on_music_volume_changed(new_value: int) -> void:
+	Audio.set_channel_volume(Audio.Channels.Music, float(new_value) / 100)
+
+
+func _on_sfx_volume_changed(new_value: int) -> void:
+	Audio.set_channel_volume(Audio.Channels.SFX, float(new_value) / 100)
+
+
+func _on_ambience_volume_changed(new_value: int) -> void:
+	Audio.set_channel_volume(Audio.Channels.Ambience, float(new_value) / 100)
 
 
 func _on_quit_pressed() -> void:
