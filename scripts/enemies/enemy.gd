@@ -24,6 +24,10 @@ signal started_dying()
 # Crowd excitement
 @export var threat_level: float = 10.0 ## Excitement added to crowd when killed
 
+# Audio
+## Sound played when enemy takes damage
+@export var hit_sound: AudioStream = preload("res://resources/sounds/soft-hit-1.wav")
+
 # Behavior references (assigned via get_node or added as children)
 var movement_behaviour: EnemyMovementBehaviour
 var attack_behaviour: EnemyAttackBehaviour
@@ -140,6 +144,10 @@ func take_damage(amount: float, source: Node3D = null) -> void:
 	# Always emit damage signal for other systems
 	took_damage.emit(amount)
 
+	# Play hit sound
+	if hit_sound:
+		Audio.play_sound(hit_sound, Audio.Channels.SFX)
+
 	# Check if enemy will die
 	if current_health <= 0:
 		# Die immediately but without hit stun to go straight to death animation
@@ -159,10 +167,10 @@ func die() -> void:
 	# Emit death signal for animations
 	started_dying.emit()
 	
-	died.emit(self)
+	died.emit(self )
 
 	# Emit global event for upgrade system
-	EventBus.enemy_killed.emit(self, _last_damage_source)
+	EventBus.enemy_killed.emit(self , _last_damage_source)
 
 	# Increase crowd excitement based on threat level
 	var crowd_manager = get_tree().get_first_node_in_group("crowd_manager")
