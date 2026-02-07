@@ -1,0 +1,88 @@
+[gd_scene format=3 uid="uid://ckwdqebuwnnty"]
+
+[ext_resource type="Script" uid="uid://csgpb0h8rwx08" path="res://scripts/ui/main_menu.gd" id="1_script"]
+[ext_resource type="PackedScene" uid="uid://crulcbxl0ww15" path="res://resources/models/arena/arena.fbx" id="2_arena"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_sky"]
+sky_top_color = Color(0.25, 0.45, 0.75, 1)
+sky_horizon_color = Color(0.55, 0.7, 0.9, 1)
+sky_curve = 0.12
+sky_energy_multiplier = 1.2
+ground_bottom_color = Color(0.28627452, 0.5058824, 0.70980394, 1)
+ground_horizon_color = Color(0.54901963, 0.7019608, 0.9019608, 1)
+ground_curve = 0.060628664
+
+[sub_resource type="Sky" id="Sky_main"]
+sky_material = SubResource("ProceduralSkyMaterial_sky")
+
+[sub_resource type="Environment" id="Environment_main"]
+background_mode = 2
+sky = SubResource("Sky_main")
+ambient_light_energy = 0.3
+
+[sub_resource type="LabelSettings" id="LabelSettings_title"]
+font_size = 72
+outline_size = 4
+outline_color = Color(0, 0, 0, 0.8)
+
+[node name="MainMenu" type="Node3D" unique_id=331478258]
+script = ExtResource("1_script")
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=755027237]
+environment = SubResource("Environment_main")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=730993102]
+transform = Transform3D(0.86602503, -0.35299784, 0.35410902, -0.0006801896, 0.70738465, 0.7068285, -0.50000024, -0.612372, 0.61237276, 15.330542, 5.8353186, 0.6168461)
+light_energy = 0.4
+shadow_enabled = true
+
+[node name="Arena" parent="." unique_id=1575835567 instance=ExtResource("2_arena")]
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=1283294759]
+transform = Transform3D(0.6345065, -0.005959118, 0.77289456, -0.31209213, 0.91285163, 0.26324975, -0.70710677, -0.40824798, 0.57735056, 5.386574, 14.317099, -15.069807)
+projection = 1
+size = 20.0
+near = 0.1
+far = 100.0
+
+[node name="CanvasLayer" type="CanvasLayer" parent="." unique_id=1846785997]
+
+[node name="CenterContainer" type="CenterContainer" parent="CanvasLayer" unique_id=507535390]
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="VBoxContainer" type="VBoxContainer" parent="CanvasLayer/CenterContainer" unique_id=1393007875]
+custom_minimum_size = Vector2(300, 0)
+layout_mode = 2
+theme_override_constants/separation = 16
+
+[node name="TitleLabel" type="Label" parent="CanvasLayer/CenterContainer/VBoxContainer" unique_id=1499713719]
+layout_mode = 2
+text = "BIGMODE"
+label_settings = SubResource("LabelSettings_title")
+horizontal_alignment = 1
+
+[node name="Spacer" type="Control" parent="CanvasLayer/CenterContainer/VBoxContainer" unique_id=1626553613]
+custom_minimum_size = Vector2(0, 32)
+layout_mode = 2
+
+[node name="PlayButton" type="Button" parent="CanvasLayer/CenterContainer/VBoxContainer" unique_id=992854629]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "Play"
+
+[node name="SettingsButton" type="Button" parent="CanvasLayer/CenterContainer/VBoxContainer" unique_id=740348716]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "Settings"
+
+[node name="QuitButton" type="Button" parent="CanvasLayer/CenterContainer/VBoxContainer" unique_id=1669412349]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 50)
+layout_mode = 2
+text = "Quit"
