@@ -9,9 +9,6 @@
 [ext_resource type="Script" uid="uid://dnidyro7a1r6q" path="res://scripts/animation/animation_controller.gd" id="6_anim_controller"]
 [ext_resource type="Resource" uid="uid://gimykpxwn5ed" path="res://resources/animation/player_anim_set.tres" id="7_player_anim"]
 
-[sub_resource type="Resource" id="Resource_cw2d6"]
-metadata/__load_path__ = "res://resources/sounds/hitHurt.wav"
-
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_flash"]
 albedo_color = Color(1, 0.2, 0.2, 1)
 emission_enabled = true
@@ -29,12 +26,7 @@ height = 1.9
 [node name="Player" type="CharacterBody3D" unique_id=276495145 groups=["player"]]
 collision_layer = 2
 script = ExtResource("1_player")
-move_speed = null
 gravity = null
-pickup_range = null
-facing_turn_speed = null
-max_health = null
-hit_sound = SubResource("Resource_cw2d6")
 hit_flash_material = SubResource("StandardMaterial3D_flash")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1919314831]
