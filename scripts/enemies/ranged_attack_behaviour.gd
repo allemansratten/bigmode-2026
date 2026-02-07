@@ -7,18 +7,24 @@ class_name RangedAttackBehaviour
 @export var damage: float = 8.0
 @export var attack_range: float = 10.0
 @export var attack_cooldown: float = 2.0  # Seconds between attacks
+@export var attack_duration: float = 1.5  # How long the attack animation lasts
 @export var projectile_speed: float = 15.0
 @export var projectile_scene: PackedScene = preload("res://scenes/items/Projectile.tscn")
 @export var attack_sound: AudioStream  # Sound to play when attack starts
 @export var attack_sound_delay: float = 0.0  # Delay before playing attack sound
 
 var _cooldown_timer: Timer
+var _animation_controller: AnimationController
+var _current_target: Node3D  # Store target for delayed projectile spawn
 
 
 func _ready() -> void:
 	_cooldown_timer = Timer.new()
 	_cooldown_timer.one_shot = true
 	add_child(_cooldown_timer)
+	
+	# Connect to parent enemy's animation controller hit_frame signal
+	call_deferred("_connect_animation_controller")
 
 
 func can_attack(enemy: Node3D, target: Node3D) -> bool:
@@ -46,27 +52,15 @@ func execute_attack(enemy: Node3D, target: Node3D) -> void:
 	# Start cooldown timer
 	_cooldown_timer.start(attack_cooldown)
 
-	# Spawn projectile
-	if not projectile_scene:
-		push_warning("No projectile scene set for ranged attack")
-		return
+	# Signal attack start for animation and set attack duration
+	if enemy.has_method("signal_start_attacking"):
+		enemy.signal_start_attacking()
+	
+	if enemy.has_method("set_attack_duration"):
+		enemy.set_attack_duration(attack_duration)
 
-	var projectile := projectile_scene.instantiate() as Projectile
-	if not projectile:
-		push_error("Projectile scene did not instantiate as Projectile")
-		return
-
-	# Add to scene at enemy position (slightly above center)
-	var spawn_position := enemy.global_position + Vector3.UP * 0.8
-	enemy.get_parent().add_child(projectile)
-	projectile.global_position = spawn_position
-
-	# Calculate direction to target
-	var direction := (target.global_position + Vector3.UP * 0.8 - spawn_position).normalized()
-
-	# Initialize projectile
-	projectile.initialize(direction, enemy, damage)
-	projectile.speed = projectile_speed
+	# Store target for delayed projectile spawn on hit frame
+	_current_target = target
 
 	# Play attack sound
 	if attack_sound:
@@ -98,3 +92,51 @@ func _has_line_of_sight(enemy: Node3D, target: Node3D) -> bool:
 
 	var hit_collider = result.get("collider")
 	return hit_collider == target
+
+func _connect_animation_controller() -> void:
+	# Find AnimationController in parent enemy
+	var enemy = get_parent()
+	if enemy:
+		_animation_controller = enemy.get_node_or_null("AnimationController")
+		if _animation_controller:
+			_animation_controller.hit_frame.connect(_on_hit_frame)
+		else:
+			push_warning("RangedAttackBehaviour: No AnimationController found on enemy")
+
+
+func _on_hit_frame() -> void:
+	# Spawn projectile when hit frame occurs during attack animation
+	_spawn_projectile()
+
+
+func _spawn_projectile() -> void:
+	if not _current_target or not is_instance_valid(_current_target):
+		return
+	
+	var enemy = get_parent()
+	if not enemy:
+		return
+	
+	if not projectile_scene:
+		push_warning("No projectile scene set for ranged attack")
+		return
+
+	var projectile := projectile_scene.instantiate() as Projectile
+	if not projectile:
+		push_error("Projectile scene did not instantiate as Projectile")
+		return
+
+	# Add to scene at enemy position (slightly above center)
+	var spawn_position: Vector3 = enemy.global_position + Vector3.UP * 0.8
+	enemy.get_parent().add_child(projectile)
+	projectile.global_position = spawn_position
+
+	# Calculate direction to target
+	var direction: Vector3 = (_current_target.global_position + Vector3.UP * 0.8 - spawn_position).normalized()
+
+	# Initialize projectile
+	projectile.initialize(direction, enemy, damage)
+	projectile.speed = projectile_speed
+	
+	# Clear target reference
+	_current_target = null

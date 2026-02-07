@@ -1,35 +1,28 @@
 [gd_scene format=3 uid="uid://dwmfkmt8xir4r"]
 
 [ext_resource type="Script" uid="uid://bvy6016jhccxe" path="res://scripts/enemies/enemy.gd" id="1_enemy"]
+[ext_resource type="PackedScene" uid="uid://bkbn7kyodo67v" path="res://resources/models/seahorse/RangedEnemyModel.tscn" id="2_fscic"]
 [ext_resource type="Script" uid="uid://wojqrt10w5y7" path="res://scripts/enemies/ranged_movement_behaviour.gd" id="2_ranged_move"]
 [ext_resource type="Script" uid="uid://djn3mhmmgdyjr" path="res://scripts/enemies/ranged_attack_behaviour.gd" id="3_ranged_attack"]
+[ext_resource type="Script" uid="uid://dnidyro7a1r6q" path="res://scripts/animation/animation_controller.gd" id="5_vgq4e"]
+[ext_resource type="Resource" uid="uid://bcnnww1e3e62g" path="res://resources/animation/basic_enemy_anim_set.tres" id="6_s1lga"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_enemy"]
 height = 1.6
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_enemy"]
-albedo_color = Color(0.2, 0.5, 0.8, 1)
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_enemy"]
-material = SubResource("StandardMaterial3D_enemy")
-radius = 0.35
-height = 1.6
-
-[node name="RangedEnemy" type="CharacterBody3D" unique_id=1932246355 node_paths=PackedStringArray("flash_mesh") groups=["enemy"]]
+[node name="RangedEnemy" type="CharacterBody3D" unique_id=1932246355 groups=["enemy"]]
 collision_layer = 8
 collision_mask = 3
 script = ExtResource("1_enemy")
 enemy_name = "ranged"
 max_health = 2.0
-flash_mesh = NodePath("MeshInstance3D")
+
+[node name="seahorse_spit" parent="." unique_id=136253906 instance=ExtResource("2_fscic")]
+transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 0, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1514203427]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
 shape = SubResource("CapsuleShape3D_enemy")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1986554172]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
-mesh = SubResource("CapsuleMesh_enemy")
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="." unique_id=771246037]
 path_desired_distance = 0.5
@@ -46,3 +39,8 @@ damage = 1.0
 attack_range = 12.0
 attack_cooldown = 2.5
 projectile_speed = 12.0
+
+[node name="AnimationController" type="Node" parent="." unique_id=21202121]
+script = ExtResource("5_vgq4e")
+anim_set = ExtResource("6_s1lga")
+debug_logging = true

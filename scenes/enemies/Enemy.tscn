@@ -6,17 +6,16 @@
 [ext_resource type="PackedScene" path="res://scenes/components/SurfaceDetector.tscn" id="4_73enu"]
 [ext_resource type="PackedScene" uid="uid://cm8vdnysrsclb" path="res://resources/models/fish_dwarf/fish_dwarf.tscn" id="5_7iym1"]
 [ext_resource type="Script" uid="uid://dnidyro7a1r6q" path="res://scripts/animation/animation_controller.gd" id="6_vtlqb"]
-[ext_resource type="Resource" path="res://resources/animation/basic_enemy_anim_set.tres" id="7_anim"]
+[ext_resource type="Resource" uid="uid://bcnnww1e3e62g" path="res://resources/animation/basic_enemy_anim_set.tres" id="7_anim"]
 [ext_resource type="AudioStream" uid="uid://vgqk6wjkf1lm" path="res://resources/sounds/whoosh-1.mp3" id="8_tboc4"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_7iym1"]
 
-[node name="Enemy" type="CharacterBody3D" unique_id=385028795 node_paths=PackedStringArray("flash_mesh") groups=["enemy"]]
+[node name="Enemy" type="CharacterBody3D" unique_id=385028795 groups=["enemy"]]
 collision_layer = 8
 collision_mask = 11
 script = ExtResource("1_enemy")
 enemy_name = "melee"
-flash_mesh = NodePath("")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1811606212]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
