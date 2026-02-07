@@ -7,51 +7,45 @@ extends Node
 var enemies: Dictionary = {}  # enemy_name -> PackedScene
 var threat_levels: Dictionary = {}  # enemy_name -> threat_level (float)
 
+## Static manifest of enemy paths (required for web export - DirAccess doesn't work)
+## Add new enemies here when creating them
+const ENEMY_PATHS: Array[String] = [
+	"res://scenes/enemies/Enemy.tscn",
+	"res://scenes/enemies/RangedEnemy.tscn",
+]
+
 
 func _ready():
 	_discover_enemies()
 	print("EnemyRegistry: Discovered %d enemy types" % enemies.size())
 
 
-## Auto-discover all enemy scenes in the enemies folder
+## Register enemies from static manifest
 func _discover_enemies():
 	enemies.clear()
 	threat_levels.clear()
-	var enemy_dir := "res://scenes/enemies/"
 
-	var dir := DirAccess.open(enemy_dir)
-	if not dir:
-		push_error("Failed to open enemies directory: " + enemy_dir)
-		return
+	for scene_path in ENEMY_PATHS:
+		var scene := load(scene_path) as PackedScene
+		if not scene:
+			push_warning("Failed to load enemy scene: " + scene_path)
+			continue
 
-	dir.list_dir_begin()
-	var file_name := dir.get_next()
-
-	while file_name != "":
-		if not dir.current_is_dir() and file_name.ends_with(".tscn"):
-			var scene_path := enemy_dir + file_name
-			var scene := load(scene_path) as PackedScene
-
-			if scene:
-				# Instantiate to get enemy_name and threat_level
-				var instance := scene.instantiate()
-				if instance and instance.has_method("get_enemy_name"):
-					var enemy_name: String = instance.get_enemy_name()
-					if enemy_name != "":
-						enemies[enemy_name] = scene
-						# Store threat level (default 10.0 if not set)
-						var threat: float = instance.get("threat_level") if instance.get("threat_level") else 10.0
-						threat_levels[enemy_name] = threat
-						print("  Registered enemy: '%s' (threat: %.1f) from %s" % [enemy_name, threat, file_name])
-					else:
-						push_warning("Enemy scene %s has empty enemy_name" % file_name)
-				else:
-					push_warning("Enemy scene %s doesn't have get_enemy_name() method" % file_name)
-				instance.queue_free()
-
-		file_name = dir.get_next()
-
-	dir.list_dir_end()
+		# Instantiate to get enemy_name and threat_level
+		var instance := scene.instantiate()
+		if instance and instance.has_method("get_enemy_name"):
+			var enemy_name: String = instance.get_enemy_name()
+			if enemy_name != "":
+				enemies[enemy_name] = scene
+				# Store threat level (default 10.0 if not set)
+				var threat: float = instance.get("threat_level") if instance.get("threat_level") else 10.0
+				threat_levels[enemy_name] = threat
+				print("  Registered enemy: '%s' (threat: %.1f) from %s" % [enemy_name, threat, scene_path.get_file()])
+			else:
+				push_warning("Enemy scene %s has empty enemy_name" % scene_path.get_file())
+		else:
+			push_warning("Enemy scene %s doesn't have get_enemy_name() method" % scene_path.get_file())
+		instance.queue_free()
 
 
 ## Get enemy scene by name

@@ -13,48 +13,49 @@ var upgrades_by_id: Dictionary = {}
 ## Cache: category -> array of matching upgrade IDs
 var upgrades_by_category: Dictionary = {}
 
+## Static manifest of upgrade paths (required for web export - DirAccess doesn't work)
+## Add new upgrades here when creating them
+const UPGRADE_PATHS: Array[String] = [
+	"res://scenes/upgrades/BrickBreakCrowdThrow.tscn",
+	"res://scenes/upgrades/BrickBreakExplosion.tscn",
+	"res://scenes/upgrades/BrickMaker.tscn",
+	"res://scenes/upgrades/DashDamage.tscn",
+	"res://scenes/upgrades/FlaskShower.tscn",
+	"res://scenes/upgrades/HealOnKill.tscn",
+	"res://scenes/upgrades/IceTeleport.tscn",
+	"res://scenes/upgrades/KillMilestoneExcitement.tscn",
+	"res://scenes/upgrades/KillMilestoneHeal.tscn",
+	"res://scenes/upgrades/MeleeCrowdThrow.tscn",
+	"res://scenes/upgrades/MeleeDurability.tscn",
+	"res://scenes/upgrades/RangedAmmoBonus.tscn",
+	"res://scenes/upgrades/RangedAutoShoot.tscn",
+]
+
 
 func _ready() -> void:
 	_register_all_upgrades()
 	_build_category_cache()
 
 
-## Register all upgrade scenes from the upgrades directory
+## Register all upgrade scenes from static manifest
 func _register_all_upgrades() -> void:
 	all_upgrades.clear()
 	upgrades_by_id.clear()
 
-	var upgrades_dir = "res://scenes/upgrades/"
-	var dir = DirAccess.open(upgrades_dir)
+	for upgrade_path in UPGRADE_PATHS:
+		var upgrade_scene = load(upgrade_path) as PackedScene
 
-	if not dir:
-		print("UpgradeRegistry: upgrades directory not found: %s (will be created when upgrades are added)" % upgrades_dir)
-		return
-
-	dir.list_dir_begin()
-	var file_name = dir.get_next()
-
-	while file_name != "":
-		# Only process .tscn files
-		if not dir.current_is_dir() and file_name.ends_with(".tscn"):
-			var upgrade_path = upgrades_dir + file_name
-			var upgrade_scene = load(upgrade_path) as PackedScene
-
-			if upgrade_scene:
-				# Check if it has BaseUpgrade
-				if _has_base_upgrade(upgrade_scene):
-					var upgrade_id = file_name.get_basename()
-					all_upgrades.append(upgrade_scene)
-					upgrades_by_id[upgrade_id] = upgrade_scene
-					print("UpgradeRegistry: registered %s" % file_name)
-				else:
-					print("UpgradeRegistry: skipped %s (no BaseUpgrade root)" % file_name)
+		if upgrade_scene:
+			# Check if it has BaseUpgrade
+			if _has_base_upgrade(upgrade_scene):
+				var upgrade_id = upgrade_path.get_file().get_basename()
+				all_upgrades.append(upgrade_scene)
+				upgrades_by_id[upgrade_id] = upgrade_scene
+				print("UpgradeRegistry: registered %s" % upgrade_path.get_file())
 			else:
-				push_warning("UpgradeRegistry: failed to load %s" % upgrade_path)
-
-		file_name = dir.get_next()
-
-	dir.list_dir_end()
+				print("UpgradeRegistry: skipped %s (no BaseUpgrade root)" % upgrade_path.get_file())
+		else:
+			push_warning("UpgradeRegistry: failed to load %s" % upgrade_path)
 
 	print("UpgradeRegistry: registered %d upgrades total" % all_upgrades.size())
 

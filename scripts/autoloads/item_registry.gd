@@ -17,40 +17,37 @@ func _ready() -> void:
 	_build_category_cache()
 
 
-## Register all spawnable item scenes (auto-discover from items directory)
+## Static manifest of item paths (required for web export - DirAccess doesn't work)
+## Add new items here when creating them
+const ITEM_PATHS: Array[String] = [
+	"res://scenes/items/Brick.tscn",
+	"res://scenes/items/Bludgeon.tscn",
+	"res://scenes/items/Crate.tscn",
+	"res://scenes/items/Crossbow.tscn",
+	"res://scenes/items/Dagger.tscn",
+	"res://scenes/items/DoubleCrossbow.tscn",
+	"res://scenes/items/Mace.tscn",
+	"res://scenes/items/OilFlask.tscn",
+	"res://scenes/items/TeleportBook.tscn",
+]
+
+
+## Register all spawnable item scenes from static manifest
 func _register_all_items() -> void:
 	all_items.clear()
 
-	# Scan items directory for all .tscn files
-	var items_dir = "res://scenes/items/"
-	var dir = DirAccess.open(items_dir)
+	for item_path in ITEM_PATHS:
+		var item_scene = load(item_path) as PackedScene
 
-	if not dir:
-		push_error("ItemRegistry: failed to open items directory: %s" % items_dir)
-		return
-
-	dir.list_dir_begin()
-	var file_name = dir.get_next()
-
-	while file_name != "":
-		# Only process .tscn files
-		if not dir.current_is_dir() and file_name.ends_with(".tscn"):
-			var item_path = items_dir + file_name
-			var item_scene = load(item_path) as PackedScene
-
-			if item_scene:
-				# Check if it has SpawnableBehaviour
-				if _has_spawnable_behaviour(item_scene):
-					all_items.append(item_scene)
-					print("ItemRegistry: registered %s" % file_name)
-				else:
-					print("ItemRegistry: skipped %s (no SpawnableBehaviour)" % file_name)
+		if item_scene:
+			# Check if it has SpawnableBehaviour
+			if _has_spawnable_behaviour(item_scene):
+				all_items.append(item_scene)
+				print("ItemRegistry: registered %s" % item_path.get_file())
 			else:
-				push_warning("ItemRegistry: failed to load %s" % item_path)
-
-		file_name = dir.get_next()
-
-	dir.list_dir_end()
+				print("ItemRegistry: skipped %s (no SpawnableBehaviour)" % item_path.get_file())
+		else:
+			push_warning("ItemRegistry: failed to load %s" % item_path)
 
 	print("ItemRegistry: registered %d items total" % all_items.size())
 
