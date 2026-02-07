@@ -62,7 +62,7 @@ func throw(direction: Vector3, world_root: Node, from_crowd: bool = false) -> vo
 	var rb: RigidBody3D = item as RigidBody3D
 	var old_global_pos: Vector3 = rb.global_position
 	item.reparent(world_root)
-	rb.global_position = old_global_pos
+	rb.global_position = old_global_pos + Vector3(0, 1, 0) # Small vertical offset to avoid ground collision on spawn
 	rb.freeze = false
 	if _pickupable:
 		_pickupable.clear_holder()

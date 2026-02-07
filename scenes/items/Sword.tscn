@@ -8,6 +8,7 @@
 [ext_resource type="Script" uid="uid://c402h5pwrip2c" path="res://scripts/items/effects/audio/play_sound_on_throw_landed_effect.gd" id="6_dpbjg"]
 [ext_resource type="AudioStream" uid="uid://v7lu512fh0ao" path="res://resources/sounds/sword-pack/170703__mooseranger__union-sword-clash-4.mp3" id="7_785hp"]
 [ext_resource type="PackedScene" path="res://scenes/effects/particles/ParticleOnDestroyEffect.tscn" id="8_particles"]
+[ext_resource type="AudioStream" uid="uid://c6y7i8j9k0l1m" path="res://resources/sounds/melee_whoosh.tres" id="9_whoosh"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2n8v8"]
 radius = 0.1
@@ -53,6 +54,7 @@ categories = Array[int]([0, 10, 20, 24])
 script = ExtResource("4_dpbjg")
 stab_end_time = 0.2
 knockback_force = 8.0
+attack_sound = ExtResource("9_whoosh")
 max_durability = 6
 damage = 66.0
 attack_cooldown = 1.0
