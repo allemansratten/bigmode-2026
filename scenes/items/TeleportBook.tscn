@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://c8k4m5n6o7p8q"]
 
+[ext_resource type="PackedScene" uid="uid://mgw50nlo4651" path="res://resources/models/book/book_closed.fbx" id="1_8faw1"]
 [ext_resource type="Script" uid="uid://d3ujs8125ule" path="res://scripts/items/pickupable_behaviour.gd" id="1_pickup"]
 [ext_resource type="Script" uid="uid://gq8jkdjg8anv" path="res://scripts/items/throwable_behaviour.gd" id="2_throw"]
 [ext_resource type="Script" uid="uid://6ngjp570ak3h" path="res://scripts/items/spawnable_behaviour.gd" id="3_spawnable"]
@@ -9,15 +10,7 @@
 [ext_resource type="AudioStream" uid="uid://badopug7wkfnx" path="res://resources/sounds/brick-hit-2.mp3" id="7_8faw1"]
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_book"]
-size = Vector3(0.3, 0.4, 0.1)
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_book"]
-albedo_color = Color(0.4, 0.25, 0.15, 1)
-roughness = 0.9
-
-[sub_resource type="BoxMesh" id="BoxMesh_book"]
-material = SubResource("StandardMaterial3D_book")
-size = Vector3(0.3, 0.4, 0.1)
+size = Vector3(0.40976563, 0.6054932, 0.16513976)
 
 [sub_resource type="SphereShape3D" id="SphereShape3D_pickup_area"]
 radius = 0.45
@@ -29,10 +22,11 @@ contact_monitor = true
 max_contacts_reported = 4
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=427975943]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.05488281, 0.0024536327, -0.0035957117)
 shape = SubResource("BoxShape3D_book")
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=2092396511]
-mesh = SubResource("BoxMesh_book")
+[node name="book_closed" parent="." unique_id=443719720 instance=ExtResource("1_8faw1")]
+transform = Transform3D(1, 0, 0, 0, -4.3711385e-08, -0.99999994, 0, 0.99999994, -4.3711385e-08, 0, 0, 0)
 
 [node name="PickupableBehaviour" type="Area3D" parent="." unique_id=1629278842]
 collision_layer = 0
