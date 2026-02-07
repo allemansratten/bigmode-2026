@@ -12,14 +12,21 @@ extends 'res://scripts/player/movement_component.gd'
 
 var _current_charges: int = 1
 var _dash_direction: Vector3 = Vector3.ZERO
+var _animation_controller: AnimationController = null
 
 
 func _ready() -> void:
 	super._ready()
 	_current_charges = max_charges
 
+	# Get AnimationController reference
+	_animation_controller = _player.get_node_or_null("AnimationController")
+
 	# Refill charges when cooldown completes
 	_cooldown_timer.timeout.connect(_on_cooldown_complete)
+
+	# Reset animation speed when dash completes
+	_active_timer.timeout.connect(_on_dash_complete)
 
 
 ## Override: Check if dash can be activated (has charges available)
@@ -36,6 +43,12 @@ func activate(current_velocity: Vector3) -> void:
 	else:
 		# Fallback to player's facing direction
 		_dash_direction = _player.get_facing_direction()
+
+	# Set animation speed so dash animation completes during dash duration
+	# Assuming default dash animation is ~1.8s, scale it to match dash_duration
+	if _animation_controller:
+		var animation_speed_multiplier = 1.8 / dash_duration  # Adjust 1.8s base to dash_duration
+		_animation_controller.set_dash_animation_speed(animation_speed_multiplier)
 
 	_activate(dash_duration)
 	_current_charges -= 1
@@ -62,6 +75,11 @@ func _on_cooldown_complete() -> void:
 		_current_charges = max_charges
 	else:
 		_current_charges = mini(_current_charges + 1, max_charges)
+
+## Reset animation speed when dash completes
+func _on_dash_complete() -> void:
+	if _animation_controller:
+		_animation_controller.reset_dash_animation_speed()
 
 ####
 ## Upgrade methods

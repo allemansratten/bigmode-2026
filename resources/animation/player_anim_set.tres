@@ -1,0 +1,24 @@
+[gd_resource type="Resource" script_class="AnimSet" format=3 uid="uid://gimykpxwn5ed"]
+
+[ext_resource type="Script" uid="uid://cfxegvmyw54dl" path="res://scripts/animation/anim_set.gd" id="1_1"]
+
+[resource]
+script = ExtResource("1_1")
+animation_tree_path = NodePath("PlayerCharacter/AnimationTree")
+idle_to_walk_speed = 0.8
+walk_to_run_speed = 4.0
+action_states = Dictionary[String, String]({
+"attack": "MeleeAttack",
+"dash": "Dash",
+"death": "Death",
+"hit": "Hit",
+"ranged_attack": "RangedAttack",
+"throw": "Throw"
+})
+signal_actions = Dictionary[String, String]({
+"started_attacking": "attack",
+"started_dashing": "dash",
+"started_dying": "death",
+"started_throwing": "throw",
+"took_damage": "hit"
+})

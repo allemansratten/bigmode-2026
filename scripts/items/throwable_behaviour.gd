@@ -26,6 +26,12 @@ var _item: RigidBody3D = null
 var _weapon_behaviour: WeaponBehaviour = null
 var _original_collision_mask: int = 0
 
+# Pending throw state - set when throw() is called, executed on throw_frame
+var _pending_throw_direction: Vector3
+var _pending_throw_world_root: Node
+var _pending_throw_from_crowd: bool = false
+var _throw_animation_controller: AnimationController = null
+
 func _ready() -> void:
 	_pickupable = get_parent().get_node_or_null("PickupableBehaviour")
 	if _pickupable == null:
@@ -59,6 +65,53 @@ func throw(direction: Vector3, world_root: Node, from_crowd: bool = false) -> vo
 	var item: Node = get_parent()
 	if not item is RigidBody3D:
 		return
+	
+	# Store throw parameters for execution on throw_frame
+	_pending_throw_direction = direction
+	_pending_throw_world_root = world_root
+	_pending_throw_from_crowd = from_crowd
+	
+	# For crowd throws, execute immediately (no animation)
+	if from_crowd:
+		_execute_throw()
+		return
+	
+	# Trigger throw animation on the holder and wait for throw_frame
+	if _pickupable:
+		var holder = _pickupable.get_holder()
+		if holder:
+			# Look for AnimationController on the holder
+			var anim_controller: AnimationController = holder.get_node_or_null("AnimationController")
+			if anim_controller:
+				_throw_animation_controller = anim_controller
+				# Speed up throw animation to hit throw_frame at ~0.25s
+				# Standard throw animation is probably ~1s, so 4x speed = 0.25s
+				anim_controller.set_attack_animation_speed(4.0)
+				# Connect to throw_frame signal if not already connected
+				if not anim_controller.throw_frame.is_connected(_on_throw_frame):
+					anim_controller.throw_frame.connect(_on_throw_frame)
+				# Start the throw animation
+				anim_controller.request_action(&"throw")
+				return
+	
+	# Fallback: no animation controller, execute immediately
+	_execute_throw()
+
+## Called when throw_frame signal is emitted during throw animation
+func _on_throw_frame() -> void:
+	# Reset animation speed after throw frame
+	if _throw_animation_controller:
+		_throw_animation_controller.reset_attack_animation_speed()
+		_throw_animation_controller = null
+	
+	# Execute the actual throw
+	_execute_throw()
+
+## Executes the actual throwing physics and effects
+func _execute_throw() -> void:
+	var item: Node = get_parent()
+	if not item is RigidBody3D:
+		return
 	var rb: RigidBody3D = item as RigidBody3D
 	var old_global_pos: Vector3 = rb.global_position
 	item.reparent(world_root)
@@ -69,7 +122,7 @@ func throw(direction: Vector3, world_root: Node, from_crowd: bool = false) -> vo
 
 	# Reset landing state for new throw
 	_has_landed = false
-	_is_from_crowd = from_crowd
+	_is_from_crowd = _pending_throw_from_crowd
 
 	# Store original collision layer and disable PLAYER_INTERACTION layer during flight
 	_original_collision_mask = rb.collision_mask
@@ -77,7 +130,7 @@ func throw(direction: Vector3, world_root: Node, from_crowd: bool = false) -> vo
 
 	# Throw direction: blend horizontal direction with upward bias
 	var up := Vector3.UP
-	var flat := Vector3(direction.x, 0.0, direction.z)
+	var flat := Vector3(_pending_throw_direction.x, 0.0, _pending_throw_direction.z)
 	if flat.length_squared() > 0.01:
 		flat = flat.normalized()
 	var throw_dir := (flat * (1.0 - throw_up_bias) + up * throw_up_bias).normalized()
@@ -87,13 +140,13 @@ func throw(direction: Vector3, world_root: Node, from_crowd: bool = false) -> vo
 	rb.apply_torque_impulse(spin_axis * 15.0)
 
 	# Execute OnThrowEffect components
-	EffectUtils.execute_effects(item, OnThrowEffect, [throw_dir, throw_force, from_crowd])
+	EffectUtils.execute_effects(item, OnThrowEffect, [throw_dir, throw_force, _pending_throw_from_crowd])
 
 	# Emit thrown signal
-	thrown.emit(throw_dir, throw_force, from_crowd)
+	thrown.emit(throw_dir, throw_force, _pending_throw_from_crowd)
 
 	# Emit global event for upgrade system
-	EventBus.weapon_thrown.emit(item, throw_dir, from_crowd)
+	EventBus.weapon_thrown.emit(item, throw_dir, _pending_throw_from_crowd)
 
 
 ## Mark this item as being thrown by the crowd (won't take durability damage on landing)

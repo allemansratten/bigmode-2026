@@ -1,11 +1,16 @@
 [gd_scene format=3 uid="uid://cplayer001"]
 
 [ext_resource type="Script" uid="uid://d34iv2yt542bf" path="res://scripts/player/player.gd" id="1_player"]
-[ext_resource type="AudioStream" uid="uid://djtgj1mlwdg3m" path="res://resources/sounds/hitHurt.wav" id="2_70d11"]
+[ext_resource type="PackedScene" uid="uid://b2wfkpdena020" path="res://resources/models/wizard/player_character.tscn" id="2_70d11"]
 [ext_resource type="Script" uid="uid://ccvi13rbwbn8w" path="res://scripts/camera/game_camera_3d.gd" id="2_cam"]
 [ext_resource type="Script" uid="uid://bty3o72oloqn0" path="res://scripts/player/dash_component.gd" id="3_dash"]
 [ext_resource type="PackedScene" path="res://scenes/components/SurfaceDetector.tscn" id="4_mdl7e"]
 [ext_resource type="Script" uid="uid://bspu27pxuoww3" path="res://scripts/player/player_inventory.gd" id="5_qu4a1"]
+[ext_resource type="Script" uid="uid://dnidyro7a1r6q" path="res://scripts/animation/animation_controller.gd" id="6_anim_controller"]
+[ext_resource type="Resource" uid="uid://gimykpxwn5ed" path="res://resources/animation/player_anim_set.tres" id="7_player_anim"]
+
+[sub_resource type="Resource" id="Resource_cw2d6"]
+metadata/__load_path__ = "res://resources/sounds/hitHurt.wav"
 
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_flash"]
 albedo_color = Color(1, 0.2, 0.2, 1)
@@ -33,15 +38,19 @@ gravity = null
 pickup_range = null
 facing_turn_speed = null
 max_health = null
-hit_sound = ExtResource("2_70d11")
+hit_sound = SubResource("Resource_cw2d6")
 hit_flash_material = SubResource("StandardMaterial3D_flash")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1919314831]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
 shape = SubResource("CapsuleShape3D_floor")
 
+[node name="PlayerCharacter" parent="." unique_id=1409728293 instance=ExtResource("2_70d11")]
+transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0, 0, 0)
+
 [node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=299221676]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)
+visible = false
 layers = 2
 mesh = SubResource("CapsuleMesh_player")
 
@@ -73,3 +82,8 @@ script = ExtResource("3_dash")
 
 [node name="PlayerInventory" type="Node" parent="." unique_id=273180778]
 script = ExtResource("5_qu4a1")
+
+[node name="AnimationController" type="Node" parent="." unique_id=1598342876]
+script = ExtResource("6_anim_controller")
+anim_set = ExtResource("7_player_anim")
+debug_logging = true

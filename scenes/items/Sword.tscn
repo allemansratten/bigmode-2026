@@ -52,6 +52,8 @@ categories = Array[int]([0, 10, 20, 24])
 
 [node name="MeleeWeaponBehaviour" type="Node" parent="." unique_id=502907629]
 script = ExtResource("4_dpbjg")
+stab_end_distance = 3.0
+stab_radius = 0.5
 stab_end_time = 0.2
 knockback_force = 8.0
 attack_sound = ExtResource("9_whoosh")
