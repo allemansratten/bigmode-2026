@@ -44,6 +44,9 @@ var _current_speed: float = 0.0
 var _last_action_name: StringName = &""
 var _last_action_state: StringName = &""
 
+# Mode detection
+var _use_state_machine: bool = false
+
 # Animation event tracking
 var _active_attack_window: bool = false
 var _hit_frame_triggered: bool = false
@@ -70,6 +73,19 @@ func _setup_animation_tree() -> void:
 
 	_animation_tree.active = true
 
+	# Detect which mode to use based on AnimSet configuration
+	_use_state_machine = anim_set.use_condition_based_locomotion and anim_set.state_machine_path != ""
+	
+	if _use_state_machine:
+		# Set up state machine playback for enemies
+		_state_machine = _animation_tree.get(anim_set.state_machine_path)
+		if not _state_machine:
+			push_warning("AnimationController: StateMachine not found at path: ", anim_set.state_machine_path)
+			_use_state_machine = false
+		else:
+			if debug_logging:
+				print("AnimationController: Using StateMachine mode for ", _character.name)
+
 	# Connect AnimationPlayer for animation events
 	var anim_player_path = _animation_tree.anim_player
 	var anim_player = _animation_tree.get_node_or_null(anim_player_path)
@@ -78,7 +94,8 @@ func _setup_animation_tree() -> void:
 			anim_player.animation_finished.connect(_on_animation_finished)
 
 	if debug_logging:
-		print("AnimationController: Setup complete for ", _character.name, " using AnimationTree BlendTree system")
+		var mode_str = "BlendTree" if not _use_state_machine else "StateMachine"
+		print("AnimationController: Setup complete for ", _character.name, " using ", mode_str, " system")
 
 # -- Signal connection (data-driven from AnimSet.signal_actions) -----------
 
@@ -191,36 +208,36 @@ func request_action(action: StringName) -> void:
 	_hit_frame_triggered = false
 	_active_attack_window = false
 	
+	if _use_state_machine:
+		_handle_state_machine_action(action)
+	else:
+		_handle_blend_tree_action(action)
+
+func _handle_state_machine_action(action: StringName) -> void:
+	if not _state_machine:
+		push_warning("AnimationController: No StateMachine available for action: ", action)
+		return
+		
+	var state_name = anim_set.get_state_for_action(String(action))
+	if state_name == "":
+		if debug_logging:
+			print("AnimationController: No state mapping for action: ", action)
+		return
+	
+	_last_action_state = StringName(state_name)
+	
+	# Apply speed multipliers for state machine mode
+	_apply_action_speed_multipliers(action)
+	
+	# Travel to the target state
+	_state_machine.travel(state_name)
+	
+	if debug_logging:
+		print("AnimationController: StateMachine traveled to state: ", state_name, " for action: ", action)
+
+func _handle_blend_tree_action(action: StringName) -> void:
 	# Apply speed multipliers for different action types
-	if action == &"attack":
-		# Check if this is an enemy with attack duration set
-		if _character.has_method("get_attack_duration"):
-			var enemy_duration = _character.get_attack_duration()
-			if enemy_duration > 0.0:
-				# Scale enemy attack animation to match their attack duration
-				# Assume base enemy attack animation is ~2.0s
-				var enemy_speed = 2.0 / enemy_duration
-				set_enemy_attack_animation_speed(enemy_speed)
-				_apply_enemy_attack_speed()
-			else:
-				_apply_attack_speed()
-		else:
-			_apply_attack_speed()
-		# Also apply it again after a short delay to ensure it sticks
-		get_tree().create_timer(0.01).timeout.connect(func(): 
-			if _character.has_method("get_attack_duration"):
-				var enemy_duration = _character.get_attack_duration()
-				if enemy_duration > 0.0:
-					_apply_enemy_attack_speed()
-				else:
-					_apply_attack_speed()
-			else:
-				_apply_attack_speed()
-		)
-	elif action == &"dash":
-		_apply_dash_speed()
-		# Also apply it again after a short delay to ensure it sticks
-		get_tree().create_timer(0.01).timeout.connect(_apply_dash_speed)
+	_apply_action_speed_multipliers(action)
 	
 	# Map actions to ActionSelect transitions and OneShot triggers
 	match action:
@@ -257,9 +274,59 @@ func request_action(action: StringName) -> void:
 		_:
 			push_warning("AnimationController: No BlendTree mapping for action: ", action)
 
+func _apply_action_speed_multipliers(action: StringName) -> void:
+	match action:
+		&"attack":
+			# Check if this is an enemy with attack duration set
+			if _character.has_method("get_attack_duration"):
+				var enemy_duration = _character.get_attack_duration()
+				if enemy_duration > 0.0:
+					# Scale enemy attack animation to match their attack duration
+					# Assume base enemy attack animation is ~2.0s
+					var enemy_speed = 2.0 / enemy_duration
+					set_enemy_attack_animation_speed(enemy_speed)
+					_apply_enemy_attack_speed()
+				else:
+					_apply_attack_speed()
+			else:
+				_apply_attack_speed()
+			# Also apply it again after a short delay to ensure it sticks
+			get_tree().create_timer(0.01).timeout.connect(func(): 
+				if _character.has_method("get_attack_duration"):
+					var enemy_duration = _character.get_attack_duration()
+					if enemy_duration > 0.0:
+						_apply_enemy_attack_speed()
+					else:
+						_apply_attack_speed()
+				else:
+					_apply_attack_speed()
+			)
+		&"dash":
+			_apply_dash_speed()
+			# Also apply it again after a short delay to ensure it sticks
+			get_tree().create_timer(0.01).timeout.connect(_apply_dash_speed)
+
 # -- Animation completion --------------------------------------------------
 
 func _on_animation_finished(_animation_name: StringName) -> void:
+	if _use_state_machine:
+		_handle_state_machine_finished()
+	else:
+		_handle_blend_tree_finished()
+
+func _handle_state_machine_finished() -> void:
+	# StateMachine: Return to locomotion unless it's a terminal action
+	if not anim_set.is_terminal_action(String(_last_action_name)) and _state_machine:
+		_state_machine.travel(anim_set.state_locomotion)
+		if debug_logging:
+			print("AnimationController: StateMachine returned to locomotion state: ", anim_set.state_locomotion)
+	
+	_close_attack_window()
+	_reset_time_scale()
+	_last_action_name = &""
+	_last_action_state = &""
+
+func _handle_blend_tree_finished() -> void:
 	# BlendTree system: Actions auto-return to locomotion via OneShot fadeout
 	_close_attack_window()
 	
@@ -313,57 +380,76 @@ func get_current_state() -> String:
 	if not _animation_tree:
 		return "No AnimationTree"
 	
-	# For BlendTree system, check OneShot activity and ActionSelect state
-	var upper_active = _animation_tree.get("parameters/UpperBodyOneShot/active")
-	var full_active = _animation_tree.get("parameters/FullBodyOneShot/active")
-	var action_state = _animation_tree.get("parameters/ActionSelect/current_state")
-	
-	if full_active:
-		return "FullBodyAction"
-	elif upper_active:
-		return "UpperBodyAction:" + str(action_state)
+	if _use_state_machine and _state_machine:
+		# StateMachine mode: Return current state name
+		return _state_machine.get_current_node()
 	else:
-		return "Locomotion"
+		# BlendTree mode: Check OneShot activity and ActionSelect state
+		var upper_active = _animation_tree.get("parameters/UpperBodyOneShot/active")
+		var full_active = _animation_tree.get("parameters/FullBodyOneShot/active")
+		var action_state = _animation_tree.get("parameters/ActionSelect/current_state")
+		
+		if full_active:
+			return "FullBodyAction"
+		elif upper_active:
+			return "UpperBodyAction:" + str(action_state)
+		else:
+			return "Locomotion"
 
 func get_current_speed() -> float:
 	return _current_speed
 
 func get_animation_info() -> Dictionary:
-	return {
+	var info = {
 		"current_state": get_current_state(),
 		"current_speed": _current_speed,
 		"last_action": _last_action_name,
+		"last_action_state": _last_action_state,
 		"hit_frame_triggered": _hit_frame_triggered,
 		"attack_window_active": _active_attack_window,
 		"animation_tree_active": _animation_tree.active if _animation_tree else false,
-		"upper_body_oneshot_active": _animation_tree.get("parameters/UpperBodyOneShot/active") if _animation_tree else false,
-		"full_body_oneshot_active": _animation_tree.get("parameters/FullBodyOneShot/active") if _animation_tree else false,
-		"action_select_state": _animation_tree.get("parameters/ActionSelect/current_state") if _animation_tree else "",
+		"mode": "StateMachine" if _use_state_machine else "BlendTree",
 		"time_scale": _animation_tree.get("parameters/TimeScale/scale") if _animation_tree else 1.0,
-		"locomotion_blend": _animation_tree.get("parameters/Locomotion/blend_position") if _animation_tree else 0.0,
 	}
+	
+	if _use_state_machine:
+		info["state_machine_current"] = _state_machine.get_current_node() if _state_machine else ""
+		info["state_machine_travel_path"] = _state_machine.get_travel_path() if _state_machine else []
+	else:
+		info["upper_body_oneshot_active"] = _animation_tree.get("parameters/UpperBodyOneShot/active") if _animation_tree else false
+		info["full_body_oneshot_active"] = _animation_tree.get("parameters/FullBodyOneShot/active") if _animation_tree else false
+		info["action_select_state"] = _animation_tree.get("parameters/ActionSelect/current_state") if _animation_tree else ""
+		info["locomotion_blend"] = _animation_tree.get("parameters/Locomotion/blend_position") if _animation_tree else 0.0
+	
+	return info
 
 func force_travel_to_state(state_name: StringName) -> void:
-	# For BlendTree system, interpret state names as action requests
-	match state_name:
-		&"Attack", &"MeleeAttack":
-			request_action(&"attack")
-		&"RangedAttack":
-			request_action(&"ranged_attack") 
-		&"Hit":
-			request_action(&"hit")
-		&"Throw":
-			request_action(&"throw")
-		&"Dash":
-			request_action(&"dash")
-		&"Locomotion":
-			# Reset to locomotion by clearing oneshots
-			if _animation_tree:
-				_animation_tree.set("parameters/UpperBodyOneShot/request", 0)
-				_animation_tree.set("parameters/FullBodyOneShot/request", 0)
-		_:
-			if debug_logging:
-				print("AnimationController: Unknown state for BlendTree: ", state_name)
+	if _use_state_machine and _state_machine:
+		# StateMachine mode: Travel directly to the state
+		_state_machine.travel(String(state_name))
+		if debug_logging:
+			print("AnimationController: Force traveled to state: ", state_name)
+	else:
+		# BlendTree mode: Interpret state names as action requests
+		match state_name:
+			&"Attack", &"MeleeAttack":
+				request_action(&"attack")
+			&"RangedAttack":
+				request_action(&"ranged_attack") 
+			&"Hit", &"OnHit":
+				request_action(&"hit")
+			&"Throw":
+				request_action(&"throw")
+			&"Dash":
+				request_action(&"dash")
+			&"Locomotion", &"Idle":
+				# Reset to locomotion by clearing oneshots
+				if _animation_tree:
+					_animation_tree.set("parameters/UpperBodyOneShot/request", 0)
+					_animation_tree.set("parameters/FullBodyOneShot/request", 0)
+			_:
+				if debug_logging:
+					print("AnimationController: Unknown state for BlendTree: ", state_name)
 
 func force_trigger_event(event_name: String) -> void:
 	match event_name:
@@ -421,7 +507,7 @@ func _reset_time_scale() -> void:
 	if not _animation_tree:
 		return
 	
-	# Reset TimeScale to normal speed
+	# Use appropriate TimeScale parameter based on mode
 	var time_scale_param = "parameters/TimeScale/scale"
 	if _has_parameter(time_scale_param):
 		_animation_tree.set(time_scale_param, 1.0)
@@ -433,7 +519,7 @@ func _apply_attack_speed() -> void:
 	if not _animation_tree:
 		return
 	
-	# Use TimeScale node for perfect speed control in BlendTree system
+	# Use TimeScale node for perfect speed control in both systems
 	var time_scale_param = "parameters/TimeScale/scale"
 	if _has_parameter(time_scale_param):
 		_animation_tree.set(time_scale_param, _attack_speed_multiplier)
@@ -448,7 +534,7 @@ func _apply_dash_speed() -> void:
 	if not _animation_tree:
 		return
 	
-	# Use TimeScale node for perfect speed control in BlendTree system
+	# Use TimeScale node for perfect speed control in both systems
 	var time_scale_param = "parameters/TimeScale/scale"
 	if _has_parameter(time_scale_param):
 		_animation_tree.set(time_scale_param, _dash_speed_multiplier)
@@ -463,7 +549,7 @@ func _apply_enemy_attack_speed() -> void:
 	if not _animation_tree:
 		return
 	
-	# Use TimeScale node for perfect speed control in BlendTree system
+	# Use TimeScale node for perfect speed control in both systems
 	var time_scale_param = "parameters/TimeScale/scale"
 	if _has_parameter(time_scale_param):
 		_animation_tree.set(time_scale_param, _enemy_attack_speed_multiplier)
