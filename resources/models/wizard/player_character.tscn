@@ -80,18 +80,23 @@ input_3/reset = true
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_klfx5"]
 animation = &"Player/DodgeJump"
 
-[sub_resource type="AnimationNodeOneShot" id="AnimationNodeOneShot_i2pkn"]
+[sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_2lyil"]
 
-[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_3t64d"]
+[sub_resource type="AnimationNodeOneShot" id="AnimationNodeOneShot_i2pkn"]
+mix_mode = 1
+fadein_time = 0.2
+fadeout_time = 0.2
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_2lyil"]
 animation = &"Player/Idle"
 
-[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_nc5py"]
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_kouh2"]
 animation = &"Player/Running"
 
 [sub_resource type="AnimationNodeBlendSpace1D" id="AnimationNodeBlendSpace1D_dxqec"]
-blend_point_0/node = SubResource("AnimationNodeAnimation_3t64d")
+blend_point_0/node = SubResource("AnimationNodeAnimation_2lyil")
 blend_point_0/pos = 0.0
-blend_point_1/node = SubResource("AnimationNodeAnimation_nc5py")
+blend_point_1/node = SubResource("AnimationNodeAnimation_kouh2")
 blend_point_1/pos = 1.0
 
 [sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_xunpq"]
@@ -109,13 +114,13 @@ animation = &"Player/Throw"
 [sub_resource type="AnimationNodeTimeScale" id="AnimationNodeTimeScale_rn0wh"]
 
 [sub_resource type="AnimationNodeOneShot" id="AnimationNodeOneShot_uhs3j"]
-filters = ["Skeleton3D:mixamorig_Head", "Skeleton3D:mixamorig_LeftArm", "Skeleton3D:mixamorig_LeftForeArm", "Skeleton3D:mixamorig_LeftShoulder", "Skeleton3D:mixamorig_Neck", "Skeleton3D:mixamorig_RightArm", "Skeleton3D:mixamorig_RightForeArm", "Skeleton3D:mixamorig_RightShoulder", "Skeleton3D:mixamorig_Spine2"]
+filters = ["Skeleton3D:mixamorig_Head", "Skeleton3D:mixamorig_LeftArm", "Skeleton3D:mixamorig_LeftForeArm", "Skeleton3D:mixamorig_LeftShoulder", "Skeleton3D:mixamorig_Neck", "Skeleton3D:mixamorig_RightArm", "Skeleton3D:mixamorig_RightForeArm", "Skeleton3D:mixamorig_RightShoulder"]
 mix_mode = 1
 fadein_time = 0.2
 fadeout_time = 0.2
 
 [sub_resource type="AnimationNodeBlendTree" id="AnimationNodeBlendTree_yaf0i"]
-graph_offset = Vector2(-272.63513, 198.2067)
+graph_offset = Vector2(-484.83057, 231.7331)
 nodes/output/position = Vector2(300, 340)
 nodes/Locomotion/node = SubResource("AnimationNodeBlendSpace1D_dxqec")
 nodes/Locomotion/position = Vector2(-660, 200)
@@ -135,34 +140,36 @@ nodes/Throw/node = SubResource("AnimationNodeAnimation_s2t5y")
 nodes/Throw/position = Vector2(-1314.782, 785.37195)
 nodes/FullBodyOneShot/node = SubResource("AnimationNodeOneShot_i2pkn")
 nodes/FullBodyOneShot/position = Vector2(60, 340)
-nodes/Animation/node = SubResource("AnimationNodeAnimation_klfx5")
-nodes/Animation/position = Vector2(-320, 640)
-node_connections = [&"output", 0, &"FullBodyOneShot", &"ActionSelect", 0, &"MeleeAttack", &"ActionSelect", 1, &"RangedAttack", &"ActionSelect", 2, &"OnHit", &"ActionSelect", 3, &"Throw", &"TimeScale", 0, &"ActionSelect", &"UpperBodyOneShot", 0, &"Locomotion", &"UpperBodyOneShot", 1, &"TimeScale", &"FullBodyOneShot", 0, &"UpperBodyOneShot", &"FullBodyOneShot", 1, &"Animation"]
+nodes/Dash/node = SubResource("AnimationNodeAnimation_klfx5")
+nodes/Dash/position = Vector2(-520, 660)
+nodes/DashTiming/node = SubResource("AnimationNodeTimeScale_2lyil")
+nodes/DashTiming/position = Vector2(-140, 660)
+node_connections = [&"output", 0, &"FullBodyOneShot", &"ActionSelect", 0, &"MeleeAttack", &"ActionSelect", 1, &"RangedAttack", &"ActionSelect", 2, &"OnHit", &"ActionSelect", 3, &"Throw", &"TimeScale", 0, &"ActionSelect", &"UpperBodyOneShot", 0, &"Locomotion", &"UpperBodyOneShot", 1, &"TimeScale", &"FullBodyOneShot", 0, &"UpperBodyOneShot", &"FullBodyOneShot", 1, &"DashTiming", &"DashTiming", 0, &"Dash"]
 
 [node name="PlayerCharacter" unique_id=1409728293 instance=ExtResource("1_6ityr")]
 
 [node name="Skeleton3D" parent="." index="0" unique_id=481654702]
-bones/0/position = Vector3(0.011635423, 1.0087875, 0.07228467)
-bones/0/rotation = Quaternion(0.01525993, 0.012104556, -0.027239958, 0.9994392)
-bones/1/rotation = Quaternion(0.021515828, 0.013436851, 0.01958642, 0.9994863)
-bones/2/rotation = Quaternion(0.04216304, 0.015919114, 0.004174897, 0.9989753)
-bones/3/rotation = Quaternion(0.042134345, 0.01593963, 0.004368811, 0.9989752)
-bones/4/rotation = Quaternion(-0.041147217, -0.019741757, -0.007826393, 0.9989275)
-bones/5/rotation = Quaternion(-0.02009876, -0.070279635, -0.0016571437, 0.9973235)
-bones/7/rotation = Quaternion(-0.5337878, -0.4614118, 0.56611574, -0.42624268)
-bones/8/rotation = Quaternion(0.4510984, 0.14830042, -0.038256392, 0.8792347)
-bones/9/rotation = Quaternion(-9.816278e-05, 0.045346472, 0.5093573, 0.8593595)
-bones/11/rotation = Quaternion(0.5731498, -0.43800953, 0.51179415, 0.46659815)
-bones/12/rotation = Quaternion(0.45313776, -0.05969966, -0.07128423, 0.8865781)
-bones/13/rotation = Quaternion(0.012163322, 0.025053952, -0.50610656, 0.86202127)
-bones/15/rotation = Quaternion(0.0117457835, 0.25973004, 0.96498483, -0.034737702)
-bones/16/rotation = Quaternion(-0.54113644, -0.07313888, 0.010784276, 0.8376788)
-bones/17/rotation = Quaternion(0.66431695, -0.06110416, 0.0005993285, 0.744949)
-bones/18/rotation = Quaternion(0.26326865, -0.0048644175, 0.0024302686, 0.9647073)
-bones/20/rotation = Quaternion(-0.10280886, -0.0033859327, 0.9946943, 0.0014678687)
-bones/21/rotation = Quaternion(-0.2814239, -0.016034948, -0.0043387017, 0.95943975)
-bones/22/rotation = Quaternion(0.5301763, 0.141551, -0.0041121333, 0.8359782)
-bones/23/rotation = Quaternion(0.443929, -0.12565887, 0.049067356, 0.8858494)
+bones/0/position = Vector3(-0.0464394, 0.9981415, 0.0771274)
+bones/0/rotation = Quaternion(0.0017343841, 0.035019036, 0.013509129, 0.99929386)
+bones/1/rotation = Quaternion(0.022663059, 0.0118983695, -0.004616159, 0.99966174)
+bones/2/rotation = Quaternion(0.044158686, 0.009129675, -0.00036896858, 0.9989828)
+bones/3/rotation = Quaternion(0.043815453, 0.0092587555, -0.00020815013, 0.9989968)
+bones/4/rotation = Quaternion(-0.028251087, -0.01797703, -0.005141687, 0.99942595)
+bones/5/rotation = Quaternion(-0.014032078, -0.07885503, 0.024044838, 0.9964973)
+bones/7/rotation = Quaternion(-0.5517681, -0.44163975, 0.5731935, -0.41467527)
+bones/8/rotation = Quaternion(0.40952766, 0.12702392, 0.055844102, 0.9016837)
+bones/9/rotation = Quaternion(0.014046955, 0.05093852, 0.47031373, 0.88091606)
+bones/11/rotation = Quaternion(0.5676922, -0.44190916, 0.51656723, 0.4643277)
+bones/12/rotation = Quaternion(0.4521885, -0.09817633, -0.03470727, 0.88582313)
+bones/13/rotation = Quaternion(0.021812595, 0.014087453, -0.50606525, 0.86210424)
+bones/15/rotation = Quaternion(-0.0067986725, 0.20286937, 0.9791757, -0.003599469)
+bones/16/rotation = Quaternion(-0.4127612, -0.050372362, 0.0061807623, 0.90942436)
+bones/17/rotation = Quaternion(0.6398103, -0.034724157, 0.012401003, 0.7676478)
+bones/18/rotation = Quaternion(0.22817342, -0.00414175, -0.015114053, 0.97349447)
+bones/20/rotation = Quaternion(-0.054163232, 0.08199605, 0.99467117, 0.031183265)
+bones/21/rotation = Quaternion(-0.48854572, 0.03790081, 0.005501984, 0.8716974)
+bones/22/rotation = Quaternion(0.31021017, 0.14607102, -0.016993014, 0.93922526)
+bones/23/rotation = Quaternion(0.41145104, -0.10302227, 0.058536462, 0.9036968)
 
 [node name="cape" parent="Skeleton3D" index="2" unique_id=736083244]
 surface_material_override/0 = SubResource("StandardMaterial3D_kouh2")
@@ -175,9 +182,9 @@ libraries/Player = SubResource("AnimationLibrary_ql1ki")
 tree_root = SubResource("AnimationNodeBlendTree_yaf0i")
 anim_player = NodePath("../AnimationPlayer")
 parameters/Locomotion/blend_position = 0.5
-parameters/ActionSelect/current_state = "MeleeAttack"
+parameters/ActionSelect/current_state = "Throw"
 parameters/ActionSelect/transition_request = ""
-parameters/ActionSelect/current_index = 0
+parameters/ActionSelect/current_index = 3
 parameters/TimeScale/scale = 1.0
 parameters/UpperBodyOneShot/active = false
 parameters/UpperBodyOneShot/internal_active = false
@@ -185,3 +192,4 @@ parameters/UpperBodyOneShot/request = 0
 parameters/FullBodyOneShot/active = false
 parameters/FullBodyOneShot/internal_active = false
 parameters/FullBodyOneShot/request = 0
+parameters/DashTiming/scale = 1.0

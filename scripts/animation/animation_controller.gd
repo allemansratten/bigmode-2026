@@ -14,6 +14,8 @@ class_name AnimationController
 signal hit_frame
 ## Emitted for footstep sounds during locomotion
 signal footstep
+## Emitted when throw frame occurs during throw animation
+signal throw_frame
 ## Emitted when attack window opens/closes for weapon systems
 signal attack_window(open: bool)
 ## Emitted when animation events are triggered
@@ -27,6 +29,10 @@ signal animation_event(event_name: String, data: Dictionary)
 
 ## Current animation speed multiplier for attack actions (1.0 = normal speed)
 var _attack_speed_multiplier: float = 1.0
+## Current animation speed multiplier for dash actions (1.0 = normal speed)
+var _dash_speed_multiplier: float = 1.0
+## Current animation speed multiplier for enemy attacks (1.0 = normal speed)
+var _enemy_attack_speed_multiplier: float = 1.0
 ## Default attack animation duration (from base animation) - set when needed
 var _base_attack_duration: float = 0.0
 
@@ -185,11 +191,36 @@ func request_action(action: StringName) -> void:
 	_hit_frame_triggered = false
 	_active_attack_window = false
 	
-	# Apply attack speed multiplier for attack actions
+	# Apply speed multipliers for different action types
 	if action == &"attack":
-		_apply_attack_speed()
+		# Check if this is an enemy with attack duration set
+		if _character.has_method("get_attack_duration"):
+			var enemy_duration = _character.get_attack_duration()
+			if enemy_duration > 0.0:
+				# Scale enemy attack animation to match their attack duration
+				# Assume base enemy attack animation is ~2.0s
+				var enemy_speed = 2.0 / enemy_duration
+				set_enemy_attack_animation_speed(enemy_speed)
+				_apply_enemy_attack_speed()
+			else:
+				_apply_attack_speed()
+		else:
+			_apply_attack_speed()
 		# Also apply it again after a short delay to ensure it sticks
-		get_tree().create_timer(0.01).timeout.connect(_apply_attack_speed)
+		get_tree().create_timer(0.01).timeout.connect(func(): 
+			if _character.has_method("get_attack_duration"):
+				var enemy_duration = _character.get_attack_duration()
+				if enemy_duration > 0.0:
+					_apply_enemy_attack_speed()
+				else:
+					_apply_attack_speed()
+			else:
+				_apply_attack_speed()
+		)
+	elif action == &"dash":
+		_apply_dash_speed()
+		# Also apply it again after a short delay to ensure it sticks
+		get_tree().create_timer(0.01).timeout.connect(_apply_dash_speed)
 	
 	# Map actions to ActionSelect transitions and OneShot triggers
 	match action:
@@ -259,6 +290,10 @@ func _anim_hit_frame() -> void:
 func _anim_footstep() -> void:
 	footstep.emit()
 	animation_event.emit("footstep", {"speed": _current_speed})
+
+func _anim_throw_frame() -> void:
+	throw_frame.emit()
+	animation_event.emit("throw_frame", {"action": _last_action_name})
 
 func _anim_attack_window_open() -> void:
 	if not _active_attack_window:
@@ -334,6 +369,8 @@ func force_trigger_event(event_name: String) -> void:
 	match event_name:
 		"hit_frame":
 			_anim_hit_frame()
+		"throw_frame":
+			_anim_throw_frame()
 		"footstep":
 			_anim_footstep()
 		"attack_window_open":
@@ -350,10 +387,37 @@ func set_attack_animation_speed(speed_multiplier: float) -> void:
 	if debug_logging:
 		print("AnimationController: Attack speed multiplier set to ", _attack_speed_multiplier)
 
+## Set animation speed multiplier for dash actions
+## Call this when dash timing changes
+func set_dash_animation_speed(speed_multiplier: float) -> void:
+	_dash_speed_multiplier = clamp(speed_multiplier, 0.1, 10.0)
+	if debug_logging:
+		print("AnimationController: Dash speed multiplier set to ", _dash_speed_multiplier)
+
+## Set animation speed multiplier for enemy attack actions
+## Call this when enemy attack timing changes
+func set_enemy_attack_animation_speed(speed_multiplier: float) -> void:
+	_enemy_attack_speed_multiplier = clamp(speed_multiplier, 0.1, 10.0)
+	if debug_logging:
+		print("AnimationController: Enemy attack speed multiplier set to ", _enemy_attack_speed_multiplier)
+
 ## Reset attack animation speed to default
 func reset_attack_animation_speed() -> void:
 	_attack_speed_multiplier = 1.0
-	
+	_reset_time_scale()
+
+## Reset dash animation speed to default
+func reset_dash_animation_speed() -> void:
+	_dash_speed_multiplier = 1.0
+	_reset_time_scale()
+
+## Reset enemy attack animation speed to default
+func reset_enemy_attack_animation_speed() -> void:
+	_enemy_attack_speed_multiplier = 1.0
+	_reset_time_scale()
+
+## Reset TimeScale to normal speed
+func _reset_time_scale() -> void:
 	if not _animation_tree:
 		return
 	
@@ -374,7 +438,37 @@ func _apply_attack_speed() -> void:
 	if _has_parameter(time_scale_param):
 		_animation_tree.set(time_scale_param, _attack_speed_multiplier)
 		if debug_logging:
-			print("AnimationController: Applied speed via TimeScale: ", _attack_speed_multiplier)
+			print("AnimationController: Applied attack speed via TimeScale: ", _attack_speed_multiplier)
+	else:
+		if debug_logging:
+			print("AnimationController: TimeScale parameter not found!")
+
+## Apply the current dash speed multiplier to the animation tree
+func _apply_dash_speed() -> void:
+	if not _animation_tree:
+		return
+	
+	# Use TimeScale node for perfect speed control in BlendTree system
+	var time_scale_param = "parameters/TimeScale/scale"
+	if _has_parameter(time_scale_param):
+		_animation_tree.set(time_scale_param, _dash_speed_multiplier)
+		if debug_logging:
+			print("AnimationController: Applied dash speed via TimeScale: ", _dash_speed_multiplier)
+	else:
+		if debug_logging:
+			print("AnimationController: TimeScale parameter not found!")
+
+## Apply the current enemy attack speed multiplier to the animation tree
+func _apply_enemy_attack_speed() -> void:
+	if not _animation_tree:
+		return
+	
+	# Use TimeScale node for perfect speed control in BlendTree system
+	var time_scale_param = "parameters/TimeScale/scale"
+	if _has_parameter(time_scale_param):
+		_animation_tree.set(time_scale_param, _enemy_attack_speed_multiplier)
+		if debug_logging:
+			print("AnimationController: Applied enemy attack speed via TimeScale: ", _enemy_attack_speed_multiplier)
 	else:
 		if debug_logging:
 			print("AnimationController: TimeScale parameter not found!")
