@@ -143,13 +143,16 @@ func _activate_current_item() -> void:
 	item.visible = true
 
 	# Attach item to player's HoldPoint
-	var hold_point = player.get_node_or_null("HoldPoint")
-	if not hold_point:
-		hold_point = player
+	var hold_point = player.hold_point if player.hold_point else player
 
 	item.reparent(hold_point)
 	item.position = Vector3.ZERO
-	item.rotation = Vector3.ZERO
+	# Restore the item's scene-default rotation (cached by PickupableBehaviour)
+	var pickupable = _get_pickupable_behaviour(item)
+	if pickupable:
+		item.rotation = pickupable._scene_rotation
+	else:
+		item.rotation = Vector3.ZERO
 
 	# Make item kinematic so it doesn't fall
 	if item is RigidBody3D:
@@ -160,7 +163,6 @@ func _activate_current_item() -> void:
 	_cache_weapon_behaviours(item)
 
 	# Notify pickupable behaviour that item is now active
-	var pickupable = _get_pickupable_behaviour(item)
 	if pickupable:
 		pickupable.activate()
 

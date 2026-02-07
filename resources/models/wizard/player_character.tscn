@@ -200,14 +200,24 @@ bones/23/rotation = Quaternion(0.3840348, -0.117729716, 0.05701139, 0.91400594)
 [node name="character" parent="Skeleton3D" index="0" unique_id=269481058]
 mesh = SubResource("ArrayMesh_2lyil")
 
-[node name="cape" parent="Skeleton3D" index="2" unique_id=736083244]
+[node name="cape" parent="Skeleton3D" index="2" unique_id=1743284617]
 surface_material_override/0 = SubResource("StandardMaterial3D_kouh2")
 
-[node name="AnimationPlayer" parent="." index="1" unique_id=397819059]
+[node name="BoneAttachment3D" type="BoneAttachment3D" parent="Skeleton3D" index="3" unique_id=991322557]
+transform = Transform3D(0.41994566, -0.18440235, 0.8886177, 0.27994296, -0.905074, -0.3201136, 0.8632947, 0.38319263, -0.32845992, -0.37645158, 0.91092646, 0.12833363)
+bone_name = "mixamorig_RightHand"
+bone_idx = 14
+
+[node name="HoldPoint" type="Node3D" parent="Skeleton3D/BoneAttachment3D" index="0" unique_id=676720834]
+transform = Transform3D(0.08951103, 0.8827926, -0.46115595, 0.9822857, -0.0017143845, 0.18738124, 0.16462816, -0.46975958, -0.86730814, 0.057240695, 0.09983784, 0.027677417)
+
+[node name="AnimationPlayer" parent="." index="1" unique_id=1607166775]
 libraries/ = SubResource("AnimationLibrary_gjuex")
 libraries/Player = SubResource("AnimationLibrary_ql1ki")
+autoplay = &"Player/Idle"
 
 [node name="AnimationTree" type="AnimationTree" parent="." index="2" unique_id=775600716]
+active = false
 tree_root = SubResource("AnimationNodeBlendTree_yaf0i")
 anim_player = NodePath("../AnimationPlayer")
 parameters/Locomotion/blend_position = 0.5

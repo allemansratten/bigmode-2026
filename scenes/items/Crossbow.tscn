@@ -1,11 +1,11 @@
-[gd_scene format=3 uid="uid://cy23p060r5mga"]
+[gd_scene format=3 uid="uid://d3nu2vsrdhd2u"]
 
 [ext_resource type="PackedScene" uid="uid://drp102tgbqkf2" path="res://resources/models/weapon crossbows/crossbow.fbx" id="1_s6wgo"]
 [ext_resource type="Script" uid="uid://d3ujs8125ule" path="res://scripts/items/pickupable_behaviour.gd" id="2_fal6r"]
 [ext_resource type="Script" uid="uid://gq8jkdjg8anv" path="res://scripts/items/throwable_behaviour.gd" id="3_5big4"]
 [ext_resource type="Script" uid="uid://6ngjp570ak3h" path="res://scripts/items/spawnable_behaviour.gd" id="4_s6wgo"]
 [ext_resource type="Script" uid="uid://beyljglh35ds6" path="res://scripts/items/ranged_weapon_behaviour.gd" id="5_86tfp"]
-[ext_resource type="PackedScene" uid="uid://bkg6g3wr03ipu" path="res://scenes/items/PlayerArrowProjectile.tscn" id="6_urg8l"]
+[ext_resource type="PackedScene" path="res://scenes/items/PlayerArrowProjectile.tscn" id="6_urg8l"]
 [ext_resource type="Script" uid="uid://c402h5pwrip2c" path="res://scripts/items/effects/audio/play_sound_on_throw_landed_effect.gd" id="7_5big4"]
 [ext_resource type="AudioStream" uid="uid://hikvhd4ib5yo" path="res://resources/sounds/bow-shot.mp3" id="7_s6wgo"]
 [ext_resource type="AudioStream" uid="uid://bi5wmk1s7a7q2" path="res://resources/sounds/sword-pack/170698__mooseranger__union-sword-clash-11.mp3" id="8_s6wgo"]
@@ -17,6 +17,7 @@ size = Vector3(1.8612006, 0.2826294, 1.028429)
 size = Vector3(2.0450506, 0.39976883, 1.1607132)
 
 [node name="Crossbow" type="RigidBody3D" unique_id=183633123]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, 0)
 collision_layer = 20
 collision_mask = 25
 
@@ -27,6 +28,7 @@ shape = SubResource("BoxShape3D_qofw2")
 [node name="crossbow" parent="." unique_id=1693269805 instance=ExtResource("1_s6wgo")]
 
 [node name="PickupableBehaviour" type="Area3D" parent="." unique_id=941140339]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6369388e-08, 0, 0.374488)
 collision_layer = 0
 script = ExtResource("2_fal6r")
 
