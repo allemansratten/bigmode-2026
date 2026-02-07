@@ -14,6 +14,7 @@ class_name RangedAttackBehaviour
 @export var attack_sound_delay: float = 0.0  # Delay before playing attack sound
 
 var _cooldown_timer: Timer
+var _fallback_projectile_timer: Timer  # Fallback timer to spawn projectile if animation event fails
 var _animation_controller: AnimationController
 var _current_target: Node3D  # Store target for delayed projectile spawn
 
@@ -52,6 +53,9 @@ func execute_attack(enemy: Node3D, target: Node3D) -> void:
 	# Start cooldown timer
 	_cooldown_timer.start(attack_cooldown)
 
+	# Make enemy face the target when attacking
+	_face_target(enemy, target)
+
 	# Signal attack start for animation and set attack duration
 	if enemy.has_method("signal_start_attacking"):
 		enemy.signal_start_attacking()
@@ -61,6 +65,7 @@ func execute_attack(enemy: Node3D, target: Node3D) -> void:
 
 	# Store target for delayed projectile spawn on hit frame
 	_current_target = target
+	print("RangedAttackBehaviour: Attack initiated against ", target.name)
 
 	# Play attack sound
 	if attack_sound:
@@ -68,6 +73,11 @@ func execute_attack(enemy: Node3D, target: Node3D) -> void:
 			get_tree().create_timer(attack_sound_delay).timeout.connect(func(): Audio.play_sound(attack_sound, Audio.Channels.SFX))
 		else:
 			Audio.play_sound(attack_sound, Audio.Channels.SFX)
+			
+	# Start fallback timer to spawn projectile if animation event fails
+	if not _fallback_projectile_timer:
+		_setup_fallback_timer()
+	_fallback_projectile_timer.start(attack_duration * 0.5)  # Spawn at 50% of attack duration
 
 
 func get_attack_range() -> float:
@@ -100,21 +110,38 @@ func _connect_animation_controller() -> void:
 		_animation_controller = enemy.get_node_or_null("AnimationController")
 		if _animation_controller:
 			_animation_controller.hit_frame.connect(_on_hit_frame)
+			print("RangedAttackBehaviour: Connected to AnimationController hit_frame signal")
 		else:
 			push_warning("RangedAttackBehaviour: No AnimationController found on enemy")
+	print("RangedAttackBehaviour: Animation controller setup completed")
+
+
+func _setup_fallback_timer() -> void:
+	_fallback_projectile_timer = Timer.new()
+	_fallback_projectile_timer.one_shot = true
+	_fallback_projectile_timer.timeout.connect(_on_fallback_projectile)
+	add_child(_fallback_projectile_timer)
+
+
+func _on_fallback_projectile() -> void:
+	print("RangedAttackBehaviour: Fallback timer triggering projectile spawn")
+	_spawn_projectile()
 
 
 func _on_hit_frame() -> void:
 	# Spawn projectile when hit frame occurs during attack animation
+	print("RangedAttackBehaviour: Hit frame received from animation")
 	_spawn_projectile()
 
 
 func _spawn_projectile() -> void:
 	if not _current_target or not is_instance_valid(_current_target):
+		print("RangedAttackBehaviour: No valid target for projectile spawn")
 		return
 	
 	var enemy = get_parent()
 	if not enemy:
+		print("RangedAttackBehaviour: No enemy parent found")
 		return
 	
 	if not projectile_scene:
@@ -138,5 +165,28 @@ func _spawn_projectile() -> void:
 	projectile.initialize(direction, enemy, damage)
 	projectile.speed = projectile_speed
 	
-	# Clear target reference
+	print("RangedAttackBehaviour: Projectile spawned against ", _current_target.name)
+	
+	# Stop fallback timer and clear target to prevent double spawn
+	if _fallback_projectile_timer:
+		_fallback_projectile_timer.stop()
 	_current_target = null
+
+
+## Make enemy face the target when attacking
+func _face_target(enemy: Node3D, target: Node3D) -> void:
+	if not enemy or not target:
+		return
+		
+	# Calculate direction from enemy to target (only on horizontal plane)
+	var enemy_pos = enemy.global_position
+	var target_pos = target.global_position
+	
+	# Use only X and Z coordinates for horizontal rotation
+	var direction = Vector3(target_pos.x - enemy_pos.x, 0, target_pos.z - enemy_pos.z).normalized()
+	
+	if direction.length() > 0.01:  # Avoid rotation with zero vector
+		# Calculate the rotation to face the target
+		var target_rotation = atan2(direction.x, direction.z)
+		# Add 180° rotation to compensate for model being rotated in scene
+		enemy.rotation.y = target_rotation + PI

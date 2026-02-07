@@ -1,6 +1,6 @@
 [gd_scene format=4 uid="uid://6uq32mh8mksx"]
 
-[ext_resource type="PackedScene" uid="uid://cmyrlatviwmef" path="res://resources/models/weapons/SM_Wep_Mace_02.fbx" id="1_w1od3"]
+[ext_resource type="PackedScene" uid="uid://boqggnwldxxr" path="res://resources/models/weapon_mace/mace.fbx" id="1_qrkd0"]
 [ext_resource type="Script" uid="uid://d3ujs8125ule" path="res://scripts/items/pickupable_behaviour.gd" id="2_lkva1"]
 [ext_resource type="Script" uid="uid://gq8jkdjg8anv" path="res://scripts/items/throwable_behaviour.gd" id="3_qrkd0"]
 [ext_resource type="Script" uid="uid://6ngjp570ak3h" path="res://scripts/items/spawnable_behaviour.gd" id="4_eoyvg"]
@@ -23,7 +23,8 @@ data = PackedByteArray("SUQzBAAAAAAAI1RTU0UAAAAPAAADTGF2ZjU5LjE2LjEwMAAAAAAAAAAA
 collision_layer = 20
 collision_mask = 25
 
-[node name="SM_Wep_Mace_02" parent="." unique_id=722907236 instance=ExtResource("1_w1od3")]
+[node name="mace" parent="." unique_id=2002988250 instance=ExtResource("1_qrkd0")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.25713572, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2040031631]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.33379635, 0)

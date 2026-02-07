@@ -85,6 +85,22 @@ func _setup_animation_tree() -> void:
 
 	_animation_tree.active = true
 
+	# Debug: Print available parameters
+	if debug_logging:
+		print("AnimationController: Available parameters:")
+		var test_params = [
+			"parameters/BlendSpace1D/blend_position",
+			"parameters/OneShot/request", 
+			"parameters/OneShot/active",
+			"parameters/Transition/transition_request",
+			"parameters/Transition/current_state",
+			"parameters/TimeScale/scale"
+		]
+		for param in test_params:
+			if _has_parameter(param):
+				var value = _animation_tree.get(param)
+				print("  ", param, " = ", value)
+
 	# Detect which mode to use based on AnimSet configuration
 	_use_state_machine = anim_set.use_condition_based_locomotion and anim_set.state_machine_path != ""
 	
@@ -174,8 +190,11 @@ func _update_condition_based_locomotion(speed: float) -> void:
 func _update_blend_space_locomotion(speed: float) -> void:
 	var blend_position = anim_set.get_blend_position(speed)
 
-	# Use the locomotion blend parameter for AnimationTree
+	# Use the locomotion blend parameter for AnimationTree - try both naming conventions
 	var locomotion_param = "parameters/Locomotion/blend_position"
+	if not _has_parameter(locomotion_param):
+		locomotion_param = "parameters/BlendSpace1D/blend_position"
+	
 	if _has_parameter(locomotion_param):
 		_animation_tree.set(locomotion_param, blend_position)
 
@@ -252,36 +271,64 @@ func _handle_blend_tree_action(action: StringName) -> void:
 	_apply_action_speed_multipliers(action)
 	
 	# Map actions to ActionSelect transitions and OneShot triggers
+	# Try both naming conventions for parameter paths
+	var action_select_param = "parameters/ActionSelect/transition_request"
+	var oneshot_param = "parameters/UpperBodyOneShot/request"
+	var fullbody_oneshot_param = "parameters/FullBodyOneShot/request"
+	
+	# Check for alternative naming conventions used in fish dwarf model
+	if not _has_parameter(action_select_param):
+		action_select_param = "parameters/Transition/transition_request"
+	if not _has_parameter(oneshot_param):
+		oneshot_param = "parameters/OneShot/request"
+	
 	match action:
 		&"attack":
-			_animation_tree.set("parameters/ActionSelect/transition_request", "MeleeAttack")
-			_animation_tree.set("parameters/UpperBodyOneShot/request", 1)
+			if _has_parameter(action_select_param):
+				_animation_tree.set(action_select_param, "Attack")
+			if _has_parameter(oneshot_param):
+				_animation_tree.set(oneshot_param, 1)
 			if debug_logging:
-				print("AnimationController: Triggered MeleeAttack via UpperBodyOneShot")
+				print("AnimationController: Triggered Attack via OneShot")
 		
 		&"ranged_attack":
-			_animation_tree.set("parameters/ActionSelect/transition_request", "RangedAttack")
-			_animation_tree.set("parameters/UpperBodyOneShot/request", 1)
+			if _has_parameter(action_select_param):
+				_animation_tree.set(action_select_param, "RangedAttack")
+			if _has_parameter(oneshot_param):
+				_animation_tree.set(oneshot_param, 1)
 			if debug_logging:
-				print("AnimationController: Triggered RangedAttack via UpperBodyOneShot")
+				print("AnimationController: Triggered RangedAttack via OneShot")
 		
 		&"hit":
-			_animation_tree.set("parameters/ActionSelect/transition_request", "Hit")
-			_animation_tree.set("parameters/UpperBodyOneShot/request", 1)
+			if _has_parameter(action_select_param):
+				_animation_tree.set(action_select_param, "Hit")
+			if _has_parameter(oneshot_param):
+				_animation_tree.set(oneshot_param, 1)
 			if debug_logging:
-				print("AnimationController: Triggered Hit via UpperBodyOneShot")
+				print("AnimationController: Triggered Hit via OneShot")
 		
 		&"throw":
-			_animation_tree.set("parameters/ActionSelect/transition_request", "Throw")
-			_animation_tree.set("parameters/UpperBodyOneShot/request", 1)
+			if _has_parameter(action_select_param):
+				_animation_tree.set(action_select_param, "Throw")
+			if _has_parameter(oneshot_param):
+				_animation_tree.set(oneshot_param, 1)
 			if debug_logging:
-				print("AnimationController: Triggered Throw via UpperBodyOneShot")
+				print("AnimationController: Triggered Throw via OneShot")
 		
 		&"dash":
 			# Dash uses FullBodyOneShot since it affects the whole body
-			_animation_tree.set("parameters/FullBodyOneShot/request", 1)
+			if _has_parameter(fullbody_oneshot_param):
+				_animation_tree.set(fullbody_oneshot_param, 1)
 			if debug_logging:
 				print("AnimationController: Triggered Dash via FullBodyOneShot")
+		
+		&"death":
+			if _has_parameter(action_select_param):
+				_animation_tree.set(action_select_param, "Death")
+			if _has_parameter(oneshot_param):
+				_animation_tree.set(oneshot_param, 1)
+			if debug_logging:
+				print("AnimationController: Triggered Death via OneShot")
 		
 		_:
 			push_warning("AnimationController: No BlendTree mapping for action: ", action)
@@ -361,10 +408,14 @@ func _close_attack_window() -> void:
 # -- Animation event callbacks (called via AnimationPlayer method tracks) --
 
 func _anim_hit_frame() -> void:
+	print("AnimationController: _anim_hit_frame() called")
 	if not _hit_frame_triggered:
 		_hit_frame_triggered = true
 		hit_frame.emit()
+		print("AnimationController: hit_frame signal emitted")
 		animation_event.emit("hit_frame", {"attack_state": _last_action_state})
+	else:
+		print("AnimationController: hit_frame already triggered for this animation")
 
 func _anim_footstep() -> void:
 	footstep.emit()
@@ -397,9 +448,31 @@ func get_current_state() -> String:
 		return _state_machine.get_current_node()
 	else:
 		# BlendTree mode: Check OneShot activity and ActionSelect state
-		var upper_active = _animation_tree.get("parameters/UpperBodyOneShot/active")
-		var full_active = _animation_tree.get("parameters/FullBodyOneShot/active")
-		var action_state = _animation_tree.get("parameters/ActionSelect/current_state")
+		# Try both naming conventions
+		var upper_oneshot_param = "parameters/UpperBodyOneShot/active"
+		var oneshot_param = "parameters/OneShot/active"
+		var fullbody_oneshot_param = "parameters/FullBodyOneShot/active"
+		var action_select_param = "parameters/ActionSelect/current_state"
+		var transition_param = "parameters/Transition/current_state"
+		
+		var upper_active = false
+		var full_active = false
+		var action_state = ""
+		
+		# Check for OneShot activity with fallback naming
+		if _has_parameter(upper_oneshot_param):
+			upper_active = _animation_tree.get(upper_oneshot_param)
+		elif _has_parameter(oneshot_param):
+			upper_active = _animation_tree.get(oneshot_param)
+		
+		if _has_parameter(fullbody_oneshot_param):
+			full_active = _animation_tree.get(fullbody_oneshot_param)
+		
+		# Check for action state with fallback naming
+		if _has_parameter(action_select_param):
+			action_state = _animation_tree.get(action_select_param)
+		elif _has_parameter(transition_param):
+			action_state = _animation_tree.get(transition_param)
 		
 		if full_active:
 			return "FullBodyAction"
@@ -454,6 +527,8 @@ func force_travel_to_state(state_name: StringName) -> void:
 				request_action(&"throw")
 			&"Dash":
 				request_action(&"dash")
+			&"Death":
+				request_action(&"death")
 			&"Locomotion", &"Idle":
 				# Reset to locomotion by clearing oneshots
 				if _animation_tree:

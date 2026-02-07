@@ -14,9 +14,10 @@ class_name MeleeAttackBehaviour
 @export var attack_sound_delay: float = 0.0  # Delay before playing attack sound
 
 var _cooldown_timer: Timer
-var _damage_timer: Timer
 var _current_target: Node3D  # Store target for delayed damage
 var _range_indicator: MeshInstance3D  # Visual range indicator
+var _animation_controller: AnimationController
+var _fallback_damage_timer: Timer  # Fallback for when animation events don't work
 
 
 func _ready() -> void:
@@ -24,13 +25,17 @@ func _ready() -> void:
 	_cooldown_timer.one_shot = true
 	add_child(_cooldown_timer)
 	
-	_damage_timer = Timer.new()
-	_damage_timer.one_shot = true
-	_damage_timer.timeout.connect(_deal_damage)
-	add_child(_damage_timer)
+	# Fallback damage timer in case animation events don't work
+	_fallback_damage_timer = Timer.new()
+	_fallback_damage_timer.one_shot = true
+	_fallback_damage_timer.timeout.connect(_on_fallback_damage)
+	add_child(_fallback_damage_timer)
 	
 	if show_range_indicator:
 		_create_range_indicator()
+	
+	# Connect to parent enemy's animation controller hit_frame signal
+	call_deferred("_connect_animation_controller")
 
 
 func _create_range_indicator() -> void:
@@ -137,16 +142,20 @@ func execute_attack(enemy: Node3D, target: Node3D) -> void:
 
 	# Store target for delayed damage
 	_current_target = target
+	print("MeleeAttackBehaviour: Stored target for damage: ", target.name)
 
 	# Signal attack start for animation and set attack duration
 	if enemy.has_method("signal_start_attacking"):
 		enemy.signal_start_attacking()
+		print("MeleeAttackBehaviour: Signaled attack start")
 	
 	if enemy.has_method("set_attack_duration"):
 		enemy.set_attack_duration(attack_duration)
+		print("MeleeAttackBehaviour: Set attack duration: ", attack_duration)
 
-	# Deal damage at the end of attack animation (50% through to feel impactful)
-	_damage_timer.start(attack_duration * 0.5)
+	# Start fallback damage timer (50% through attack animation)
+	_fallback_damage_timer.start(attack_duration * 0.5)
+	print("MeleeAttackBehaviour: Started fallback damage timer for: ", attack_duration * 0.5, " seconds")
 
 	# Play attack sound
 	if attack_sound:
@@ -160,26 +169,64 @@ func _deal_damage() -> void:
 	# Hide range indicator when damage is dealt
 	if _range_indicator:
 		_range_indicator.visible = false
-		
+	
+	print("MeleeAttackBehaviour: _deal_damage() called")
+	
 	# Check if target is still valid and in attack arc when damage should be dealt
 	if not _current_target or not is_instance_valid(_current_target):
+		print("MeleeAttackBehaviour: No valid target for damage")
 		return
 		
 	var enemy = get_parent()
 	if not enemy:
+		print("MeleeAttackBehaviour: No enemy parent found")
 		return
 		
+	print("MeleeAttackBehaviour: Target valid: ", _current_target.name, " Enemy: ", enemy.name)
+	
 	# Verify target is still in attack arc when damage is dealt
 	if not _is_target_in_attack_arc(enemy, _current_target):
+		print("MeleeAttackBehaviour: Target escaped attack arc")
 		return  # Target escaped, no damage
+	
+	print("MeleeAttackBehaviour: Applying ", damage, " damage to ", _current_target.name)
 	
 	# Apply damage
 	if _current_target.has_method("take_damage"):
 		_current_target.take_damage(damage, enemy)
+		print("MeleeAttackBehaviour: Damage applied successfully")
 	else:
-		push_warning("Target does not have take_damage() method")
+		print("MeleeAttackBehaviour: Target does not have take_damage() method")
 	
+	# Stop fallback timer and clear target to prevent double damage
+	_fallback_damage_timer.stop()
 	_current_target = null  # Clear reference
+
+
+func _connect_animation_controller() -> void:
+	# Find AnimationController in parent enemy
+	var enemy = get_parent()
+	if enemy:
+		_animation_controller = enemy.get_node_or_null("AnimationController")
+		if _animation_controller:
+			_animation_controller.hit_frame.connect(_on_hit_frame)
+			print("MeleeAttackBehaviour: Connected to AnimationController hit_frame signal")
+		else:
+			push_warning("MeleeAttackBehaviour: No AnimationController found on enemy")
+
+
+func _on_hit_frame() -> void:
+	# Deal damage when hit frame occurs during attack animation
+	print("MeleeAttackBehaviour: Hit frame received, dealing damage")
+	# Cancel fallback timer since we got the proper hit frame
+	_fallback_damage_timer.stop()
+	_deal_damage()
+
+
+func _on_fallback_damage() -> void:
+	# Fallback damage trigger in case animation events don't work
+	print("MeleeAttackBehaviour: Fallback damage timer triggered")
+	_deal_damage()
 
 
 func get_attack_range() -> float:

@@ -1,0 +1,57 @@
+[gd_scene format=3 uid="uid://dadma7kxpjonu"]
+
+[ext_resource type="PackedScene" path="res://scenes/effects/audio/PlaySoundOnThrowLandedEffect.tscn" id="1_oxwtr"]
+[ext_resource type="AudioStream" uid="uid://cu5dn0idjnbok" path="res://resources/sounds/shaky-fall-sound.mp3" id="2_twkoj"]
+[ext_resource type="PackedScene" uid="uid://cgxt803p36ck1" path="res://resources/models/weapon crossbows/double_crossbow.fbx" id="3_h76a0"]
+[ext_resource type="Script" uid="uid://d3ujs8125ule" path="res://scripts/items/pickupable_behaviour.gd" id="4_a3hs0"]
+[ext_resource type="Script" uid="uid://gq8jkdjg8anv" path="res://scripts/items/throwable_behaviour.gd" id="5_yyrfe"]
+[ext_resource type="Script" uid="uid://6ngjp570ak3h" path="res://scripts/items/spawnable_behaviour.gd" id="6_pivdq"]
+[ext_resource type="Script" uid="uid://beyljglh35ds6" path="res://scripts/items/ranged_weapon_behaviour.gd" id="7_ldae7"]
+[ext_resource type="PackedScene" uid="uid://bkg6g3wr03ipu" path="res://scenes/items/PlayerArrowProjectile.tscn" id="8_eg2dm"]
+[ext_resource type="AudioStream" uid="uid://hikvhd4ib5yo" path="res://resources/sounds/bow-shot.mp3" id="9_ft0aa"]
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_qofw2"]
+size = Vector3(1.3329859, 0.3834961, 0.98578066)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_0ou0u"]
+size = Vector3(1.5756797, 0.63, 0.986)
+
+[node name="DoubleCrossbow" type="RigidBody3D" unique_id=183633123]
+collision_layer = 20
+collision_mask = 25
+
+[node name="PlaySoundOnThrowLandedEffect" parent="." unique_id=91483252 instance=ExtResource("1_oxwtr")]
+sound = ExtResource("2_twkoj")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2040031631]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.13362546, 0.14862648, -0.034889847)
+shape = SubResource("BoxShape3D_qofw2")
+
+[node name="double_crossbow" parent="." unique_id=1456765409 instance=ExtResource("3_h76a0")]
+transform = Transform3D(0.8, 0, 0, 0, 0.8, 0, 0, 0, 0.8, 0, 0, 0)
+
+[node name="PickupableBehaviour" type="Area3D" parent="." unique_id=941140339]
+collision_layer = 0
+script = ExtResource("4_a3hs0")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="PickupableBehaviour" unique_id=1357684458]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.117830336, 0.1845612, -0.02255249)
+shape = SubResource("BoxShape3D_0ou0u")
+
+[node name="ThrowableBehaviour" type="Node" parent="." unique_id=1666972087]
+script = ExtResource("5_yyrfe")
+
+[node name="SpawnableBehaviour" type="Node" parent="." unique_id=1230224406]
+script = ExtResource("6_pivdq")
+categories = Array[int]([0, 10, 20, 24])
+
+[node name="RangedWeaponBehaviour" type="Node" parent="." unique_id=295059903]
+script = ExtResource("7_ldae7")
+projectile_scene = ExtResource("8_eg2dm")
+projectile_speed = 30.0
+ammo_count = 8
+max_ammo = 8
+spread = 10.0
+attack_sound = ExtResource("9_ft0aa")
+max_durability = 12
+damage = 2.0

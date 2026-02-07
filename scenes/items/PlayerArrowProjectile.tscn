@@ -1,7 +1,7 @@
 [gd_scene format=3 uid="uid://bkg6g3wr03ipu"]
 
 [ext_resource type="Script" uid="uid://c4g7w8sm2q30t" path="res://scripts/items/projectile.gd" id="1_2uyj7"]
-[ext_resource type="PackedScene" uid="uid://bhjtlhhuw6866" path="res://resources/models/weapons/SM_Arrow_01.fbx" id="2_7o32b"]
+[ext_resource type="PackedScene" uid="uid://dtpt617qpw4n6" path="res://resources/models/weapon crossbows/arrow.fbx" id="2_7o32b"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_7o32b"]
 radius = 0.2
@@ -16,4 +16,5 @@ script = ExtResource("1_2uyj7")
 transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0, 0)
 shape = SubResource("CapsuleShape3D_7o32b")
 
-[node name="SM_Arrow_01" parent="." unique_id=1694713645 instance=ExtResource("2_7o32b")]
+[node name="arrow" parent="." unique_id=79067111 instance=ExtResource("2_7o32b")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, 0.16500854)

@@ -1,5 +1,6 @@
 [gd_scene format=3 uid="uid://utnwc3mvxodu"]
 
+[ext_resource type="PackedScene" uid="uid://cp5ljwrhxtnir" path="res://scenes/items/PotionModel.tscn" id="1_nq2bp"]
 [ext_resource type="Script" uid="uid://d3ujs8125ule" path="res://scripts/items/pickupable_behaviour.gd" id="1_pickup"]
 [ext_resource type="Script" uid="uid://gq8jkdjg8anv" path="res://scripts/items/throwable_behaviour.gd" id="2_throw"]
 [ext_resource type="Script" uid="uid://6ngjp570ak3h" path="res://scripts/items/spawnable_behaviour.gd" id="3_spawnable"]
@@ -13,16 +14,6 @@
 [sub_resource type="SphereShape3D" id="SphereShape3D_flask"]
 radius = 0.3
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_flask"]
-albedo_color = Color(0.1, 0.1, 0.1, 1)
-metallic = 0.2
-roughness = 0.8
-
-[sub_resource type="SphereMesh" id="SphereMesh_flask"]
-material = SubResource("StandardMaterial3D_flask")
-radius = 0.3
-height = 0.6
-
 [sub_resource type="SphereShape3D" id="SphereShape3D_pickup_area"]
 radius = 0.45
 
@@ -32,11 +23,11 @@ collision_mask = 29
 contact_monitor = true
 max_contacts_reported = 4
 
+[node name="potion2" parent="." unique_id=1723275874 instance=ExtResource("1_nq2bp")]
+transform = Transform3D(1.5, 0, 0, 0, 1.5, 0, 0, 0, 1.5, 0, -0.22949016, 0)
+
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=538092638]
 shape = SubResource("SphereShape3D_flask")
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=53449708]
-mesh = SubResource("SphereMesh_flask")
 
 [node name="PickupableBehaviour" type="Area3D" parent="." unique_id=2081393947]
 collision_layer = 0
@@ -50,7 +41,6 @@ script = ExtResource("2_throw")
 throw_force = 8.0
 throw_up_bias = 0.3
 throw_durability_cost = 1.0
-throw_collision_damage = 1.0
 
 [node name="SpawnableBehaviour" type="Node" parent="." unique_id=2143683177]
 script = ExtResource("3_spawnable")

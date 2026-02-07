@@ -17,7 +17,7 @@ script = ExtResource("1_enemy")
 enemy_name = "ranged"
 max_health = 2.0
 
-[node name="seahorse_spit" parent="." unique_id=136253906 instance=ExtResource("2_fscic")]
+[node name="RangedEnemyModel" parent="." unique_id=136253906 instance=ExtResource("2_fscic")]
 transform = Transform3D(-1, 0, 8.742278e-08, 0, 1, 0, -8.742278e-08, 0, -1, 0, 0, 0)
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1514203427]

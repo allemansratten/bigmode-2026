@@ -4,16 +4,13 @@
 
 [resource]
 script = ExtResource("1_1")
-animation_tree_path = NodePath("")
 walk_to_run_speed = 2.0
 max_movement_speed = 3.5
-locomotion_blend_path = ""
-use_condition_based_locomotion = true
-state_locomotion = &"Idle"
+state_locomotion = &""
 action_states = Dictionary[String, String]({
-"attack": "Attack",
+"attack": "MeleeAttack",
 "death": "Death",
-"hit": "OnHit"
+"hit": "Hit"
 })
 signal_actions = Dictionary[String, String]({
 "started_attacking": "attack",

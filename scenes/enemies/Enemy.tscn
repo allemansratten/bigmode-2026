@@ -46,3 +46,4 @@ attack_sound_delay = 0.8
 [node name="AnimationController" type="Node" parent="." unique_id=1216668635]
 script = ExtResource("6_vtlqb")
 anim_set = ExtResource("7_anim")
+debug_logging = true
