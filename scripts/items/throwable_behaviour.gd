@@ -14,7 +14,7 @@ const PickupableBehaviourScript := preload("res://scripts/items/pickupable_behav
 ## Durability damage when thrown item lands
 @export var throw_durability_cost: float = 2.0
 ## Damage dealt to enemies on collision when thrown
-@export var throw_collision_damage: float = 10.0
+@export var throw_collision_damage: float = 1.0
 
 signal thrown(direction: Vector3, force: float, from_crowd: bool)
 signal throw_landed(collision: KinematicCollision3D)

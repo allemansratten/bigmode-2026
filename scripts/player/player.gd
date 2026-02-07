@@ -13,7 +13,7 @@ const SelectionWheelClass = preload("res://scripts/ui/selection_wheel.gd")
 ## How quickly the character rotates to face movement direction (higher is faster)
 @export var facing_turn_speed: float = 30.0
 ## Player health
-@export var max_health: float = 100.0
+@export var max_health: float = 5.0
 ## Sound played when player takes damage
 @export var hit_sound: AudioStream
 ## Material to use when flashing from damage
@@ -334,7 +334,7 @@ func take_damage(amount: float, source: Node3D = null) -> void:
 	health_changed.emit(current_health, max_health)
 
 	# Emit to EventBus for upgrade triggers
-	EventBus.damage_taken.emit(self, amount, source)
+	EventBus.damage_taken.emit(self , amount, source)
 
 	# Increase crowd excitement when player takes damage (scales with damage)
 	var crowd_manager = get_tree().get_first_node_in_group("crowd_manager")

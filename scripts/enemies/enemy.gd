@@ -13,7 +13,7 @@ signal took_damage(amount: float)
 signal started_dying()
 
 @export var enemy_name: String = "" # Unique identifier for this enemy type
-@export var max_health: float = 100.0
+@export var max_health: float = 3.0
 @export var current_health: float = max_health
 @export var gravity: float = 9.8
 

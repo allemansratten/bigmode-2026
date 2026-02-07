@@ -6,8 +6,8 @@
 [ext_resource type="Script" uid="uid://6ngjp570ak3h" path="res://scripts/items/spawnable_behaviour.gd" id="4_jymr3"]
 [ext_resource type="Script" uid="uid://dg2m87we0c6c8" path="res://scripts/items/melee_weapon_behaviour.gd" id="5_vpvlp"]
 [ext_resource type="Script" uid="uid://c402h5pwrip2c" path="res://scripts/items/effects/audio/play_sound_on_throw_landed_effect.gd" id="6_hgrdn"]
-[ext_resource type="AudioStream" uid="uid://c6y7i8j9k0l1m" path="res://resources/sounds/melee_whoosh.tres" id="8_whoosh"]
 [ext_resource type="AudioStream" uid="uid://kpcguvd8m8sh" path="res://resources/sounds/sword-pack/170706__mooseranger__union-sword-clash-7.mp3" id="7_jymr3"]
+[ext_resource type="AudioStream" uid="uid://c6y7i8kak0l1m" path="res://resources/sounds/melee_whoosh.tres" id="8_whoosh"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_2n8v8"]
 radius = 0.1
@@ -40,7 +40,7 @@ shape = SubResource("CapsuleShape3D_dpbjg")
 [node name="ThrowableBehaviour" type="Node" parent="." unique_id=1666972087]
 script = ExtResource("3_hgrdn")
 throw_force = 15.0
-throw_collision_damage = 20.0
+throw_collision_damage = 2.0
 
 [node name="SpawnableBehaviour" type="Node" parent="." unique_id=1230224406]
 script = ExtResource("4_jymr3")
@@ -56,7 +56,7 @@ knockback_force = 8.0
 speed_multiplier_when_attacking = 0.7
 attack_sound = ExtResource("8_whoosh")
 max_durability = 12
-damage = 33.0
+damage = 1.0
 
 [node name="PlaySoundOnThrowLandedEffect" type="Node" parent="." unique_id=567727525]
 script = ExtResource("6_hgrdn")
