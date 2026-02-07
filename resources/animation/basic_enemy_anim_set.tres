@@ -1,25 +1,22 @@
-[gd_resource type="Resource" script_class="AnimSet" load_steps=2 format=3]
+[gd_resource type="Resource" script_class="AnimSet" format=3 uid="uid://bcnnww1e3e62g"]
 
-[ext_resource type="Script" path="res://scripts/animation/anim_set.gd" id="1_1"]
+[ext_resource type="Script" uid="uid://cfxegvmyw54dl" path="res://scripts/animation/anim_set.gd" id="1_1"]
 
 [resource]
 script = ExtResource("1_1")
-animation_tree_path = NodePath("FishDwarf/AnimationTree")
-idle_to_walk_speed = 0.5
+animation_tree_path = NodePath("")
 walk_to_run_speed = 2.0
 max_movement_speed = 3.5
 locomotion_blend_path = ""
-state_machine_path = "parameters/playback"
 use_condition_based_locomotion = true
 state_locomotion = &"Idle"
-action_states = {
+action_states = Dictionary[String, String]({
 "attack": "Attack",
-"hit": "OnHit",
-"death": "Death"
-}
-terminal_actions = PackedStringArray("death")
-signal_actions = {
+"death": "Death",
+"hit": "OnHit"
+})
+signal_actions = Dictionary[String, String]({
 "started_attacking": "attack",
-"took_damage": "hit",
-"started_dying": "death"
-}
+"started_dying": "death",
+"took_damage": "hit"
+})

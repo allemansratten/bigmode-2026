@@ -65,10 +65,22 @@ func _setup_animation_tree() -> void:
 		push_warning("AnimationController: No AnimSet configured")
 		return
 
-	# Use the animation tree path from AnimSet
-	_animation_tree = _character.get_node_or_null(anim_set.animation_tree_path)
+	# Try the configured path first (if not empty)
+	if anim_set.animation_tree_path != NodePath(""):
+		_animation_tree = _character.get_node_or_null(anim_set.animation_tree_path)
+		if debug_logging and not _animation_tree:
+			print("AnimationController: Configured path failed, searching for AnimationTree...")
+	
+	# If that fails or path is empty, search for AnimationTree in character hierarchy
 	if not _animation_tree:
-		push_warning("AnimationController: AnimationTree not found at path: ", anim_set.animation_tree_path)
+		_animation_tree = _find_animation_tree(_character)
+		if debug_logging and _animation_tree:
+			print("AnimationController: Found AnimationTree via search at: ", _character.get_path_to(_animation_tree))
+	
+	if not _animation_tree:
+		if anim_set.animation_tree_path != NodePath(""):
+			push_warning("AnimationController: AnimationTree not found at configured path: ", anim_set.animation_tree_path)
+		push_warning("AnimationController: No AnimationTree found in character hierarchy")
 		return
 
 	_animation_tree.active = true
@@ -560,6 +572,18 @@ func _apply_enemy_attack_speed() -> void:
 			print("AnimationController: TimeScale parameter not found!")
 
 # -- Helpers ---------------------------------------------------------------
+
+func _find_animation_tree(node: Node) -> AnimationTree:
+	# Search for AnimationTree in the node hierarchy
+	if node is AnimationTree:
+		return node as AnimationTree
+	
+	for child in node.get_children():
+		var result = _find_animation_tree(child)
+		if result:
+			return result
+	
+	return null
 
 func _has_parameter(param_path: String) -> bool:
 	if not _animation_tree:
