@@ -7,12 +7,14 @@ extends Node
 enum Room {
 	EXAMPLE_ROOM,
 	EXAMPLE_ROOM_2,
+	EXAMPLE_ROOM_3,
 }
 
 ## Mapping of room enum to scene path
 const ROOM_SCENES = {
 	Room.EXAMPLE_ROOM: "res://scenes/rooms/ExampleRoom.tscn",
 	Room.EXAMPLE_ROOM_2: "res://scenes/rooms/ExampleRoom2.tscn",
+	Room.EXAMPLE_ROOM_3: "res://scenes/rooms/ExampleRoom3.tscn",
 }
 
 ## Emitted when a room transition starts

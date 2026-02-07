@@ -1,0 +1,156 @@
+[gd_scene format=3 uid="uid://7yos8j3t2du1"]
+
+[ext_resource type="Script" uid="uid://bkgbdnr1wbg1w" path="res://scripts/rooms/room.gd" id="1_imbce"]
+[ext_resource type="PackedScene" path="res://scenes/RoomConnector.tscn" id="2_bvs8u"]
+[ext_resource type="Script" uid="uid://yhnq5bvgu0a" path="res://scripts/rooms/item_spawning_manager.gd" id="3_mi5w0"]
+[ext_resource type="PackedScene" path="res://scenes/ItemSpawnPoint.tscn" id="4_5827d"]
+[ext_resource type="PackedScene" path="res://scenes/ItemThrowTarget.tscn" id="5_m33lm"]
+[ext_resource type="PackedScene" path="res://scenes/crowd/CrowdManager.tscn" id="6_4ux1m"]
+[ext_resource type="PackedScene" path="res://scenes/crowd/PeopleSpawner.tscn" id="7_tw68t"]
+[ext_resource type="PackedScene" path="res://scenes/spawners/EnemySpawner.tscn" id="8_08sct"]
+[ext_resource type="PackedScene" uid="uid://crulcbxl0ww15" path="res://resources/models/arena/arena.fbx" id="9_bvs8u"]
+
+[sub_resource type="NavigationMesh" id="NavigationMesh_room"]
+vertices = PackedVector3Array(-11.75, 0.5, -11.75, -11.75, 0.5, 11.75, 11.75, 0.5, 11.75, 11.75, 0.5, -11.75)
+polygons = [PackedInt32Array(3, 2, 0), PackedInt32Array(0, 2, 1)]
+geometry_parsed_geometry_type = 1
+agent_height = 2.0
+agent_max_climb = 1.0
+filter_low_hanging_obstacles = true
+filter_ledge_spans = true
+filter_walkable_low_height_spans = true
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_floor"]
+size = Vector3(25, 1, 25)
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_floor"]
+albedo_color = Color(0.2, 0.22, 0.25, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_floor"]
+material = SubResource("StandardMaterial3D_floor")
+size = Vector3(25, 1, 25)
+
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_bvs8u"]
+height = 3.905
+radius = 15.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_bvs8u"]
+size = Vector3(15, 4, 1)
+
+[node name="ExampleRoom" type="Node3D" unique_id=779589000]
+script = ExtResource("1_imbce")
+
+[node name="NavigationRegion3D" type="NavigationRegion3D" parent="." unique_id=1196801133]
+navigation_mesh = SubResource("NavigationMesh_room")
+
+[node name="Floor" type="StaticBody3D" parent="NavigationRegion3D" unique_id=1080193025]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.5, 0)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="NavigationRegion3D/Floor" unique_id=2122926703]
+shape = SubResource("BoxShape3D_floor")
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="NavigationRegion3D/Floor" unique_id=487913498]
+mesh = SubResource("BoxMesh_floor")
+
+[node name="ConnectorNorth" parent="." unique_id=1373684951 instance=ExtResource("2_bvs8u")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, -11)
+target_room_id = 1
+connector_id = "north"
+spawn_facing_degrees = 180.0
+
+[node name="ItemSpawningManager" type="Node" parent="." unique_id=1081236601]
+script = ExtResource("3_mi5w0")
+allowed_categories = Array[int]([0])
+throw_force = 7.0
+arc_height = 3.0
+
+[node name="SpawnPointWest2" parent="ItemSpawningManager" unique_id=1565898411 instance=ExtResource("4_5827d")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -15.215, 5, -4.423)
+
+[node name="SpawnPointWest" parent="ItemSpawningManager" unique_id=1294596049 instance=ExtResource("4_5827d")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -16.543, 5, 0)
+
+[node name="SpawnPointWest1" parent="ItemSpawningManager" unique_id=1756023057 instance=ExtResource("4_5827d")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14.964, 5, 5.367)
+
+[node name="ThrowTarget1" parent="ItemSpawningManager" unique_id=1025928910 instance=ExtResource("5_m33lm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0.5, 0)
+
+[node name="ThrowTarget2" parent="ItemSpawningManager" unique_id=114624344 instance=ExtResource("5_m33lm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3, 0.5, 0)
+
+[node name="ThrowTarget3" parent="ItemSpawningManager" unique_id=777812535 instance=ExtResource("5_m33lm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -5, 0.5, 4)
+
+[node name="ThrowTarget4" parent="ItemSpawningManager" unique_id=303665432 instance=ExtResource("5_m33lm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0.5, -3)
+
+[node name="ThrowTarget5" parent="ItemSpawningManager" unique_id=602858523 instance=ExtResource("5_m33lm")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.5, 6)
+
+[node name="CrowdManager" parent="." unique_id=960782602 instance=ExtResource("6_4ux1m")]
+
+[node name="PeopleSpawnerWest" parent="CrowdManager" unique_id=1388655268 instance=ExtResource("7_tw68t")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 10, 0)
+spawn_area_size = Vector2(5.0183067, 18.764166)
+
+[node name="PeopleSpawnerNorth" parent="CrowdManager" unique_id=754786613 instance=ExtResource("7_tw68t")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 10, -14)
+spawn_area_size = Vector2(19.693493, 7.7934)
+
+[node name="EnemySpawner" parent="." unique_id=1229589690 instance=ExtResource("8_08sct")]
+spawn_area_size = Vector2(18, 18)
+
+[node name="SpawnNorth" type="Marker3D" parent="EnemySpawner" unique_id=845532282]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, -8)
+
+[node name="SpawnSouth" type="Marker3D" parent="EnemySpawner" unique_id=564006769]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 8)
+
+[node name="SpawnEast" type="Marker3D" parent="EnemySpawner" unique_id=603382463]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0.8, 0)
+
+[node name="SpawnWest" type="Marker3D" parent="EnemySpawner" unique_id=142756940]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -8, 0.8, 0)
+
+[node name="ArenaStaticBody3D" type="StaticBody3D" parent="." unique_id=27087057]
+
+[node name="arena" parent="ArenaStaticBody3D" unique_id=299302407 instance=ExtResource("9_bvs8u")]
+transform = Transform3D(0.55, 0, 0, 0, 0.55, 0, 0, 0, 0.55, 0.13, 0, 12.36)
+visible = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ArenaStaticBody3D" unique_id=1471077389]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -2, 0)
+shape = SubResource("CylinderShape3D_bvs8u")
+
+[node name="Wall1" type="CollisionShape3D" parent="ArenaStaticBody3D" unique_id=233367998]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, -12)
+shape = SubResource("BoxShape3D_bvs8u")
+
+[node name="Wall2" type="CollisionShape3D" parent="ArenaStaticBody3D" unique_id=2548115]
+transform = Transform3D(0.7071067, 0, -0.7071067, 0, 1, 0, 0.7071067, 0, 0.7071067, 9, 2, -9)
+shape = SubResource("BoxShape3D_bvs8u")
+
+[node name="Wall3" type="CollisionShape3D" parent="ArenaStaticBody3D" unique_id=1194491180]
+transform = Transform3D(-4.371139e-08, 0, -1, 0, 1, 0, 1, 0, -4.371139e-08, 12, 2, 0)
+shape = SubResource("BoxShape3D_bvs8u")
+
+[node name="Wall4" type="CollisionShape3D" parent="ArenaStaticBody3D" unique_id=1292271007]
+transform = Transform3D(-0.70710677, 0, -0.70710677, 0, 1, 0, 0.70710677, 0, -0.70710677, 8, 2, 8)
+shape = SubResource("BoxShape3D_bvs8u")
+
+[node name="Wall5" type="CollisionShape3D" parent="ArenaStaticBody3D" unique_id=985497292]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2, 12)
+shape = SubResource("BoxShape3D_bvs8u")
+
+[node name="Wall6" type="CollisionShape3D" parent="ArenaStaticBody3D" unique_id=6891900]
+transform = Transform3D(0.70710677, 0, -0.70710677, 0, 1, 0, 0.70710677, 0, 0.70710677, -9, 2, 9)
+shape = SubResource("BoxShape3D_bvs8u")
+
+[node name="Wall7" type="CollisionShape3D" parent="ArenaStaticBody3D" unique_id=680971992]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, -12, 2, 0)
+shape = SubResource("BoxShape3D_bvs8u")
+
+[node name="Wall8" type="CollisionShape3D" parent="ArenaStaticBody3D" unique_id=60726121]
+transform = Transform3D(0.70710677, 0, 0.70710677, 0, 1, 0, -0.70710677, 0, 0.70710677, -9, 2, -9)
+shape = SubResource("BoxShape3D_bvs8u")

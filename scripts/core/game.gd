@@ -13,6 +13,7 @@ var rooms_completed: int = 0
 var available_rooms: Array[SceneManager.Room] = [
 	SceneManager.Room.EXAMPLE_ROOM,
 	SceneManager.Room.EXAMPLE_ROOM_2,
+	SceneManager.Room.EXAMPLE_ROOM_3,
 ]
 
 
@@ -42,7 +43,7 @@ func _ready() -> void:
 	SceneManager.room_transition_completed.connect(_on_room_loaded)
 
 	# Initialize SceneManager with this node as the room container
-	SceneManager.setup(self)
+	SceneManager.setup(self )
 
 	# Reset upgrades for new run
 	UpgradeManager.reset_upgrades()
@@ -65,7 +66,7 @@ func _on_game_resumed() -> void:
 
 
 func _load_initial_room() -> void:
-	SceneManager.transition_to_room(SceneManager.Room.EXAMPLE_ROOM)
+	SceneManager.transition_to_room(SceneManager.Room.EXAMPLE_ROOM_3)
 
 
 ## Called when all waves in a room are cleared
@@ -171,7 +172,7 @@ func _on_room_loaded(room: Node3D) -> void:
 		player.global_position = Vector3(0, 0.5, 0)
 		print("Game: spawned player at room center pos=", player.global_position)
 
-	if room.name == "ExampleRoom":
+	if room.name == "ExampleRoom3":
 		_test_spawn_item()
 		_test_spawn_item()
 		_test_spawn_item()
