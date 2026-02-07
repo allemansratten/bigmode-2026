@@ -46,7 +46,8 @@ var _original_time_scale: float = 1.0
 
 # Get inventory from scene instead of creating it
 @onready var _inventory: PlayerInventoryClass = $PlayerInventory
-@onready var _mesh: MeshInstance3D = $MeshInstance3D
+var _meshes: Array[MeshInstance3D] = []
+@onready var hold_point: Node3D = $PlayerCharacter.find_child("HoldPoint")
 
 # Movement components
 var _dash_component: DashComponent = null
@@ -59,6 +60,7 @@ var _flash_timer: Timer = null
 func _ready() -> void:
 	add_to_group("player")
 	current_health = max_health
+	_cache_meshes($PlayerCharacter)
 	_cache_movement_components()
 	_setup_inventory_system()
 	_setup_damage_flash()
@@ -290,15 +292,23 @@ func _setup_damage_flash() -> void:
 	add_child(_flash_timer)
 
 
+func _cache_meshes(root: Node) -> void:
+	for child in root.get_children():
+		if child is MeshInstance3D:
+			_meshes.append(child)
+		_cache_meshes(child)
+
+
 func _trigger_damage_flash() -> void:
-	if _mesh and hit_flash_material:
-		_mesh.material_override = hit_flash_material
+	if _meshes.size() > 0 and hit_flash_material:
+		for mesh in _meshes:
+			mesh.material_override = hit_flash_material
 		_flash_timer.start(hit_flash_duration)
 
 
 func _on_flash_timer_timeout() -> void:
-	if _mesh:
-		_mesh.material_override = null
+	for mesh in _meshes:
+		mesh.material_override = null
 
 
 func _setup_inventory_system() -> void:

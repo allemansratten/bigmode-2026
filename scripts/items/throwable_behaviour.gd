@@ -113,9 +113,15 @@ func _execute_throw() -> void:
 	if not item is RigidBody3D:
 		return
 	var rb: RigidBody3D = item as RigidBody3D
-	var old_global_pos: Vector3 = rb.global_position
+	# Use holder's center position instead of item's current position,
+	# since the throw animation moves the hand and skews the origin.
+	var throw_origin: Vector3 = rb.global_position
+	if _pickupable:
+		var holder = _pickupable.get_holder()
+		if holder:
+			throw_origin = holder.global_position
 	item.reparent(_pending_throw_world_root)
-	rb.global_position = old_global_pos + Vector3(0, 1, 0) # Small vertical offset to avoid ground collision on spawn
+	rb.global_position = throw_origin + Vector3(0, 1, 0)
 	rb.freeze = false
 	if _pickupable:
 		_pickupable.clear_holder()

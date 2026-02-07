@@ -15,8 +15,11 @@ signal activated()  ## Emitted when item becomes active again in inventory
 @export var holder_attach_path: NodePath = ^"HoldPoint"
 
 var _holder: Node3D
+## The item's original rotation from its scene, restored on pickup.
+var _scene_rotation: Vector3
 
 func _ready() -> void:
+	_scene_rotation = get_parent().rotation
 	body_entered.connect(_on_body_entered)
 	body_exited.connect(_on_body_exited)
 	# So the player can find items by group and get the root item
@@ -44,13 +47,15 @@ func try_pick_up(by: Node3D) -> bool:
 	var rb: RigidBody3D = item as RigidBody3D
 	if _holder != null:
 		return false
-	var attach: Node3D = by.get_node_or_null(holder_attach_path) if holder_attach_path else by
+	var attach: Node3D = by.get("hold_point")
+	if attach == null:
+		attach = by.get_node_or_null(holder_attach_path) if holder_attach_path else by
 	if attach == null:
 		attach = by
 	# Reparent item under holder and freeze so it doesn't fall
 	item.reparent(attach)
 	item.position = Vector3.ZERO
-	item.rotation = Vector3.ZERO
+	item.rotation = _scene_rotation
 	rb.freeze = true
 	_set_item_collision(item, false)
 	_holder = by

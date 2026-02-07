@@ -120,7 +120,7 @@ func _execute_teleport() -> void:
 
 	# Get player mesh and hold point for visibility toggle
 	var player_mesh = _player.get_node_or_null("MeshInstance3D")
-	var hold_point = _player.get_node_or_null("HoldPoint")
+	var hold_point = _player.hold_point if _player.get("hold_point") else null
 
 	# Begin teleport - make invincible, hide player and held item, disable inputs
 	_player.is_invincible = true

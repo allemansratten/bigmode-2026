@@ -1,11 +1,11 @@
-[gd_scene format=3 uid="uid://cy23p060r5mga"]
+[gd_scene format=3 uid="uid://d3nu2vsrdhd2u"]
 
 [ext_resource type="PackedScene" uid="uid://cgw2wnbwvfec2" path="res://resources/models/weapons/Rigged_CrossBow_Testing.fbx" id="1_urg8l"]
 [ext_resource type="Script" uid="uid://d3ujs8125ule" path="res://scripts/items/pickupable_behaviour.gd" id="2_fal6r"]
 [ext_resource type="Script" uid="uid://gq8jkdjg8anv" path="res://scripts/items/throwable_behaviour.gd" id="3_5big4"]
 [ext_resource type="Script" uid="uid://6ngjp570ak3h" path="res://scripts/items/spawnable_behaviour.gd" id="4_s6wgo"]
 [ext_resource type="Script" uid="uid://beyljglh35ds6" path="res://scripts/items/ranged_weapon_behaviour.gd" id="5_86tfp"]
-[ext_resource type="PackedScene" uid="uid://bkg6g3wr03ipu" path="res://scenes/items/PlayerArrowProjectile.tscn" id="6_urg8l"]
+[ext_resource type="PackedScene" path="res://scenes/items/PlayerArrowProjectile.tscn" id="6_urg8l"]
 [ext_resource type="Script" uid="uid://c402h5pwrip2c" path="res://scripts/items/effects/audio/play_sound_on_throw_landed_effect.gd" id="7_5big4"]
 [ext_resource type="AudioStream" uid="uid://hikvhd4ib5yo" path="res://resources/sounds/bow-shot.mp3" id="7_s6wgo"]
 [ext_resource type="AudioStream" uid="uid://bi5wmk1s7a7q2" path="res://resources/sounds/sword-pack/170698__mooseranger__union-sword-clash-11.mp3" id="8_s6wgo"]
@@ -17,17 +17,19 @@ size = Vector3(0.6215601, 0.13752441, 0.7686914)
 size = Vector3(0.69509506, 0.19844055, 0.8345032)
 
 [node name="Crossbow" type="RigidBody3D" unique_id=183633123]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0, 0)
 collision_layer = 20
 collision_mask = 25
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=2040031631]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0048022866, -0.01166404, -0.29888183)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.004802303, -0.01166404, 0.07560617)
 shape = SubResource("BoxShape3D_qofw2")
 
 [node name="Rigged_CrossBow_Testing" parent="." unique_id=2005264930 instance=ExtResource("1_urg8l")]
-transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, 0, 0, 0.04024124)
+transform = Transform3D(0.7, 0, 0, 0, 0.7, 0, 0, 0, 0.7, -1.6369391e-08, 0, 0.41472924)
 
 [node name="PickupableBehaviour" type="Area3D" parent="." unique_id=941140339]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.6369388e-08, 0, 0.374488)
 collision_layer = 0
 script = ExtResource("2_fal6r")
 

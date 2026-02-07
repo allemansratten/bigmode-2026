@@ -16,6 +16,12 @@ signal excitement_changed(new_level: float)
 @export var min_throw_chance: float = 0.05 ## Chance at 0 excitement (5%)
 @export var max_throw_chance: float = 0.8 ## Chance at 100 excitement (80%)
 
+## Wave start weapon throws
+@export var wave_start_weapon_count: int = 2 ## Number of weapons to throw at wave start
+
+## Enemy spawn excitement
+@export var enemy_spawn_excitement_multiplier: float = 0.2 ## 20% of enemy threat level
+
 var _throw_timer: Timer
 var _decay_timer: Timer
 
@@ -62,6 +68,10 @@ func _ready() -> void:
 	_decay_timer.timeout.connect(_on_decay_timer_timeout)
 	add_child(_decay_timer)
 	_decay_timer.start()
+
+	# Connect to wave and enemy spawn events
+	EventBus.wave_started.connect(_on_wave_started)
+	EventBus.enemy_spawned.connect(_on_enemy_spawned)
 
 
 func _unhandled_input(event: InputEvent) -> void:
@@ -130,3 +140,17 @@ func _on_throw_timer_timeout() -> void:
 	if randf() < throw_chance:
 		# Request crowd throw via EventBus (empty array = use room defaults)
 		EventBus.crowd_throw_requested.emit([])
+
+
+func _on_wave_started(_wave_number: int) -> void:
+	"""Throw weapons at the start of each wave to ensure player has something to fight with"""
+	for i in range(wave_start_weapon_count):
+		# Request weapon throw with WEAPON category filter
+		EventBus.crowd_throw_requested.emit([ItemCategories.Category.WEAPON])
+
+
+func _on_enemy_spawned(enemy: Node3D) -> void:
+	"""Increase crowd excitement when an enemy spawns"""
+	var threat: float = enemy.get("threat_level") if enemy.get("threat_level") else 10.0
+	var excitement_increase := threat * enemy_spawn_excitement_multiplier
+	increase_excitement(excitement_increase)
