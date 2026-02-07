@@ -17,6 +17,7 @@ signal room_cleared()
 ## Wave configuration
 @export var total_waves: int = 3
 @export var auto_start_waves: bool = true # Start spawning on room transition
+@export var spawn_delay_seconds: float = 2.0 # Delay after room entry before enemies spawn
 
 ## Threat-based wave generation
 @export_group("Difficulty Scaling")
@@ -30,10 +31,17 @@ var _alive_enemies: int = 0
 var _current_wave: int = 0  # 0 = not started, 1-3 = active wave
 var _waves_active: bool = false
 var _rooms_completed: int = 0  # Track difficulty progression
+var _spawn_delay_timer: Timer
 
 
 func _ready():
 	_collect_spawn_points()
+
+	# Create spawn delay timer
+	_spawn_delay_timer = Timer.new()
+	_spawn_delay_timer.one_shot = true
+	_spawn_delay_timer.timeout.connect(_on_spawn_delay_timeout)
+	add_child(_spawn_delay_timer)
 
 	# Wait for room's navigation to be ready before spawning enemies
 	var room = _find_room()
@@ -68,7 +76,15 @@ func _on_navigation_ready() -> void:
 
 func _on_room_transition_completed(_room: Node3D) -> void:
 	if auto_start_waves:
-		start_waves()
+		if spawn_delay_seconds > 0:
+			print("EnemySpawner: Waiting %.1f seconds before spawning enemies..." % spawn_delay_seconds)
+			_spawn_delay_timer.start(spawn_delay_seconds)
+		else:
+			start_waves()
+
+
+func _on_spawn_delay_timeout() -> void:
+	start_waves()
 
 
 ## Start the wave-based combat sequence
