@@ -205,6 +205,9 @@ func _try_throw() -> void:
 	# Remove from inventory before throwing
 	_inventory.remove_item(_inventory.active_item_index)
 	
+	# Move item to player center before throwing
+	active_item.global_position = global_position
+
 	# Throw towards cursor position instead of facing direction
 	var throw_direction = _get_cursor_direction()
 	throwable.throw(throw_direction, get_tree().current_scene)

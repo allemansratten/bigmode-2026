@@ -39,11 +39,10 @@ func _attack() -> void:
         push_warning("RangedWeaponBehaviour: no projectile_scene set for ", item.name)
         return
 
-    # Get attack direction towards mouse cursor
-    var attack_origin = item.global_position
+    # Get attack direction towards mouse cursor from player's center (with height offset)
+    var player = item.get_tree().get_first_node_in_group("player")
+    var attack_origin = player.global_position + Vector3.UP * 1.0 if player else item.global_position
     var attack_direction = _get_mouse_direction(attack_origin)
-    
-    # Get spawn position using attack direction
     var spawn_position = attack_origin + attack_direction.normalized() * projectile_spawn_offset.length()
 
     if debug_projectiles:
