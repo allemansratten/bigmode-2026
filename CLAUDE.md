@@ -99,6 +99,22 @@ Room-based progression with runtime NavMesh baking:
 
 **Important**: Rooms use runtime NavMesh baking. Call `room.bake_navigation()` after spawning dynamic obstacles.
 
+### Animation System (Data-Driven)
+
+Add `AnimationController` node to any character, assign an `AnimSet` resource — no code changes needed per character.
+
+- `scripts/animation/animation_controller.gd` — Drives AnimationTree from character signals
+- `scripts/animation/anim_set.gd` — Resource with `Dictionary[String, String]` exports
+- `resources/animation/*.tres` — Per-character configs (`player_anim_set`, `basic_enemy_anim_set`)
+
+**Flow**: Character emits signal (e.g. `started_attacking`) → AnimSet maps to action (`"attack"`) → AnimSet maps to state machine node (`"Attack"`) → Controller calls `start()` on the state machine.
+
+**Key AnimSet fields**: `action_states` (action→state node), `signal_actions` (signal→action), `terminal_actions` (states that don't return to locomotion, e.g. death).
+
+**Locomotion**: BlendSpace1D for player (`locomotion_blend_path`), condition-based for enemies (`to_running`/`to_idle`).
+
+**Animation events**: AnimationPlayer Call Method tracks call `_anim_hit_frame()`, `_anim_footstep()`, `_anim_attack_window_open/close()` on the AnimationController. Melee weapons auto-connect to `hit_frame` on pickup. See `ANIMATION_EVENTS_SETUP.md`.
+
 ### Player Controller
 
 **Player** (`scripts/player/player.gd`) - CharacterBody3D with:
@@ -175,6 +191,7 @@ func _on_debug_command(cmd: String, args: PackedStringArray):
 ```
 scripts/
   autoloads/        # Global singletons (EventBus, Settings, Audio, ItemRegistry, etc.)
+  animation/        # AnimationController + AnimSet resource (data-driven animation system)
   player/           # Player controller
   enemies/          # Enemy AI and behavior strategies
   items/            # Item behavior components (Pickupable, Throwable, Weapon)
@@ -184,12 +201,16 @@ scripts/
   ui/               # UI components
   camera/           # Camera controllers
 
+resources/
+  animation/        # AnimSet .tres resources (player_anim_set, basic_enemy_anim_set, etc.)
+  models/           # Character models with AnimationPlayer + AnimationTree scenes
+
 scenes/
   Game.tscn         # Main game scene (entry point)
   RoomTest.tscn     # Test scene for individual rooms
-  Player.tscn       # Player character
+  Player.tscn       # Player character (has AnimationController child node)
   rooms/            # Room scenes (ExampleRoom, ExampleRoom2)
-  enemies/          # Enemy scenes (Enemy, RangedEnemy)
+  enemies/          # Enemy scenes (Enemy, RangedEnemy) — Enemy.tscn has AnimationController
   items/            # Item scenes (Brick, Crate) with behavior components
   spawners/         # Spawner scenes (EnemySpawner)
   globals/          # Autoload scenes (DebugConsole, SettingsManager, etc.)
@@ -213,9 +234,17 @@ Enemies require baked NavMeshes to move. The Room class auto-bakes on `_ready()`
 1. Duplicate `scenes/enemies/Enemy.tscn` or `scenes/enemies/RangedEnemy.tscn`
 2. Attach behavior nodes: `ChaseMovementBehaviour` or `RangedMovementBehaviour`, `MeleeAttackBehaviour` or `RangedAttackBehaviour`
 3. Configure exported variables (health, speed, damage, range)
-4. Add to room via EnemySpawner or place manually in scene
+4. **Set up animations** (see below)
+5. Add to room via EnemySpawner or place manually in scene
 
 See `ENEMY_SYSTEM_DESIGN.md` for full setup instructions.
+
+### Adding Animations to a New Character
+
+1. **Model scene**: Add `AnimationTree` with `AnimationNodeStateMachine` root. Add locomotion state (BlendSpace1D or Idle/Running) + action states (Attack, OnHit, Death, etc.). Action→locomotion transitions should use `switch_mode = AT_END`.
+2. **AnimSet resource**: Duplicate `resources/animation/basic_enemy_anim_set.tres`. Set `animation_tree_path`, fill `action_states` and `signal_actions` dictionaries, set `terminal_actions`.
+3. **Character scene**: Add `AnimationController` child node, assign the AnimSet. Enable `debug_logging` during development.
+4. **Character script**: Just emit the signals listed in `signal_actions` (e.g. `started_attacking`, `took_damage`). The controller handles the rest.
 
 ### Adding New Items
 
@@ -258,6 +287,8 @@ See `ROOMS_FEATURE_DESIGN.md` for detailed room system design.
 - **GAME_DESIGN_CONTEXT.md** - High-level vision, design pillars, core mechanics
 - **ENEMY_SYSTEM_DESIGN.md** - Enemy AI architecture, behavior system, setup guide
 - **ROOMS_FEATURE_DESIGN.md** - Room-based progression, spawn families, item categories
+- **ANIMATION_EVENTS_SETUP.md** - How to add hit frame / footstep / attack window events to animations
+- **ANIMATION_TEST_GUIDE.md** - Animation system testing checklist
 - **CODING_PATTERNS.md** - Established code patterns (Timer usage, etc.)
 - **SETTINGS_USAGE.md** - SettingsManager API and examples
 - **DEBUG_COMMANDS.md** - Debug console usage and command registration
@@ -298,6 +329,14 @@ Check this file for runtime warnings and errors (invalid UIDs, missing resources
 - Verify RangedWeaponBehaviour has `projectile_scene` assigned
 - Check projectile scene has collision shape and RigidBody3D
 - Ensure projectile uses correct collision layers/masks
+
+### Animations Not Working
+
+- Check `AnimationController` has an `AnimSet` assigned, and `animation_tree_path` matches the actual AnimationTree path
+- Check `action_states` node names match the AnimationTree state machine (case-sensitive)
+- Enable `debug_logging` on AnimationController for console diagnostics
+- Actions feel delayed? Check `xfade_time` on transitions. Controller uses `start()` (immediate) for actions, `travel()` only for returning to locomotion
+- Weapon hit frames not firing? AnimationPlayer needs a Call Method track targeting `../../AnimationController` with `_anim_hit_frame()`. See `ANIMATION_EVENTS_SETUP.md`
 
 ### Particle Effects Causing Frame Stutters
 

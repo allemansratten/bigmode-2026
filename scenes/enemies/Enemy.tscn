@@ -5,26 +5,18 @@
 [ext_resource type="Script" uid="uid://b681gmdscutqr" path="res://scripts/enemies/melee_attack_behaviour.gd" id="3_melee"]
 [ext_resource type="PackedScene" path="res://scenes/components/SurfaceDetector.tscn" id="4_73enu"]
 [ext_resource type="PackedScene" uid="uid://cm8vdnysrsclb" path="res://resources/models/fish_dwarf/fish_dwarf.tscn" id="5_7iym1"]
-[ext_resource type="Script" uid="uid://dewuehunkikwa" path="res://scripts/enemies/enemy_animation_controller.gd" id="6_vtlqb"]
+[ext_resource type="Script" uid="uid://dnidyro7a1r6q" path="res://scripts/animation/animation_controller.gd" id="6_vtlqb"]
+[ext_resource type="Resource" path="res://resources/animation/basic_enemy_anim_set.tres" id="7_anim"]
 [ext_resource type="AudioStream" uid="uid://vgqk6wjkf1lm" path="res://resources/sounds/whoosh-1.mp3" id="8_tboc4"]
 
 [sub_resource type="CylinderShape3D" id="CylinderShape3D_7iym1"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_enemy"]
-albedo_color = Color(0.8, 0.2, 0.1, 1)
-
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_enemy"]
-material = SubResource("StandardMaterial3D_enemy")
-radius = 0.4
-height = 1.6
 
 [node name="Enemy" type="CharacterBody3D" unique_id=385028795 node_paths=PackedStringArray("flash_mesh") groups=["enemy"]]
 collision_layer = 8
 collision_mask = 11
 script = ExtResource("1_enemy")
 enemy_name = "melee"
-max_health = 3.0
-flash_mesh = NodePath("MeshInstance3D")
+flash_mesh = NodePath("")
 
 [node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=1811606212]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
@@ -32,11 +24,6 @@ shape = SubResource("CylinderShape3D_7iym1")
 
 [node name="FishDwarf" parent="." unique_id=1541151384 instance=ExtResource("5_7iym1")]
 transform = Transform3D(-1, 0, -8.742278e-08, 0, 1, 0, 8.742278e-08, 0, -1, 0.0053361654, 0, 0)
-
-[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1738620865]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.8, 0)
-visible = false
-mesh = SubResource("CapsuleMesh_enemy")
 
 [node name="NavigationAgent3D" type="NavigationAgent3D" parent="." unique_id=1953809606]
 path_desired_distance = 0.5
@@ -57,5 +44,6 @@ attack_sound_delay = 0.8
 
 [node name="SurfaceDetector" parent="." unique_id=1104993392 instance=ExtResource("4_73enu")]
 
-[node name="EnemyAnimationController" type="Node" parent="." unique_id=1216668635]
+[node name="AnimationController" type="Node" parent="." unique_id=1216668635]
 script = ExtResource("6_vtlqb")
+anim_set = ExtResource("7_anim")

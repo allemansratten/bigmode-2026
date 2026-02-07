@@ -3,13 +3,13 @@
 importer="scene"
 importer_version=1
 type="PackedScene"
-uid="uid://b4f2nvy5vrdsn"
-path="res://.godot/imported/Throw Object.fbx-10d5000526d40b3579c63a59306f3ed8.scn"
+uid="uid://cfokhaavbotdu"
+path="res://.godot/imported/Shooting.fbx-5c6623f6cb66cde54a6285f459e9df00.scn"
 
 [deps]
 
-source_file="res://resources/models/wizard/Throw Object.fbx"
-dest_files=["res://.godot/imported/Throw Object.fbx-10d5000526d40b3579c63a59306f3ed8.scn"]
+source_file="res://resources/models/fish_dwarf/Shooting.fbx"
+dest_files=["res://.godot/imported/Shooting.fbx-5c6623f6cb66cde54a6285f459e9df00.scn"]
 
 [params]
 
@@ -41,9 +41,9 @@ _subresources={
 "animations": {
 "mixamo_com": {
 "save_to_file/enabled": true,
-"save_to_file/fallback_path": "res://resources/models/wizard/Throw.res",
+"save_to_file/fallback_path": "res://resources/models/fish_dwarf/RangedAttack.res",
 "save_to_file/keep_custom_tracks": "",
-"save_to_file/path": "uid://cuswcl4fs2g6c",
+"save_to_file/path": "uid://o4xyqcmkfgom",
 "settings/loop_mode": 0,
 "slice_1/end_frame": 0,
 "slice_1/loop_mode": 0,

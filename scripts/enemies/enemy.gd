@@ -56,6 +56,9 @@ var is_stunned: bool = false
 # Movement state (public so attack behaviors can check it)
 var is_moving: bool = false
 
+# Attack timing
+var _current_attack_duration: float = 0.0
+
 # Timers
 var _attack_timer: Timer
 var _stun_timer: Timer
@@ -230,7 +233,12 @@ func signal_start_attacking() -> void:
 
 ## Set attack duration (called by attack behaviors)
 func set_attack_duration(duration: float) -> void:
+	_current_attack_duration = duration
 	_attack_timer.start(duration)
+
+## Get current attack duration (used by animation controller)
+func get_attack_duration() -> float:
+	return _current_attack_duration
 
 
 ## Timer callbacks
@@ -258,3 +266,6 @@ func _trigger_damage_flash() -> void:
 func _on_flash_timer_timeout() -> void:
 	if flash_mesh:
 		flash_mesh.material_override = null
+## Get current movement speed for animation blending
+func get_movement_speed() -> float:
+	return Vector2(velocity.x, velocity.z).length()

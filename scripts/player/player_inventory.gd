@@ -90,6 +90,10 @@ func set_active_item(slot: int) -> void:
 		_activate_current_item()
 		active_item_changed.emit(items[slot], slot)
 	else:
+		# No active item - reset animation speed
+		var anim_controller = player.get_node_or_null("AnimationController")
+		if anim_controller:
+			anim_controller.reset_attack_animation_speed()
 		active_item_changed.emit(null, -1)
 
 
@@ -184,6 +188,36 @@ func _cache_weapon_behaviours(item: Node3D) -> void:
 		if child is WeaponBehaviour:
 			_active_weapon = child as WeaponBehaviour
 			break # Only one weapon per item
+	
+	# Update animation controller with new weapon speed
+	if _active_weapon and _active_weapon is MeleeWeaponBehaviour:
+		_sync_animation_speed()
+
+
+## Private: Sync animation controller speed with current weapon
+func _sync_animation_speed() -> void:
+	var anim_controller = player.get_node_or_null("AnimationController")
+	if not anim_controller:
+		return
+	
+	if _active_weapon and _active_weapon is MeleeWeaponBehaviour:
+		var melee_weapon = _active_weapon as MeleeWeaponBehaviour
+		
+		# Calculate weapon attack window duration
+		var weapon_attack_duration = melee_weapon.stab_end_time - melee_weapon.stab_start_time
+		
+		# Assume base animation has attack window of 0.6 seconds (from open to close event)
+		# This should ideally be read from the actual animation timing
+		var base_attack_window_duration = 0.6
+		
+		# Calculate speed multiplier so attack window matches weapon timing
+		var speed_multiplier = base_attack_window_duration / weapon_attack_duration
+		
+		anim_controller.set_attack_animation_speed(speed_multiplier)
+		print("PlayerInventory: Updated animation speed for %s - weapon attack duration: %fs, speed: %fx" % [_active_weapon.item.name, weapon_attack_duration, speed_multiplier])
+	else:
+		# No melee weapon active, reset to default speed
+		anim_controller.reset_attack_animation_speed()
 
 
 ## Drop active item into the world
